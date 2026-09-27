@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MONO / HOME · 通用传送中心交互原型</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+    :root { --ink:#e8f2ec; --muted:#8ca49a; --fog:#496259; --bg:#071311; --panel:#0d201b; --card:#102923; --line:#2a5144; --acid:#d8ff61; --mint:#75dbc5; --warn:#ffc972; --danger:#ff8a7e; --shadow:0 22px 70px #000b; }
+    * { box-sizing:border-box; } body { margin:0; min-height:100vh; color:var(--ink); font-family:'Noto Sans SC',sans-serif; background:radial-gradient(circle at 88% -4%,#34645055,transparent 32%),radial-gradient(circle at 1% 100%,#16463d66,transparent 35%),var(--bg); }
+    button { font:inherit; cursor:pointer; } .mono { font-family:'DM Mono',monospace; }
+    .shell { min-height:100vh; display:grid; grid-template-columns:222px minmax(0,1fr); }
+    aside { padding:28px 17px; border-right:1px solid var(--line); background:#091914df; display:flex; flex-direction:column; gap:28px; }
+    .brand { display:flex; gap:10px; align-items:center; font-weight:700; letter-spacing:.16em; font-size:14px; } .orb { width:28px;height:28px;border:2px solid var(--acid);border-radius:50%;position:relative;background:linear-gradient(#e8f2ec 48%,#0d201b 48%); }.orb:before{content:'';position:absolute;left:-2px;right:-2px;top:12px;border-top:2px solid var(--acid)}.orb:after{content:'';position:absolute;width:7px;height:7px;top:8px;left:8px;border-radius:50%;border:2px solid var(--acid);background:var(--bg)}
+    nav { display:grid; gap:6px; } nav small { color:#587268; margin:8px 11px 2px; letter-spacing:.15em; font-size:9px; } nav button { border:1px solid transparent; border-radius:8px; padding:11px; text-align:left; background:transparent; color:var(--muted); font-size:13px; } nav button:hover,nav button.active { color:var(--ink); background:#17352c; border-color:#2c5648; } nav .count { float:right; font:10px 'DM Mono'; color:var(--acid); }
+    .foot { margin-top:auto; color:#5c776c; font:10px/1.7 'DM Mono'; }.foot i { color:var(--acid); font-style:normal; }
+    main { width:min(1380px,100%); margin:0 auto; padding:38px clamp(20px,5vw,74px) 92px; } .view { display:none; } .view.active { display:block; animation:enter .28s ease; } @keyframes enter { from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none} }
+    .top { display:flex; justify-content:space-between; gap:20px; align-items:start; margin-bottom:31px; }.eyebrow{font:10px 'DM Mono';letter-spacing:.18em;color:var(--acid)}h1{font-size:clamp(29px,4.3vw,52px);line-height:1.04;letter-spacing:-.06em;margin:9px 0 0}h1 em{font-style:normal;color:var(--acid)}.sub{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.65}.button{border:1px solid var(--line);background:#153128;color:var(--ink);border-radius:8px;padding:10px 13px;font-size:12px;transition:.15s}.button:hover{border-color:var(--mint);transform:translateY(-1px)}.button.primary{background:var(--acid);border-color:var(--acid);color:#102019;font-weight:700}.button.ghost{background:transparent}.button[disabled]{opacity:.46;cursor:not-allowed;transform:none}
+    .stats { display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:30px; }.stat{border:1px solid var(--line);border-radius:11px;background:linear-gradient(140deg,#153229,#0b1d18);padding:15px 17px}.stat b{display:block;font-size:27px;letter-spacing:-.05em}.stat span{font-size:11px;color:var(--muted)}
+    .section { margin-top:27px; }.section-head { display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:12px; }.section-head h2{font-size:18px;margin:0}.section-head p{font-size:11px;color:var(--muted);margin:3px 0 0}.hint{color:var(--muted);font-size:11px}
+    .save-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:11px; }.save-card{border:1px solid var(--line);border-radius:11px;background:#10241f;padding:14px;display:flex;gap:11px;align-items:center;cursor:pointer;transition:.15s}.save-card:hover,.save-card.selected{border-color:var(--acid);background:#153329}.save-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #315d50;border-radius:8px;background:#1a3d32;color:var(--acid);font-size:19px}.save-card b{font-size:13px}.save-card p{margin:3px 0 0;color:var(--muted);font:10px 'DM Mono'}.status{margin-left:auto;padding:4px 6px;border-radius:4px;background:#1d4337;color:var(--mint);font-size:9px;white-space:nowrap}.status.lock{background:#44361e;color:var(--warn)}
+    .flow { display:flex; align-items:center;gap:8px;border:1px solid var(--line);background:#0b1d18;padding:11px 12px;border-radius:9px;color:var(--muted);font-size:11px }.flow strong{color:var(--ink)}.flow .arrow{color:var(--acid);font:16px 'DM Mono'}
+    .monster-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:10px; }.monster{position:relative;min-height:155px;border:1px solid var(--line);border-radius:9px;background:linear-gradient(145deg,#112b25,#0b1d18);padding:12px;overflow:hidden;cursor:pointer;transition:.16s}.monster:hover{transform:translateY(-2px);border-color:var(--mint)}.monster.selected{outline:2px solid var(--acid);outline-offset:-2px;border-color:var(--acid)}.tick{position:absolute;right:10px;top:10px;width:18px;height:18px;border:1px solid #507369;border-radius:50%;font-size:11px;display:grid;place-items:center;color:#0c2019}.monster.selected .tick{background:var(--acid);border-color:var(--acid)}.sprite{height:65px;display:grid;place-items:center;margin:4px 0 2px}.sprite img{max-width:90px;max-height:65px;image-rendering:auto;filter:drop-shadow(0 8px 8px #0009)}.monster h3{margin:0;font-size:14px}.monster .meta{font-size:10px;color:var(--muted);margin:2px 0 0}.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}.chip{font-size:9px;color:#b5cec4;border:1px solid #36594e;border-radius:3px;padding:2px 4px;background:#142a24}.chip.shiny{color:#192318;background:var(--acid);border-color:var(--acid)}.chip.warn{color:#ffe0a4;border-color:#71572d;background:#2d281b}
+    .action { position:sticky;bottom:15px;z-index:3;margin-top:16px;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:11px;padding:11px 13px;background:#142b24ed;backdrop-filter:blur(12px);display:none;align-items:center;gap:10px }.action.show{display:flex}.action .copy{flex:1}.action .copy b{font-size:13px}.action .copy small{color:var(--muted);font-size:10px}.action .primary{white-space:nowrap}
+    .empty{padding:20px;border:1px dashed #315346;border-radius:9px;color:var(--muted);font-size:12px}.ledger{display:grid;gap:8px}.ledger article{display:flex;gap:11px;border-bottom:1px solid #244136;padding:10px 0}.ledger i{color:var(--acid);font-style:normal}.ledger b{font-size:12px}.ledger span{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+    .modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:18px;z-index:8}.modal.open{display:flex}.modal-box{width:min(540px,100%);padding:25px;background:#10251f;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);animation:pop .2s ease}.modal-box h2{font-size:23px;margin:7px 0}.modal-box p{font-size:12px;line-height:1.65;color:var(--muted)}@keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}.target-list{display:grid;gap:8px;margin:17px 0}.target{padding:12px;border:1px solid var(--line);background:#0b1d18;border-radius:8px;display:flex;align-items:center;gap:10px;cursor:pointer}.target:hover,.target.selected{border-color:var(--acid);background:#16352b}.target span{margin-left:auto;font-size:10px;color:var(--mint)}.target .deny{color:var(--warn)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:19px}.transferline{display:flex;gap:10px;align-items:center;border:1px solid var(--line);padding:12px;border-radius:8px;margin:12px 0;background:#0a1b17}.node{width:31px;height:31px;border:1px solid var(--mint);border-radius:7px;display:grid;place-items:center;color:var(--mint)}.rail{height:2px;flex:1;background:#315749;position:relative}.packet{position:absolute;top:-5px;left:0;width:12px;height:12px;border-radius:50%;background:var(--acid);box-shadow:0 0 15px var(--acid);animation:move 1.2s ease-in-out infinite}@keyframes move{0%{left:0}100%{left:calc(100% - 12px)}}
+    .toast{position:fixed;right:22px;bottom:22px;background:var(--acid);color:#112019;padding:11px 14px;border-radius:7px;font-size:12px;font-weight:700;opacity:0;transform:translateY(22px);transition:.2s;z-index:9}.toast.show{opacity:1;transform:none}
+    @media(max-width:720px){.shell{display:block}aside{position:sticky;top:0;z-index:5;padding:13px 15px;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line)}.brand{font-size:12px}.foot,nav small{display:none}nav{display:flex;margin-left:auto}nav button{font-size:10px;padding:7px}.count{display:none}main{padding:25px 16px 85px}.top{display:block}.top>.button{margin-top:18px}.stats{gap:7px}.stat{padding:11px}.stat b{font-size:22px}.monster-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.monster{min-height:149px;padding:10px}.save-grid{grid-template-columns:1fr}.action{bottom:9px}.action .button.ghost{display:none}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div class="brand"><i class="orb"></i>MONO / HOME</div>
+    <nav>
+      <small>LOCAL HUB</small>
+      <button class="active" data-view="saves">▣　我的存档 <span class="count">02</span></button>
+      <button data-view="warehouse">◇　中央仓库 <span class="count">08</span></button>
+      <button data-view="pokedex">◌　宝可梦图鉴</button>
+      <small>UTILITY</small>
+      <button id="import">＋　导入存档</button>
+    </nav>
+    <div class="foot"><i>●</i> LOCAL ONLY<br>NO ACCOUNT · NO CLOUD<br>PREVIEW / UNIVERSAL HUB</div>
+  </aside>
+  <main>
+    <section class="view active" id="saves">
+      <header class="top"><div><div class="eyebrow">SAVE ARCHIVE / UPLOAD</div><h1>从存档，<br><em>上传至仓库。</em></h1><p class="sub">选择一个已登记存档，再选择其中的宝可梦。<br>此页面只执行上传，不要求选择下载目标。</p></div><button class="button primary" id="importTop">＋ 导入存档</button></header>
+      <div class="stats"><div class="stat"><b>02</b><span>已登记存档</span></div><div class="stat"><b>69</b><span>当前来源可读取</span></div><div class="stat"><b style="color:var(--acid)">本地</b><span>不会上传到网络</span></div></div>
+      <div class="section"><div class="section-head"><div><h2>选择来源存档</h2><p>任何已导入存档均可作为来源</p></div></div><div class="save-grid" id="sourceSaves"></div></div>
+      <div class="section"><div class="section-head"><div><h2 id="sourceTitle">心灵之金的宝可梦</h2><p>点选卡片后，底部才出现上传操作</p></div><span class="hint mono" id="sourceCount">PARTY + BOX / 69</span></div><div class="monster-grid" id="sourceGrid"></div></div>
+      <div class="action" id="uploadAction"><div class="copy"><b id="uploadCount">已选 0 只</b><br><small>上传不会改动来源存档</small></div><button class="button primary" id="upload">上传至中央仓库 →</button></div>
+    </section>
+
+    <section class="view" id="warehouse">
+      <header class="top"><div><div class="eyebrow">CENTRAL WAREHOUSE / DOWNLOAD</div><h1>中央仓库，<br><em>下载到存档。</em></h1><p class="sub">选择仓库实体后，才选择接收它们的目标存档。<br>系统会在下载前自动适配并验证合法性。</p></div><button class="button ghost" data-view="saves">← 前往存档</button></header>
+      <div class="flow"><strong>中央仓库</strong><span class="arrow">→</span><span>选择目标存档</span><span class="arrow">→</span><span>适配并安全写回</span></div>
+      <div class="section"><div class="section-head"><div><h2>仓库实体</h2><p>长按卡片可查看个体、图鉴或创建编辑副本</p></div><button class="button ghost" id="filter">全部 ▾</button></div><div class="monster-grid" id="warehouseGrid"></div></div>
+      <div class="action" id="downloadAction"><div class="copy"><b id="downloadCount">已选 0 只</b><br><small>先选择目标，后生成目标世代合法副本</small></div><button class="button primary" id="chooseTarget">下载至目标存档 →</button></div>
+    </section>
+
+    <section class="view" id="pokedex"><header class="top"><div><div class="eyebrow">OFFLINE NATIONAL DEX</div><h1>宝可梦图鉴</h1><p class="sub">独立的离线资料页；不干扰上传与下载主流程。</p></div></header><div class="empty">在正式应用中，此处提供中文检索、种族资料、形态、进化和目标存档兼容性。</div></section>
+  </main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div><div class="toast" id="toast"></div>
+<script>
+  const mons = [
+    {n:'巨沼怪',dex:260,l:76,place:'队伍 0-1',item:'丝带 1',shiny:false,status:'已检查'},
+    {n:'叉字蝠',dex:169,l:65,place:'队伍 0-2',item:'丝带 1',shiny:false,status:'已检查'},
+    {n:'雷电兽',dex:310,l:51,place:'队伍 0-3',item:'道具 #182',shiny:true,status:'已检查'},
+    {n:'盾甲茧',dex:268,l:5,place:'盒子 1-1',item:'无道具',shiny:false,status:'待适配'},
+    {n:'直冲熊',dex:264,l:27,place:'盒子 1-2',item:'无道具',shiny:false,status:'已检查'},
+    {n:'咕妞妞',dex:293,l:7,place:'盒子 1-3',item:'无道具',shiny:false,status:'已检查'},
+    {n:'小拳石',dex:74,l:7,place:'盒子 1-4',item:'硬石头',shiny:false,status:'已检查'},
+    {n:'超音蝠',dex:41,l:5,place:'盒子 1-5',item:'无道具',shiny:false,status:'已检查'}
+  ];
+  const saves = [{name:'心灵之金',game:'HeartGold · Gen IV',icon:'✦',state:'已同步',count:69},{name:'绿宝石',game:'Emerald · Gen III',icon:'◇',state:'已同步',count:83}];
+  let sourceIndex=0, selectedSource=new Set(), selectedWarehouse=new Set();
+  const $=s=>document.querySelector(s); const icon=d=>`../../src/MonoHome.Android/Resources/drawable/a_${d}.png`;
+  function monsterCard(m,i,kind){const set=kind==='source'?selectedSource:selectedWarehouse;return `<article class="monster ${set.has(i)?'selected':''}" data-kind="${kind}" data-id="${i}" aria-label="${m.n} 等级 ${m.l}"><span class="tick">${set.has(i)?'✓':''}</span><div class="sprite"><img src="${icon(m.dex)}" alt="${m.n} National Dex 图标"></div><h3>${m.n} <span class="hint">Lv.${m.l}</span></h3><p class="meta">${m.place}</p><div class="chips">${m.shiny?'<span class="chip shiny">★ 闪光</span>':''}<span class="chip">${m.item}</span><span class="chip ${m.status==='待适配'?'warn':''}">${m.status}</span></div></article>`}
+  function bindCards(kind){document.querySelectorAll(`[data-kind="${kind}"]`).forEach(el=>el.onclick=()=>{const set=kind==='source'?selectedSource:selectedWarehouse,id=+el.dataset.id;set.has(id)?set.delete(id):set.add(id);render()});}
+  function render(){ $('#sourceSaves').innerHTML=saves.map((s,i)=>`<article class="save-card ${sourceIndex===i?'selected':''}" data-save="${i}"><div class="save-icon">${s.icon}</div><div><b>${s.name}</b><p>${s.game} · ${s.count} 只</p></div><span class="status">${s.state}</span></article>`).join('');document.querySelectorAll('[data-save]').forEach(el=>el.onclick=()=>{sourceIndex=+el.dataset.save;selectedSource.clear();render()}); const source=saves[sourceIndex];$('#sourceTitle').textContent=`${source.name}的宝可梦`;$('#sourceCount').textContent=`PARTY + BOX / ${source.count}`;$('#sourceGrid').innerHTML=mons.map((m,i)=>monsterCard(m,i,'source')).join('');$('#warehouseGrid').innerHTML=mons.map((m,i)=>monsterCard(m,i,'warehouse')).join('');bindCards('source');bindCards('warehouse');$('#uploadAction').classList.toggle('show',selectedSource.size>0);$('#downloadAction').classList.toggle('show',selectedWarehouse.size>0);$('#uploadCount').textContent=`已选 ${selectedSource.size} 只`;$('#downloadCount').textContent=`已选 ${selectedWarehouse.size} 只`;}
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{const id=b.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('nav [data-view]').forEach(v=>v.classList.toggle('active',v.dataset.view===id));window.scrollTo({top:0,behavior:'smooth'})});
+  function openModal(html){$('#modalBox').innerHTML=html;$('#modal').classList.add('open');}function closeModal(){$('#modal').classList.remove('open')}function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2400)}
+  function importSave(){openModal(`<div class="eyebrow">IMPORT SAVE</div><h2>导入任意存档</h2><p>选择文件后，系统自动识别游戏、世代和读写权限。导入一次后会持续登记。</p><div class="modal-actions"><button class="button ghost" id="cancel">取消</button><button class="button primary" id="confirm">选择文件（演示）</button></div>`);$('#cancel').onclick=closeModal;$('#confirm').onclick=()=>{closeModal();toast('演示：存档已识别并加入本地登记')};}
+  $('#import').onclick=importSave;$('#importTop').onclick=importSave;
+  $('#upload').onclick=()=>{
+    openModal(`<div class="eyebrow">UPLOAD TO WAREHOUSE</div><h2>上传 ${selectedSource.size} 只至中央仓库</h2><p>来源：${saves[sourceIndex].name}。来源存档不会被删除或改写。</p><div class="transferline"><i class="node">▣</i><i class="rail"><i class="packet"></i></i><i class="node">◇</i></div><div class="modal-actions"><button class="button ghost" id="cancel">取消</button><button class="button primary" id="confirm">确认上传</button></div>`);
+    $('#cancel').onclick=closeModal;
+    $('#confirm').onclick=()=>{ selectedSource.clear(); closeModal(); render(); toast('已上传至中央仓库'); };
+  };
+  $('#chooseTarget').onclick=()=>{
+    openModal(`<div class="eyebrow">SELECT TARGET SAVE</div><h2>下载 ${selectedWarehouse.size} 只宝可梦</h2><p>选择目标存档。系统会先适配目标世代规则，只有回读校验合法后才写入。</p><div class="target-list">${saves.map((s,i)=>`<article class="target ${i===0?'selected':''}" data-target="${i}"><i class="save-icon">${s.icon}</i><div><b>${s.name}</b><p class="hint">${s.game}</p></div><span>可写入</span></article>`).join('')}</div><div class="modal-actions"><button class="button ghost" id="cancel">取消</button><button class="button primary" id="download">适配并下载</button></div>`);
+    document.querySelectorAll('[data-target]').forEach(t=>t.onclick=()=>{ document.querySelectorAll('[data-target]').forEach(x=>x.classList.remove('selected')); t.classList.add('selected'); });
+    $('#cancel').onclick=closeModal;
+    $('#download').onclick=()=>{
+      const target=document.querySelector('[data-target].selected').querySelector('b').textContent;
+      $('#modalBox').innerHTML=`<div class="eyebrow">LOCAL TRANSFER</div><h2>正在下载至${target}</h2><p>创建恢复点 → 适配目标规则 → 写入 → 回读合法性验证</p><div class="transferline"><i class="node">◇</i><i class="rail"><i class="packet"></i></i><i class="node">▣</i></div>`;
+      setTimeout(()=>{ selectedWarehouse.clear(); closeModal(); render(); toast(`下载完成：已安全写入${target}`); },1400);
+    };
+  };
+  $('#modal').onclick=e=>{if(e.target===$('#modal'))closeModal()}; render();
+</script>
+</body>
+</html>
