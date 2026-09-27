@@ -1,0 +1,17 @@
+{
+  "id": "emerald-to-hgss-v1",
+  "status": "released",
+  "source": "Emerald",
+  "targets": ["HeartGold", "SoulSilver"],
+  "core": "PKHeX.Core 17157eb18013dc29a44f7bb7810117390431087b",
+  "trainerPolicy": "target-save-ot-tid-sid-gender-language",
+  "fieldPolicies": {
+    "heldItem": "preserve-or-clear-with-diff",
+    "nickname": "preserve-or-reset-to-target-species-name-with-diff",
+    "shiny": "preserve-or-reject",
+    "battleStatus": "preserve-or-reject",
+    "pokerus": "preserve-or-reject",
+    "egg": "preserve-or-reject"
+  },
+  "output": "Only PKHeX target legality-valid entities may be exported."
+}

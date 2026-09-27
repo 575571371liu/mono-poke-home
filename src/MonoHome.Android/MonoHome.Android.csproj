@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>30</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationId>io.github.monohome</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <JavaSdkDirectory>C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot</JavaSdkDirectory>
+    <PublishTrimmed>false</PublishTrimmed>
+    <RunAOTCompilation>false</RunAOTCompilation>
+    <AndroidEnableMarshalMethods>true</AndroidEnableMarshalMethods>
+    <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoHome.Core\MonoHome.Core.csproj" />
+  </ItemGroup>
+</Project>

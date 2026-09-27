@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">#0B1414</item>
+    <item name="android:navigationBarColor">#000000</item>
+    <item name="android:windowBackground">#0B1414</item>
+    <item name="android:colorAccent">#D6FF63</item>
+  </style>
+  <style name="DarkField" parent="@android:style/Widget.Material.EditText">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">48dp</item>
+    <item name="android:layout_marginTop">5dp</item>
+    <item name="android:paddingLeft">11dp</item>
+    <item name="android:paddingRight">11dp</item>
+    <item name="android:textColor">#E9F4EF</item>
+    <item name="android:textColorHint">#628078</item>
+    <item name="android:backgroundTint">#25403A</item>
+    <item name="android:textSize">12sp</item>
+  </style>
+</resources>

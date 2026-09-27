@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MONO / HOME</string>
+    <string name="app_text">本地存档传输中心：选择存档后，数据只在设备上处理。</string>
+    <string name="import_emerald">导入绿宝石存档</string>
+    <string name="import_heartgold">导入心金存档</string>
+    <string name="transfer_button">生成合法心金传送副本</string>
+</resources>

@@ -1,0 +1,12 @@
+bin/
+obj/
+fixtures/private/
+*.log
+*.sav
+*.srm
+*.dsv
+*.apk
+/*.png
+/*.xml
+apk-inspect/
+.superpowers/
