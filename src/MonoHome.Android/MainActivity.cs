@@ -87,6 +87,7 @@ public class MainActivity : Activity
     List<StoragePage> heartGoldPages = [];
     int activeSourceRequest = EmeraldRequest;
     int sourcePageIndex;
+    int warehousePageIndex;
     readonly HashSet<PokemonSlot> selectedSourceSlots = [];
     List<StoredPokemon> warehouse = [];
     StoredPokemon? storedPokemon;
@@ -101,6 +102,7 @@ public class MainActivity : Activity
     string WarehousePath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "warehouse");
     string SavesPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "saves");
     string TransfersPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "transfers");
+    int Dp(float value) => (int)(value * Resources!.DisplayMetrics!.Density + 0.5f);
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -655,21 +657,25 @@ public class MainActivity : Activity
     void ShowSourceSlotDetail(PokemonSlot slot)
     {
         var selected = selectedSourceSlots.Contains(slot);
-        var dialog = new AlertDialog.Builder(this)!;
-        dialog.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}");
         var source = ActiveSourceSave()?.SnapshotPath;
-        var detail = source is null
-            ? $"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n{(slot.IsShiny ? "闪光" : "普通")}"
-            : BuildPokemonDetail(BoxReader.ReadPokemon(source, slot), $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}");
-        dialog.SetMessage(detail);
-        dialog.SetNegativeButton("关闭", (_, _) => { });
-        dialog.SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) =>
+        if (source is null)
         {
-            if (!selectedSourceSlots.Add(slot))
-                selectedSourceSlots.Remove(slot);
-            RenderSourceBoard();
-        });
-        dialog.Show();
+            var fallback = new AlertDialog.Builder(this)!;
+            fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}")
+                .SetMessage($"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n{(slot.IsShiny ? "闪光" : "普通")}")
+                .SetPositiveButton("关闭", (_, _) => { }).Show();
+            return;
+        }
+        ShowPokemonDetailDialog(
+            BoxReader.ReadPokemon(source, slot),
+            $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}",
+            selected ? "移出本次上传" : "加入本次上传",
+            () =>
+            {
+                if (!selectedSourceSlots.Add(slot))
+                    selectedSourceSlots.Remove(slot);
+                RenderSourceBoard();
+            });
     }
 
     static GradientDrawable CreateSlotBackground(bool occupied, bool selected, bool empty)
@@ -745,49 +751,80 @@ public class MainActivity : Activity
         if (warehouseGrid is null)
             return;
         warehouseGrid.RemoveAllViews();
-        LinearLayout? row = null;
-        foreach (var record in warehouse)
+        const int slotsPerBox = 30;
+        var boxCount = Math.Max(1, (warehouse.Count + slotsPerBox - 1) / slotsPerBox);
+        warehousePageIndex = Math.Clamp(warehousePageIndex, 0, boxCount - 1);
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        var previous = new Button(this) { Text = "‹", ContentDescription = "上一个仓库" };
+        var next = new Button(this) { Text = "›", ContentDescription = "下一个仓库" };
+        previous.SetAllCaps(false);
+        next.SetAllCaps(false);
+        previous.SetTextColor(Color.ParseColor("#8DE4D1"));
+        next.SetTextColor(Color.ParseColor("#8DE4D1"));
+        previous.Background = CreateSlotBackground(false, false, true);
+        next.Background = CreateSlotBackground(false, false, true);
+        var title = new TextView(this)
         {
-            if (row is null || row.ChildCount == 2)
+            Text = $"仓库 {warehousePageIndex + 1}\n{Math.Max(0, Math.Min(warehouse.Count - warehousePageIndex * slotsPerBox, slotsPerBox))} / {slotsPerBox} 槽位",
+            Gravity = GravityFlags.Center,
+            TextSize = 11,
+        };
+        title.SetTextColor(Color.ParseColor("#E9F4EF"));
+        header.AddView(previous, new LinearLayout.LayoutParams(Dp(42), Dp(48)));
+        header.AddView(title, new LinearLayout.LayoutParams(0, Dp(48), 1));
+        header.AddView(next, new LinearLayout.LayoutParams(Dp(42), Dp(48)));
+        warehouseGrid.AddView(header);
+        previous.Click += (_, _) => { warehousePageIndex = (warehousePageIndex - 1 + boxCount) % boxCount; RenderWarehouseGrid(); };
+        next.Click += (_, _) => { warehousePageIndex = (warehousePageIndex + 1) % boxCount; RenderWarehouseGrid(); };
+
+        var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
+        var width = Math.Max(42, (Resources!.DisplayMetrics!.WidthPixels - (int)(Resources.DisplayMetrics.Density * 64)) / 5);
+        for (var slotIndex = 0; slotIndex < slotsPerBox; slotIndex++)
+        {
+            var recordIndex = warehousePageIndex * slotsPerBox + slotIndex;
+            View tile;
+            if (recordIndex >= warehouse.Count)
             {
-                row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
-                row.SetGravity(GravityFlags.Top);
-                warehouseGrid.AddView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent));
+                var empty = new TextView(this)
+                {
+                    Text = (slotIndex + 1).ToString("00"),
+                    Gravity = GravityFlags.Center,
+                    TextSize = 10,
+                    ContentDescription = $"空槽位 {slotIndex + 1}",
+                };
+                empty.SetTextColor(Color.Rgb(68, 105, 93));
+                empty.Background = CreateSlotBackground(false, false, true);
+                tile = empty;
             }
-            var card = new LinearLayout(this) { Orientation = Orientation.Vertical };
-            card.SetPadding(12, 10, 12, 10);
-            var selected = selectedWarehouseIds.Contains(record.Id);
-            var background = new GradientDrawable();
-            background.SetColor(selected ? Color.Rgb(27, 49, 45) : Color.Rgb(15, 29, 28));
-            background.SetCornerRadius(12);
-            background.SetStroke(selected ? 2 : 1, selected ? Color.Rgb(214, 255, 99) : Color.Rgb(37, 64, 58));
-            card.Background = background;
-            var cardLp = new LinearLayout.LayoutParams(0, 178, 1f);
-            cardLp.SetMargins(row.ChildCount == 0 ? 0 : 6, 0, row.ChildCount == 0 ? 6 : 0, 8);
-            card.LayoutParameters = cardLp;
-            var icon = new ImageView(this) { LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, 82) };
-            icon.SetScaleType(ImageView.ScaleType.CenterInside);
-            var iconId = Resources?.GetIdentifier($"a_{record.Species}", "drawable", PackageName) ?? 0;
-            if (iconId != 0) icon.SetImageResource(iconId);
-            card.AddView(icon);
-            var title = new TextView(this) { Text = ChineseSpeciesName(record.Species), TextSize = 13 };
-            title.SetTextColor(Color.Rgb(233, 244, 239));
-            title.SetTypeface(null, global::Android.Graphics.TypefaceStyle.Bold);
-            card.AddView(title);
-            var meta = new TextView(this) { Text = RepositoryMeta(record), TextSize = 10 };
-            meta.SetMaxLines(3);
-            meta.SetTextColor(Color.Rgb(145, 170, 161));
-            card.AddView(meta);
-            card.Click += (_, _) =>
+            else
             {
-                storedPokemon = record;
-                if (!selectedWarehouseIds.Add(record.Id))
-                    selectedWarehouseIds.Remove(record.Id);
-                UpdateButtons();
-            };
-            card.LongClick += (_, _) => ShowWarehouseActions(record);
-            row.AddView(card);
+                var record = warehouse[recordIndex];
+                var selected = selectedWarehouseIds.Contains(record.Id);
+                var image = new ImageButton(this)
+                {
+                    ContentDescription = $"查看 {ChineseSpeciesName(record.Species)} 详情",
+                };
+                image.SetScaleType(ImageView.ScaleType.CenterInside);
+                image.SetPadding(5, 5, 5, 5);
+                image.Background = CreateSlotBackground(true, selected, false);
+                var icon = Resources.GetIdentifier($"a_{record.Species}", "drawable", PackageName);
+                if (icon != 0)
+                    image.SetImageResource(icon);
+                image.Click += (_, _) =>
+                {
+                    storedPokemon = record;
+                    if (!selectedWarehouseIds.Add(record.Id))
+                        selectedWarehouseIds.Remove(record.Id);
+                    UpdateButtons();
+                };
+                image.LongClick += (_, _) => ShowWarehouseActions(record);
+                tile = image;
+            }
+            var parameters = new GridLayout.LayoutParams { Width = width, Height = width };
+            parameters.SetMargins(3, 3, 3, 3);
+            grid.AddView(tile, parameters);
         }
+        warehouseGrid.AddView(grid);
     }
 
     void ShowWarehouseActions(StoredPokemon record)
@@ -809,15 +846,10 @@ public class MainActivity : Activity
     void ShowWarehouseDetail(StoredPokemon record)
     {
         var pokemon = LocalRepository.LoadWorking(record);
-        var text = BuildPokemonDetail(pokemon, $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}");
-        var dialog = new AlertDialog.Builder(this)!;
-        dialog.SetTitle("个体档案");
-        dialog.SetMessage(text);
-        dialog.SetPositiveButton("关闭", (_, _) => { });
-        dialog.Show();
+        ShowPokemonDetailDialog(pokemon, $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}", null, null);
     }
 
-    static string BuildPokemonDetail(PKM pokemon, string footer)
+    void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction)
     {
         var strings = GameInfo.GetStrings("zh-Hans");
         var moves = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 }
@@ -825,13 +857,145 @@ public class MainActivity : Activity
         var item = pokemon.HeldItem == 0 ? "无" : StringAt(strings.GetItemStrings(pokemon.Context, pokemon.Version), pokemon.HeldItem, $"道具 #{pokemon.HeldItem}");
         var ability = StringAt(strings.Ability, pokemon.Ability, $"特性 #{pokemon.Ability}");
         var nature = StringAt(strings.Natures, (int)pokemon.Nature, pokemon.Nature.ToString());
-        return $"等级：{pokemon.CurrentLevel} · {(pokemon.IsShiny ? "闪光" : "普通")} · 性别：{GenderText(pokemon.Gender)}\n" +
-            $"性格：{nature} · 特性：{ability}\n" +
-            $"携带道具：{item}\n" +
-            $"招式：\n{string.Join("\n", moves.Select((move, index) => $"  {index + 1}. {move}"))}\n" +
-            $"努力值：HP {pokemon.EV_HP} / 攻击 {pokemon.EV_ATK} / 防御 {pokemon.EV_DEF} / 特攻 {pokemon.EV_SPA} / 特防 {pokemon.EV_SPD} / 速度 {pokemon.EV_SPE}\n" +
-            $"个体值：HP {pokemon.IV_HP} / 攻击 {pokemon.IV_ATK} / 防御 {pokemon.IV_DEF} / 特攻 {pokemon.IV_SPA} / 特防 {pokemon.IV_SPD} / 速度 {pokemon.IV_SPE}\n" +
-            $"状态：{StatusText(pokemon)} · 形态 {pokemon.Form} · {(pokemon.IsEgg ? "蛋" : "非蛋")}\n{footer}";
+        int Dp(float value) => (int)(value * Resources.DisplayMetrics.Density + 0.5f);
+        TextView Text(string value, float size, string color, bool bold = false)
+        {
+            var view = new TextView(this) { Text = value, TextSize = size };
+            view.SetTextColor(Color.ParseColor(color));
+            view.SetIncludeFontPadding(false);
+            if (bold)
+                view.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+            return view;
+        }
+        GradientDrawable Panel(string fill = "#12201F", string stroke = "#315249", float radius = 12)
+        {
+            var background = new GradientDrawable();
+            background.SetColor(Color.ParseColor(fill));
+            background.SetCornerRadius(Dp(radius));
+            background.SetStroke(Dp(1), Color.ParseColor(stroke));
+            return background;
+        }
+        LinearLayout Card(string title, params string[] lines)
+        {
+            var card = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            card.SetPadding(Dp(12), Dp(10), Dp(12), Dp(10));
+            card.Background = Panel();
+            card.AddView(Text(title, 10, "#D6FF63", true));
+            foreach (var line in lines)
+            {
+                var row = Text(line, 11, "#DCEBE6");
+                row.SetPadding(0, Dp(6), 0, 0);
+                card.AddView(row);
+            }
+            return card;
+        }
+        var dialog = new Dialog(this);
+        var root = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        root.SetPadding(Dp(18), Dp(16), Dp(18), Dp(12));
+        root.Background = Panel("#0F201C", "#315249", 16);
+        var scroll = new ScrollView(this);
+        var body = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        scroll.AddView(body);
+
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        header.SetGravity(GravityFlags.CenterVertical);
+        var icon = new ImageView(this);
+        var iconId = Resources.GetIdentifier($"a_{pokemon.Species}", "drawable", PackageName);
+        if (iconId != 0)
+            icon.SetImageResource(iconId);
+        icon.Background = Panel("#17312B", "#427A68", 14);
+        icon.SetPadding(Dp(8), Dp(8), Dp(8), Dp(8));
+        header.AddView(icon, new LinearLayout.LayoutParams(Dp(78), Dp(78)));
+        var heading = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        heading.SetPadding(Dp(12), 0, 0, 0);
+        heading.AddView(Text($"{ChineseSpeciesName(pokemon.Species)} · Lv.{pokemon.CurrentLevel}", 20, "#E9F4EF", true));
+        heading.AddView(Text($"{(pokemon.IsShiny ? "闪光" : "普通")}  ·  {GenderText(pokemon.Gender)}  ·  {(pokemon.IsEgg ? "蛋" : "已孵化")}", 11, "#8DE4D1"));
+        heading.AddView(Text($"{(pokemon.IsEgg ? "尚未孵化" : "可正常使用")}  ·  形态 {pokemon.Form}", 10, "#91AAA1"));
+        header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 1));
+        body.AddView(header);
+
+        var training = Card("训练信息", $"等级    {pokemon.CurrentLevel}", $"性格    {nature}", $"特性    {ability}", $"性别    {GenderText(pokemon.Gender)}");
+        var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}", $"形态    {pokemon.Form}", $"蛋状态  {(pokemon.IsEgg ? "是" : "否")}");
+        var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        cards.SetPadding(0, Dp(14), 0, 0);
+        cards.AddView(training, new LinearLayout.LayoutParams(0, -2, 1));
+        cards.AddView(new Space(this), new LinearLayout.LayoutParams(Dp(8), 1));
+        cards.AddView(equipment, new LinearLayout.LayoutParams(0, -2, 1));
+        body.AddView(cards);
+
+        var moveCard = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        moveCard.SetPadding(Dp(12), Dp(10), Dp(12), Dp(10));
+        moveCard.Background = Panel();
+        moveCard.AddView(Text("招式", 10, "#D6FF63", true));
+        foreach (var (move, index) in moves.Select((value, index) => (value, index)))
+        {
+            var row = Text($"{index + 1:D2}   {move}", 12, move == "—" ? "#628078" : "#E9F4EF");
+            row.SetPadding(0, Dp(7), 0, 0);
+            moveCard.AddView(row);
+        }
+        body.AddView(moveCard, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
+
+        var ivs = new[] { pokemon.IV_HP, pokemon.IV_ATK, pokemon.IV_DEF, pokemon.IV_SPA, pokemon.IV_SPD, pokemon.IV_SPE };
+        var evs = new[] { pokemon.EV_HP, pokemon.EV_ATK, pokemon.EV_DEF, pokemon.EV_SPA, pokemon.EV_SPD, pokemon.EV_SPE };
+        var calculated = pokemon.GetStats(pokemon.PersonalInfo);
+        var actualStats = new[] { (int)calculated[0], (int)calculated[1], (int)calculated[2], (int)calculated[4], (int)calculated[5], (int)calculated[3] };
+        var natureAmps = new sbyte[6];
+        NatureAmp.GetAmps(pokemon.Nature).CopyTo(natureAmps.AsSpan(1));
+        var stats = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        stats.SetPadding(Dp(12), Dp(10), Dp(12), Dp(10));
+        stats.Background = Panel();
+        stats.AddView(Text("能力数据", 10, "#D6FF63", true));
+        var legend = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        legend.SetPadding(0, Dp(6), 0, 0);
+        legend.AddView(Text("六维能力图", 10, "#91AAA1"));
+        legend.AddView(Text("  ◆ 个体值", 10, "#8DE4D1"));
+        legend.AddView(Text("  ◆ 努力值", 10, "#D6FF63"));
+        legend.AddView(Text("  性格修正：", 10, "#91AAA1"));
+        legend.AddView(Text("↑", 11, "#FF6B6B", true));
+        legend.AddView(Text("红色 / ", 10, "#91AAA1"));
+        legend.AddView(Text("↓", 11, "#5BA7FF", true));
+        legend.AddView(Text("蓝色", 10, "#91AAA1"));
+        stats.AddView(legend);
+        var statNames = new[] { "HP", "攻击", "防御", "特攻", "特防", "速度" };
+        var selectedStat = Text("点击六角图任一维度查看数值", 10, "#628078");
+        selectedStat.SetPadding(0, Dp(4), 0, 0);
+        var chart = new StatHexagonView(this, ivs, evs, natureAmps, actualStats);
+        chart.StatSelected += index => selectedStat.Text = $"已选择：{statNames[index]}  ·  能力值 {actualStats[index]}  ·  个体值 {ivs[index]}  ·  努力值 {evs[index]}";
+        stats.AddView(chart, new LinearLayout.LayoutParams(-1, Dp(250)));
+        stats.AddView(selectedStat);
+        body.AddView(stats, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
+        var sourceText = Text(footer, 10, "#91AAA1");
+        sourceText.SetPadding(0, Dp(12), 0, Dp(4));
+        body.AddView(sourceText);
+        root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+
+        var actions = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        actions.SetGravity(GravityFlags.CenterVertical);
+        var close = new Button(this) { Text = "关闭" };
+        close.SetAllCaps(false);
+        close.SetTextColor(Color.ParseColor("#8DE4D1"));
+        close.Background = Panel("#132A25", "#315249", 8);
+        close.Click += (_, _) => dialog.Dismiss();
+        actions.AddView(close, new LinearLayout.LayoutParams(0, Dp(44), primaryLabel is null ? 1 : 0.42f));
+        if (primaryLabel is not null && primaryAction is not null)
+        {
+            var primary = new Button(this) { Text = primaryLabel };
+            primary.SetAllCaps(false);
+            primary.SetTextColor(Color.ParseColor("#142019"));
+            primary.Background = Panel("#D6FF63", "#D6FF63", 8);
+            primary.Click += (_, _) => { dialog.Dismiss(); primaryAction(); };
+            actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), 0.58f) { LeftMargin = Dp(8) });
+        }
+        root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(10) });
+        dialog.SetContentView(root);
+        dialog.Show();
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(0.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.92f), (int)(Resources.DisplayMetrics.HeightPixels * 0.82f));
+        }
     }
 
     static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
@@ -1175,5 +1339,120 @@ public class MainActivity : Activity
             1 => true,
             _ => throw new FormatException("布尔字段只能填写 0 或 1。"),
         };
+    }
+}
+
+sealed class StatHexagonView : View
+{
+    readonly int[] ivs;
+    readonly int[] evs;
+    readonly int[] actualStats;
+    readonly sbyte[] natureAmps;
+    static readonly string[] Names = ["HP", "攻击", "防御", "特攻", "特防", "速度"];
+    public event Action<int>? StatSelected;
+
+    public StatHexagonView(Context context, int[] ivs, int[] evs, sbyte[] natureAmps, int[] actualStats) : base(context)
+    {
+        this.ivs = ivs;
+        this.evs = evs;
+        this.natureAmps = natureAmps;
+        this.actualStats = actualStats;
+        SetWillNotDraw(false);
+        Clickable = true;
+    }
+
+    int Dp(float value) => (int)(value * Resources!.DisplayMetrics!.Density + 0.5f);
+
+    protected override void OnDraw(Canvas canvas)
+    {
+        base.OnDraw(canvas);
+        var centerX = Width * 0.5f;
+        var centerY = Height * 0.48f;
+        var radius = Math.Min(Width * 0.36f, Height * 0.34f);
+        var grid = new Paint { AntiAlias = true, Color = Color.ParseColor("#315249") };
+        grid.SetStyle(Paint.Style.Stroke);
+        grid.StrokeWidth = Dp(1);
+        for (var level = 1; level <= 3; level++)
+            canvas.DrawPath(Polygon(centerX, centerY, radius * level / 3f, _ => 1f), grid);
+        for (var i = 0; i < 6; i++)
+        {
+            var point = Point(centerX, centerY, radius, i);
+            canvas.DrawLine(centerX, centerY, point.x, point.y, grid);
+        }
+        DrawData(canvas, centerX, centerY, radius, ivs, 31f, Color.ParseColor("#8DE4D1"), Color.ParseColor("#8DE4D1"));
+        DrawData(canvas, centerX, centerY, radius, evs, 252f, Color.ParseColor("#D6FF63"), Color.ParseColor("#D6FF63"));
+
+        var label = new Paint { AntiAlias = true, Color = Color.ParseColor("#91AAA1"), TextSize = Dp(10) };
+        label.TextAlign = Paint.Align.Center;
+        for (var i = 0; i < 6; i++)
+        {
+            var point = Point(centerX, centerY, radius + Dp(18), i);
+            canvas.DrawText(Names[i], point.x, point.y + Dp(4), label);
+            if (natureAmps[i] != 0)
+            {
+                var arrow = new Paint { AntiAlias = true, Color = natureAmps[i] > 0 ? Color.ParseColor("#FF6B6B") : Color.ParseColor("#5BA7FF"), TextSize = Dp(12) };
+                arrow.TextAlign = Paint.Align.Center;
+                canvas.DrawText(natureAmps[i] > 0 ? "↑" : "↓", point.x, point.y + Dp(18), arrow);
+            }
+        }
+        if (selectedIndex >= 0)
+        {
+            var point = Point(centerX, centerY, radius + Dp(34), selectedIndex);
+            var value = new Paint { AntiAlias = true, Color = Color.ParseColor("#D6FF63"), TextSize = Dp(9) };
+            value.TextAlign = Paint.Align.Center;
+            canvas.DrawText($"能力 {actualStats[selectedIndex]} · IV {ivs[selectedIndex]} / EV {evs[selectedIndex]}", point.x, point.y + Dp(4), value);
+        }
+    }
+
+    int selectedIndex = -1;
+
+    public override bool OnTouchEvent(MotionEvent? e)
+    {
+        if (e?.Action == MotionEventActions.Up)
+        {
+            var centerX = Width * 0.5f;
+            var centerY = Height * 0.48f;
+            var angle = Math.Atan2(e.GetY() - centerY, e.GetX() - centerX) + Math.PI / 2;
+            if (angle < 0)
+                angle += Math.PI * 2;
+            selectedIndex = ((int)Math.Round(angle / (Math.PI / 3))) % 6;
+            Invalidate();
+            StatSelected?.Invoke(selectedIndex);
+        }
+        return true;
+    }
+
+    void DrawData(Canvas canvas, float centerX, float centerY, float radius, int[] values, float max, int color, int fill)
+    {
+        var path = Polygon(centerX, centerY, radius, i => Math.Clamp(values[i] / max, 0.08f, 1f));
+        var fillPaint = new Paint { AntiAlias = true, Alpha = 45 };
+        fillPaint.Color = new Color(fill);
+        fillPaint.SetStyle(Paint.Style.Fill);
+        canvas.DrawPath(path, fillPaint);
+        var line = new Paint { AntiAlias = true, StrokeWidth = Dp(2) };
+        line.Color = new Color(color);
+        line.SetStyle(Paint.Style.Stroke);
+        canvas.DrawPath(path, line);
+    }
+
+    Path Polygon(float centerX, float centerY, float radius, Func<int, float> scale)
+    {
+        var path = new Path();
+        for (var i = 0; i < 6; i++)
+        {
+            var point = Point(centerX, centerY, radius * scale(i), i);
+            if (i == 0)
+                path.MoveTo(point.x, point.y);
+            else
+                path.LineTo(point.x, point.y);
+        }
+        path.Close();
+        return path;
+    }
+
+    static (float x, float y) Point(float centerX, float centerY, float radius, int index)
+    {
+        var angle = -Math.PI / 2 + index * Math.PI / 3;
+        return (centerX + radius * (float)Math.Cos(angle), centerY + radius * (float)Math.Sin(angle));
     }
 }
