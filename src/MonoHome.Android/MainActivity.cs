@@ -722,6 +722,7 @@ public class MainActivity : Activity
                 if (icon != 0)
                     image.SetImageResource(icon);
                 image.Click += (_, _) => ShowSourceSlotDetail(pokemon);
+                image.LongClick += (_, _) => ShowSourceSlotDetail(pokemon);
                 tile = image;
             }
 
@@ -737,24 +738,40 @@ public class MainActivity : Activity
     {
         var selected = selectedSourceSlots.Contains(slot);
         var source = ActiveSourceSave()?.SnapshotPath;
-        if (source is null)
+        if (string.IsNullOrWhiteSpace(source) || !File.Exists(source))
         {
-            var fallback = new AlertDialog.Builder(this)!;
-            fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}")
-                .SetMessage($"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n{(slot.IsShiny ? "闪光" : "普通")}")
-                .SetPositiveButton("关闭", (_, _) => { }).Show();
+            ShowSourceSlotUnavailable(slot, selected, "来源存档快照不可用，请重新导入后查看完整详情。");
             return;
         }
-        ShowPokemonDetailDialog(
-            BoxReader.ReadPokemon(source, slot),
-            $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}",
-            selected ? "移出本次上传" : "加入本次上传",
-            () =>
-            {
-                if (!selectedSourceSlots.Add(slot))
-                    selectedSourceSlots.Remove(slot);
-                RenderSourceBoard();
-            });
+        try
+        {
+            ShowPokemonDetailDialog(
+                BoxReader.ReadPokemon(source, slot),
+                $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}",
+                selected ? "移出本次上传" : "加入本次上传",
+                () => ToggleSourceSlot(slot));
+        }
+        catch (Exception ex)
+        {
+            ShowSourceSlotUnavailable(slot, selected, $"无法读取该槽位的完整数据：{ex.Message}");
+        }
+    }
+
+    void ToggleSourceSlot(PokemonSlot slot)
+    {
+        if (!selectedSourceSlots.Add(slot))
+            selectedSourceSlots.Remove(slot);
+        RenderSourceBoard();
+    }
+
+    void ShowSourceSlotUnavailable(PokemonSlot slot, bool selected, string message)
+    {
+        var fallback = new AlertDialog.Builder(this)!;
+        fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}")
+            .SetMessage($"{message}\n\n位置：{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n状态：{(slot.IsShiny ? "闪光" : "普通")}")
+            .SetNegativeButton("关闭", (_, _) => { })
+            .SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) => ToggleSourceSlot(slot))
+            .Show();
     }
 
     static GradientDrawable CreateSlotBackground(bool occupied, bool selected, bool empty)
@@ -1034,16 +1051,20 @@ public class MainActivity : Activity
         stats.SetPadding(Dp(12), Dp(10), Dp(12), Dp(10));
         stats.Background = Panel();
         stats.AddView(Text("能力数据", 10, "#D6FF63", true));
-        var legend = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        var legend = new LinearLayout(this) { Orientation = Orientation.Vertical };
         legend.SetPadding(0, Dp(6), 0, 0);
         legend.AddView(Text("六维能力图", 10, "#91AAA1"));
-        legend.AddView(Text("  ◆ 个体值", 10, "#8DE4D1"));
-        legend.AddView(Text("  ◆ 努力值", 10, "#D6FF63"));
-        legend.AddView(Text("  性格修正：", 10, "#91AAA1"));
-        legend.AddView(Text("↑", 11, "#FF6B6B", true));
-        legend.AddView(Text("红色 / ", 10, "#91AAA1"));
-        legend.AddView(Text("↓", 11, "#5BA7FF", true));
-        legend.AddView(Text("蓝色", 10, "#91AAA1"));
+        var valueLegend = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        valueLegend.AddView(Text("◆ 个体值", 10, "#8DE4D1"));
+        valueLegend.AddView(Text("    ◆ 努力值", 10, "#D6FF63"));
+        legend.AddView(valueLegend);
+        var natureLegend = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        natureLegend.AddView(Text("性格修正：", 10, "#91AAA1"));
+        natureLegend.AddView(Text("↑", 11, "#FF6B6B", true));
+        natureLegend.AddView(Text(" 红色 / ", 10, "#91AAA1"));
+        natureLegend.AddView(Text("↓", 11, "#5BA7FF", true));
+        natureLegend.AddView(Text(" 蓝色", 10, "#91AAA1"));
+        legend.AddView(natureLegend);
         stats.AddView(legend);
         var statNames = new[] { "HP", "攻击", "防御", "特攻", "特防", "速度" };
         var selectedStat = Text("点击六角图任一维度查看数值", 10, "#628078");
