@@ -657,8 +657,11 @@ public class MainActivity : Activity
         var selected = selectedSourceSlots.Contains(slot);
         var dialog = new AlertDialog.Builder(this)!;
         dialog.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}");
-        dialog.SetMessage($"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n" +
-            $"{(slot.IsShiny ? "闪光 · " : string.Empty)}{(slot.HeldItem == 0 ? "无携带道具" : $"携带道具 #{slot.HeldItem}")}");
+        var source = ActiveSourceSave()?.SnapshotPath;
+        var detail = source is null
+            ? $"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n{(slot.IsShiny ? "闪光" : "普通")}"
+            : BuildPokemonDetail(BoxReader.ReadPokemon(source, slot), $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}");
+        dialog.SetMessage(detail);
         dialog.SetNegativeButton("关闭", (_, _) => { });
         dialog.SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) =>
         {
@@ -806,15 +809,34 @@ public class MainActivity : Activity
     void ShowWarehouseDetail(StoredPokemon record)
     {
         var pokemon = LocalRepository.LoadWorking(record);
-        var text = $"{ChineseSpeciesName(record.Species)}\n等级 {pokemon.CurrentLevel} · {(pokemon.IsShiny ? "闪光" : "普通")}\n" +
-            $"携带道具 #{pokemon.HeldItem}\n招式：{pokemon.Move1}, {pokemon.Move2}, {pokemon.Move3}, {pokemon.Move4}\n" +
-            $"来源：{pokemon.Version}\n{LegalStatusText(record.LegalityStatus)}";
+        var text = BuildPokemonDetail(pokemon, $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}");
         var dialog = new AlertDialog.Builder(this)!;
         dialog.SetTitle("个体档案");
         dialog.SetMessage(text);
         dialog.SetPositiveButton("关闭", (_, _) => { });
         dialog.Show();
     }
+
+    static string BuildPokemonDetail(PKM pokemon, string footer)
+    {
+        var strings = GameInfo.GetStrings("zh-Hans");
+        var moves = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 }
+            .Select(move => move == 0 ? "—" : StringAt(strings.Move, move, $"招式 #{move}"));
+        var item = pokemon.HeldItem == 0 ? "无" : StringAt(strings.GetItemStrings(pokemon.Context, pokemon.Version), pokemon.HeldItem, $"道具 #{pokemon.HeldItem}");
+        var ability = StringAt(strings.Ability, pokemon.Ability, $"特性 #{pokemon.Ability}");
+        var nature = StringAt(strings.Natures, (int)pokemon.Nature, pokemon.Nature.ToString());
+        return $"等级：{pokemon.CurrentLevel} · {(pokemon.IsShiny ? "闪光" : "普通")} · 性别：{GenderText(pokemon.Gender)}\n" +
+            $"性格：{nature} · 特性：{ability}\n" +
+            $"携带道具：{item}\n" +
+            $"招式：\n{string.Join("\n", moves.Select((move, index) => $"  {index + 1}. {move}"))}\n" +
+            $"努力值：HP {pokemon.EV_HP} / 攻击 {pokemon.EV_ATK} / 防御 {pokemon.EV_DEF} / 特攻 {pokemon.EV_SPA} / 特防 {pokemon.EV_SPD} / 速度 {pokemon.EV_SPE}\n" +
+            $"个体值：HP {pokemon.IV_HP} / 攻击 {pokemon.IV_ATK} / 防御 {pokemon.IV_DEF} / 特攻 {pokemon.IV_SPA} / 特防 {pokemon.IV_SPD} / 速度 {pokemon.IV_SPE}\n" +
+            $"状态：{StatusText(pokemon)} · 形态 {pokemon.Form} · {(pokemon.IsEgg ? "蛋" : "非蛋")}\n{footer}";
+    }
+
+    static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
+    static string GenderText(byte gender) => gender switch { 0 => "雄", 1 => "雌", _ => "无性别" };
+    static string StatusText(PKM pokemon) => pokemon.Status_Condition == 0 ? "无异常状态" : $"异常状态 #{pokemon.Status_Condition}";
 
     void SelectWarehousePokemon()
     {
