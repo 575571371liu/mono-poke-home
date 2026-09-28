@@ -29,6 +29,8 @@ public class MainActivity : Activity
     Button? settingsButton;
     Button? navHome;
     Button? navSaves;
+    Button? navEmerald;
+    Button? navHeartGold;
     Button? navHistory;
     Button? uploadButton;
     Button? sourcePreviousBox;
@@ -63,6 +65,14 @@ public class MainActivity : Activity
     ScrollView? mainScroll;
     View? connectedSavesSection;
     View? warehouseSection;
+    View? centralWarehouseContent;
+    View? sourceArchiveContent;
+    TextView? sourceArchiveTitle;
+    TextView? sourceArchiveSubtitle;
+    TextView? mainPageTitle;
+    View? mainDashboardHeader;
+    View? mainDashboardStats;
+    View? mainDashboardRoute;
     View? historySection;
     EditText? nicknameInput;
     EditText? speciesInput;
@@ -116,10 +126,20 @@ public class MainActivity : Activity
         settingsButton = FindViewById<Button>(Resource.Id.settings_button);
         navHome = FindViewById<Button>(Resource.Id.nav_home);
         navSaves = FindViewById<Button>(Resource.Id.nav_saves);
+        navEmerald = FindViewById<Button>(Resource.Id.nav_emerald);
+        navHeartGold = FindViewById<Button>(Resource.Id.nav_heartgold);
         navHistory = FindViewById<Button>(Resource.Id.nav_history);
         mainScroll = FindViewById<ScrollView>(Resource.Id.main_scroll);
         connectedSavesSection = FindViewById(Resource.Id.connected_saves_section);
         warehouseSection = FindViewById(Resource.Id.warehouse_section);
+        centralWarehouseContent = FindViewById(Resource.Id.central_warehouse_content);
+        sourceArchiveContent = FindViewById(Resource.Id.source_archive_content);
+        sourceArchiveTitle = FindViewById<TextView>(Resource.Id.source_archive_title);
+        sourceArchiveSubtitle = FindViewById<TextView>(Resource.Id.source_archive_subtitle);
+        mainPageTitle = FindViewById<TextView>(Resource.Id.main_page_title);
+        mainDashboardHeader = FindViewById(Resource.Id.main_dashboard_header);
+        mainDashboardStats = FindViewById(Resource.Id.main_dashboard_stats);
+        mainDashboardRoute = FindViewById(Resource.Id.main_dashboard_route);
         historySection = FindViewById(Resource.Id.history_section);
         uploadButton = FindViewById<Button>(Resource.Id.upload_button);
         sourcePreviousBox = FindViewById<Button>(Resource.Id.source_previous_box);
@@ -179,10 +199,13 @@ public class MainActivity : Activity
         exportBackupButton!.Click += (_, _) => BeginBackupExport();
         topImportButton!.Click += (_, _) => ShowImportChooser();
         settingsButton!.Click += (_, _) => status!.Text = "当前版本：本地仓库模式 · 所有数据仅在设备内处理。";
-        navHome!.Click += (_, _) => ScrollToSection(warehouseSection, navHome);
-        navSaves!.Click += (_, _) => ScrollToSection(connectedSavesSection, navSaves);
+        navHome!.Click += (_, _) => SwitchPage("warehouse", navHome);
+        navEmerald!.Click += (_, _) => SwitchPage("emerald", navEmerald);
+        navHeartGold!.Click += (_, _) => SwitchPage("heartgold", navHeartGold);
+        navSaves!.Click += (_, _) => SwitchPage("warehouse", navHome);
         navHistory!.Click += (_, _) => ScrollToSection(historySection, navHistory);
         RestoreImportedSaves();
+        SwitchPage("warehouse", navHome);
     }
 
     void ShowImportChooser()
@@ -206,6 +229,44 @@ public class MainActivity : Activity
             if (button is not null)
                 button.SetTextColor(button == active ? Color.Rgb(214, 255, 99) : Color.Rgb(145, 170, 161));
         }
+    }
+
+    void SwitchPage(string page, Button? active)
+    {
+        var archive = page != "warehouse";
+        var mainOnly = archive ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+        if (mainDashboardHeader is not null)
+            mainDashboardHeader.Visibility = mainOnly;
+        if (mainDashboardStats is not null)
+            mainDashboardStats.Visibility = mainOnly;
+        if (mainDashboardRoute is not null)
+            mainDashboardRoute.Visibility = mainOnly;
+        if (mainPageTitle is not null)
+            mainPageTitle.Text = archive ? $"{ActiveSourceName()}，\n上传或下载。" : "主仓库，\n上传与下载。";
+        if (centralWarehouseContent is not null)
+            centralWarehouseContent.Visibility = archive ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+        if (sourceArchiveContent is not null)
+            sourceArchiveContent.Visibility = archive ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+        foreach (var button in new[] { navHome, navEmerald, navHeartGold })
+        {
+            if (button is not null)
+                button.SetTextColor(button == active ? Color.Rgb(214, 255, 99) : Color.Rgb(145, 170, 161));
+        }
+        if (archive)
+        {
+            var requestCode = page == "emerald" ? EmeraldRequest : HeartGoldRequest;
+            SelectSourceSave(requestCode, false);
+            UpdateSourceArchiveHeader();
+        }
+        mainScroll?.Post(() => mainScroll.SmoothScrollTo(0, 0));
+    }
+
+    void UpdateSourceArchiveHeader()
+    {
+        if (sourceArchiveTitle is not null)
+            sourceArchiveTitle.Text = $"{ActiveSourceName()}的盒子";
+        if (sourceArchiveSubtitle is not null)
+            sourceArchiveSubtitle.Text = $"{ActiveSourceName()} · 仅管理此存档的队伍与盒子";
     }
 
     void PickSave(int requestCode)
@@ -560,14 +621,16 @@ public class MainActivity : Activity
 
     void SelectSourceSave(int requestCode, bool announce = true)
     {
+        activeSourceRequest = requestCode;
+        UpdateSourceArchiveHeader();
         if (ActiveSourceSave(requestCode) is null)
         {
             if (announce && status is not null)
                 status.Text = "该来源存档尚未导入。";
+            RenderSourceBoard();
             return;
         }
 
-        activeSourceRequest = requestCode;
         var pages = ActiveSourcePages();
         sourcePageIndex = Math.Max(0, pages.FindIndex(page => page.Capacity == 30));
         selectedSourceSlots.Clear();
@@ -813,9 +876,7 @@ public class MainActivity : Activity
                 image.Click += (_, _) =>
                 {
                     storedPokemon = record;
-                    if (!selectedWarehouseIds.Add(record.Id))
-                        selectedWarehouseIds.Remove(record.Id);
-                    UpdateButtons();
+                    ShowWarehouseDetail(record);
                 };
                 image.LongClick += (_, _) => ShowWarehouseActions(record);
                 tile = image;
@@ -846,7 +907,18 @@ public class MainActivity : Activity
     void ShowWarehouseDetail(StoredPokemon record)
     {
         var pokemon = LocalRepository.LoadWorking(record);
-        ShowPokemonDetailDialog(pokemon, $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}", null, null);
+        var selected = selectedWarehouseIds.Contains(record.Id);
+        ShowPokemonDetailDialog(
+            pokemon,
+            $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}",
+            selected ? "移出本次下载" : "加入本次下载",
+            () =>
+            {
+                storedPokemon = record;
+                if (!selectedWarehouseIds.Add(record.Id))
+                    selectedWarehouseIds.Remove(record.Id);
+                UpdateButtons();
+            });
     }
 
     void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction)
