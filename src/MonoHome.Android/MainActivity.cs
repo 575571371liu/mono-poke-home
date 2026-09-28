@@ -1110,7 +1110,10 @@ public class MainActivity : Activity
         header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 1));
         body.AddView(header);
 
-        var training = Card("训练信息", $"性格    {nature}", $"特性    {ability}", $"效果    {AbilityEffectText(ability)}");
+        var trainingLines = new List<string> { $"性格    {nature}", $"特性    {ability}" };
+        if (AbilityEffectText(ability) is { } effect)
+            trainingLines.Add($"效果    {effect}");
+        var training = Card("训练信息", trainingLines.ToArray());
         var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}");
         var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         cards.SetPadding(0, Dp(8), 0, 0);
@@ -1219,58 +1222,10 @@ public class MainActivity : Activity
     }
 
     static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
-    static string AbilityEffectText(string ability) => ability switch
+    static string? AbilityEffectText(string ability) => ability switch
     {
-        "恶臭" => "有时会使对手畏缩。",
-        "降雨" => "出场时将天气变为下雨。",
-        "加速" => "每回合结束时速度会提高。",
-        "结实" => "满HP时受到致命攻击会留下1HP。",
-        "湿气" => "场上无法使用自爆和大爆炸。",
-        "沙隐" => "沙暴天气下回避率提高。",
-        "静电" => "受到接触攻击时有概率使对手麻痹。",
-        "蓄电" => "受到电属性招式时不受伤并回复HP。",
-        "储水" => "受到水属性招式时不受伤并回复HP。",
-        "复眼" => "招式的追加效果和携带物出现率提高。",
-        "不眠" => "不会陷入睡眠状态。",
-        "引火" => "受到火属性招式时不受伤，火属性招式威力提高。",
-        "威吓" => "出场时降低对手的攻击。",
-        "粗糙皮肤" => "受到接触攻击时使对手损失HP。",
-        "飘浮" => "不会受到地面属性招式影响。",
-        "孢子" => "受到接触攻击时有概率使对手陷入异常状态。",
-        "自然回复" => "回到队伍时治愈异常状态。",
-        "避雷针" => "吸引电属性招式并提高特攻。",
-        "天恩" => "招式追加效果出现率提高。",
-        "悠游自如" => "下雨天气下速度加倍。",
-        "叶绿素" => "晴朗天气下速度加倍。",
-        "捡拾" => "战斗结束后有概率捡到道具。",
-        "压迫感" => "对手使用招式时消耗更多PP。",
-        "厚脂肪" => "火属性和冰属性招式伤害减半。",
-        "隔音" => "不会受到声音类招式影响。",
-        "早起" => "睡眠状态恢复得更快。",
-        "怪力钳" => "攻击不会被对手降低。",
-        "黏着" => "携带的道具不会被夺走。",
-        "大力士" => "攻击能力值加倍。",
-        "火焰之躯" => "受到接触攻击时有概率使对手灼伤。",
-        "蜕皮" => "每回合结束时有概率治愈异常状态。",
-        "毅力" => "陷入异常状态时攻击提高。",
-        "神奇鳞片" => "陷入异常状态时防御提高。",
-        "毒疗" => "中毒时不会损失HP，反而会回复HP。",
-        "魔法防守" => "只受到会造成直接伤害的招式影响。",
-        "无防守" => "自己和对手的招式都不会落空。",
-        "技术高手" => "威力较低的招式威力提高。",
-        "破格" => "招式可以无视对手特性的影响。",
-        "超幸运" => "招式更容易击中要害。",
-        "适应力" => "本属性招式的属性一致加成提高。",
-        "电气引擎" => "受到电属性招式时不受伤并提高速度。",
-        "干燥皮肤" => "受到水属性招式回复HP，火属性招式伤害增加。",
-        "活力" => "攻击提高，但物理招式命中率降低。",
-        "斗争心" => "面对相同性别对手时攻击提高，异性时降低。",
-        "不服输" => "能力被降低时攻击提高。",
-        "紧张感" => "对手无法食用树果。",
-        "强行" => "招式追加效果消失，但威力提高。",
-        "顺手牵羊" => "夺取对手的携带道具。",
-        "不屈之心" => "畏缩时速度提高。",
-        _ => "暂无本地资料。",
+        "污泥浆" => "吸取体力类招式会使对手受到伤害。",
+        _ => null,
     };
 
     static ushort[] LearnableMoves(PKM pokemon, int slot)
