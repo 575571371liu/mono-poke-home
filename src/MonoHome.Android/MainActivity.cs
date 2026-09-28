@@ -105,6 +105,7 @@ public class MainActivity : Activity
     StoredPokemon? storedPokemon;
     RegisteredSave? emeraldSave;
     RegisteredSave? heartGoldSave;
+    RegisteredSave? selectedTransferTarget;
     string? pendingTransferId;
     readonly List<string> pendingTransferIds = [];
     string? lastBackupPath;
@@ -199,7 +200,15 @@ public class MainActivity : Activity
         warehouseBatchDownload!.Click += (_, _) => ShowWarehouseTargetChooser();
         saveNicknameButton!.Click += (_, _) => SaveNickname();
         discardEditsButton!.Click += (_, _) => DiscardEdits();
-        transferButton!.Click += async (_, _) => await GenerateTransferAsync();
+        transferButton!.Click += async (_, _) =>
+        {
+            if (selectedTransferTarget is null)
+            {
+                ShowTransferTargetChooser();
+                return;
+            }
+            await GenerateTransferAsync();
+        };
         exportBackupButton!.Click += (_, _) => BeginBackupExport();
         topImportButton!.Click += (_, _) => ShowImportChooser();
         settingsButton!.Click += (_, _) => status!.Text = "当前版本：本地仓库模式 · 所有数据仅在设备内处理。";
@@ -385,7 +394,7 @@ public class MainActivity : Activity
 
     async Task GenerateTransferAsync()
     {
-        if (heartGoldBytes is null || storedPokemon is null || status is null)
+        if (heartGoldBytes is null || storedPokemon is null || status is null || selectedTransferTarget is null)
             return;
         if (heartGoldExternalState != "已同步")
         {
@@ -395,7 +404,7 @@ public class MainActivity : Activity
         SetBusy(true);
         try
         {
-            if (heartGoldSave is null)
+            if (heartGoldSave is null || selectedTransferTarget.Id != heartGoldSave.Id)
                 throw new IOException("尚未登记目标存档。");
             status.Text = "正在适配目标存档规则…";
             var cachePath = CacheDir?.AbsolutePath ?? throw new IOException("无法取得应用缓存目录。");
@@ -419,6 +428,7 @@ public class MainActivity : Activity
                 return;
             }
             heartGoldSave = SaveRegistry.UpdateSnapshot(heartGoldSave, write.WrittenBytes!);
+            selectedTransferTarget = heartGoldSave;
             heartGoldBytes = write.WrittenBytes;
             storedPokemon = LocalRepository.SetLegality(current, "valid");
             RefreshWarehouse(current.Id);
@@ -531,6 +541,39 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
+    void ShowTransferTargetChooser()
+    {
+        if (storedPokemon is null || status is null)
+            return;
+
+        var choices = new List<string>();
+        var targets = new List<RegisteredSave>();
+        if (heartGoldSave is not null && heartGoldExternalState == "已同步")
+        {
+            choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · 可传送");
+            targets.Add(heartGoldSave);
+        }
+        if (choices.Count == 0)
+        {
+            status.Text = "尚未登记可用的目标存档；请先导入并同步目标存档。";
+            return;
+        }
+
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("选择传送目标存档");
+        dialog.SetItems(choices.ToArray(), (_, args) =>
+        {
+            var index = args?.Which ?? -1;
+            if (index < 0 || index >= targets.Count)
+                return;
+            selectedTransferTarget = targets[index];
+            status.Text = $"已选择目标：{ChineseGameName(selectedTransferTarget.Game)}。再次点击传送。";
+            UpdateButtons();
+        });
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.Show();
+    }
+
     void RegisterSave(int requestCode, byte[] bytes, IReadOnlyList<PokemonSlot> slots, string? sourceUri, int sourceFlags = 0)
     {
         if (requestCode == EmeraldRequest)
@@ -546,6 +589,7 @@ public class MainActivity : Activity
         else
         {
             heartGoldSave = SaveRegistry.Register(bytes, "heartgold.sav", SavesPath, sourceUri, sourceFlags);
+            selectedTransferTarget = null;
             heartGoldExternalState = "已同步";
             GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(HeartGoldSaveKey, heartGoldSave.Id)!.Apply();
             heartGoldBytes = File.ReadAllBytes(heartGoldSave.SnapshotPath);
@@ -587,6 +631,7 @@ public class MainActivity : Activity
             else
             {
                 heartGoldSave = saved;
+                selectedTransferTarget = null;
                 heartGoldBytes = bytes;
                 heartGoldExternalState = CheckSourceUri(saved);
                 heartGoldSlots = BoxReader.Read(bytes, saved.DisplayName).ToList();
@@ -793,7 +838,13 @@ public class MainActivity : Activity
             uploadButton.Text = $"上传 {selectedSourceSlots.Count} 只至中央仓库";
         }
         if (transferButton is not null)
-            transferButton.Enabled = heartGoldBytes is not null && storedPokemon is not null && heartGoldExternalState == "已同步";
+        {
+            var hasTarget = heartGoldBytes is not null && heartGoldSave is not null && heartGoldExternalState == "已同步";
+            transferButton.Text = selectedTransferTarget is null
+                ? "选择传送存档"
+                : $"传送至 {ChineseGameName(selectedTransferTarget.Game)}";
+            transferButton.Enabled = hasTarget && storedPokemon is not null;
+        }
         if (saveNicknameButton is not null)
             saveNicknameButton.Enabled = storedPokemon is not null;
         if (discardEditsButton is not null)
@@ -910,6 +961,7 @@ public class MainActivity : Activity
                 image.Click += (_, _) =>
                 {
                     storedPokemon = record;
+                    selectedTransferTarget = null;
                     ShowWarehouseDetail(record);
                 };
                 image.LongClick += (_, _) => ShowWarehouseActions(record);
@@ -949,6 +1001,7 @@ public class MainActivity : Activity
             () =>
             {
                 storedPokemon = record;
+                selectedTransferTarget = null;
                 if (!selectedWarehouseIds.Add(record.Id))
                     selectedWarehouseIds.Remove(record.Id);
                 UpdateButtons();
