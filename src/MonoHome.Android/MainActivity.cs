@@ -952,21 +952,14 @@ public class MainActivity : Activity
                 if (!selectedWarehouseIds.Add(record.Id))
                     selectedWarehouseIds.Remove(record.Id);
                 UpdateButtons();
-            });
+            },
+            record);
     }
 
-    void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction)
+    void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction, StoredPokemon? warehouseRecord = null)
     {
         var strings = GameInfo.GetStrings("zh-Hans");
-        var moves = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 }
-            .Select(move =>
-            {
-                if (move == 0)
-                    return "—";
-                var name = StringAt(strings.Move, move, $"招式 #{move}");
-                var type = StringAt(strings.Types, MoveInfo.GetType((ushort)move, pokemon.Context), "未知属性");
-                return $"{name} · {type}";
-            });
+        var moves = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 };
         var item = pokemon.HeldItem == 0 ? "无" : StringAt(strings.GetItemStrings(pokemon.Context, pokemon.Version), pokemon.HeldItem, $"道具 #{pokemon.HeldItem}");
         var ability = StringAt(strings.Ability, pokemon.Ability, $"特性 #{pokemon.Ability}");
         var nature = StringAt(strings.Natures, (int)pokemon.Nature, pokemon.Nature.ToString());
@@ -1002,6 +995,22 @@ public class MainActivity : Activity
             }
             return card;
         }
+        View TypeBadge(byte typeId, string typeName)
+        {
+            var iconId = Resources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
+            if (iconId == 0)
+            {
+                var fallback = Text(typeName, 8, "#DCEBE6", true);
+                fallback.Gravity = GravityFlags.Center;
+                return fallback;
+            }
+            var badge = new ImageView(this);
+            badge.SetScaleType(ImageView.ScaleType.CenterInside);
+            badge.SetPadding(Dp(2), Dp(2), Dp(2), Dp(2));
+            badge.SetImageResource(iconId);
+            badge.ContentDescription = $"属性：{typeName}";
+            return badge;
+        }
         var dialog = new Dialog(this);
         var root = new LinearLayout(this) { Orientation = Orientation.Vertical };
         root.SetPadding(Dp(12), Dp(10), Dp(12), Dp(8));
@@ -1029,7 +1038,7 @@ public class MainActivity : Activity
         header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 1));
         body.AddView(header);
 
-        var training = Card("训练信息", $"性格    {nature}", $"特性    {ability}");
+        var training = Card("训练信息", $"性格    {nature}", $"特性    {ability}", $"效果    {AbilityEffectText(ability)}");
         var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}");
         var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         cards.SetPadding(0, Dp(8), 0, 0);
@@ -1042,11 +1051,31 @@ public class MainActivity : Activity
         moveCard.SetPadding(Dp(9), Dp(6), Dp(9), Dp(6));
         moveCard.Background = Panel();
         moveCard.AddView(Text("招式", 10, "#D6FF63", true));
-        foreach (var (move, index) in moves.Select((value, index) => (value, index)))
+        for (var index = 0; index < moves.Length; index++)
         {
-            var row = Text($"{index + 1:D2}   {move}", 10, move == "—" ? "#628078" : "#E9F4EF");
-            row.SetPadding(0, Dp(2), 0, 0);
-            moveCard.AddView(row);
+            var move = moves[index];
+            var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+            row.SetGravity(GravityFlags.CenterVertical);
+            row.SetPadding(0, Dp(3), 0, 0);
+            row.AddView(Text($"{index + 1:D2}", 10, "#628078"), new LinearLayout.LayoutParams(Dp(28), -2));
+            var name = move == 0 ? "—" : StringAt(strings.Move, move, $"招式 #{move}");
+            var typeId = move == 0 ? (byte)0 : MoveInfo.GetType(move, pokemon.Context);
+            var typeName = move == 0 ? string.Empty : StringAt(strings.Types, typeId, "未知属性");
+            row.AddView(Text(name, 11, move == 0 ? "#628078" : "#E9F4EF"), new LinearLayout.LayoutParams(0, -2, 1));
+            row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(5) });
+            if (warehouseRecord is not null)
+            {
+                var moveSlot = index;
+                var edit = new Button(this) { Text = "编辑" };
+                edit.SetAllCaps(false);
+                edit.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 9);
+                edit.SetTextColor(Color.ParseColor("#D6FF63"));
+                edit.SetPadding(Dp(2), 0, Dp(2), 0);
+                edit.Background = Panel("#132A25", "#315249", 6);
+                edit.Click += (_, _) => ShowMoveEditor(warehouseRecord, moveSlot);
+                row.AddView(edit, new LinearLayout.LayoutParams(Dp(46), Dp(28)));
+            }
+            moveCard.AddView(row, new LinearLayout.LayoutParams(-1, -2));
         }
         body.AddView(moveCard, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
 
@@ -1118,6 +1147,195 @@ public class MainActivity : Activity
     }
 
     static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
+    static string AbilityEffectText(string ability) => ability switch
+    {
+        "恶臭" => "有时会使对手畏缩。",
+        "降雨" => "出场时将天气变为下雨。",
+        "加速" => "每回合结束时速度会提高。",
+        "结实" => "满HP时受到致命攻击会留下1HP。",
+        "湿气" => "场上无法使用自爆和大爆炸。",
+        "沙隐" => "沙暴天气下回避率提高。",
+        "静电" => "受到接触攻击时有概率使对手麻痹。",
+        "蓄电" => "受到电属性招式时不受伤并回复HP。",
+        "储水" => "受到水属性招式时不受伤并回复HP。",
+        "复眼" => "招式的追加效果和携带物出现率提高。",
+        "不眠" => "不会陷入睡眠状态。",
+        "引火" => "受到火属性招式时不受伤，火属性招式威力提高。",
+        "威吓" => "出场时降低对手的攻击。",
+        "粗糙皮肤" => "受到接触攻击时使对手损失HP。",
+        "飘浮" => "不会受到地面属性招式影响。",
+        "孢子" => "受到接触攻击时有概率使对手陷入异常状态。",
+        "自然回复" => "回到队伍时治愈异常状态。",
+        "避雷针" => "吸引电属性招式并提高特攻。",
+        "天恩" => "招式追加效果出现率提高。",
+        "悠游自如" => "下雨天气下速度加倍。",
+        "叶绿素" => "晴朗天气下速度加倍。",
+        "捡拾" => "战斗结束后有概率捡到道具。",
+        "压迫感" => "对手使用招式时消耗更多PP。",
+        "厚脂肪" => "火属性和冰属性招式伤害减半。",
+        "隔音" => "不会受到声音类招式影响。",
+        "早起" => "睡眠状态恢复得更快。",
+        "怪力钳" => "攻击不会被对手降低。",
+        "黏着" => "携带的道具不会被夺走。",
+        "大力士" => "攻击能力值加倍。",
+        "火焰之躯" => "受到接触攻击时有概率使对手灼伤。",
+        "蜕皮" => "每回合结束时有概率治愈异常状态。",
+        "毅力" => "陷入异常状态时攻击提高。",
+        "神奇鳞片" => "陷入异常状态时防御提高。",
+        "毒疗" => "中毒时不会损失HP，反而会回复HP。",
+        "魔法防守" => "只受到会造成直接伤害的招式影响。",
+        "无防守" => "自己和对手的招式都不会落空。",
+        "技术高手" => "威力较低的招式威力提高。",
+        "破格" => "招式可以无视对手特性的影响。",
+        "超幸运" => "招式更容易击中要害。",
+        "适应力" => "本属性招式的属性一致加成提高。",
+        "电气引擎" => "受到电属性招式时不受伤并提高速度。",
+        "干燥皮肤" => "受到水属性招式回复HP，火属性招式伤害增加。",
+        "活力" => "攻击提高，但物理招式命中率降低。",
+        "斗争心" => "面对相同性别对手时攻击提高，异性时降低。",
+        "不服输" => "能力被降低时攻击提高。",
+        "紧张感" => "对手无法食用树果。",
+        "强行" => "招式追加效果消失，但威力提高。",
+        "顺手牵羊" => "夺取对手的携带道具。",
+        "不屈之心" => "畏缩时速度提高。",
+        _ => "暂无本地资料。",
+    };
+
+    static ushort[] LearnableMoves(PKM pokemon)
+    {
+        try
+        {
+            var source = GameData.GetLearnSource(pokemon.Version);
+            var possible = new bool[pokemon.MaxMoveID + 1];
+            var criteria = new EvoCriteria { Species = pokemon.Species, Form = pokemon.Form, LevelMax = pokemon.CurrentLevel };
+            source.GetAllMoves(possible, pokemon, criteria, MoveSourceType.All);
+            return possible
+                .Select((canLearn, move) => (canLearn, move))
+                .Where(entry => entry.canLearn && entry.move != 0)
+                .Select(entry => (ushort)entry.move)
+                .ToArray();
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    void ShowMoveEditor(StoredPokemon record, int slot)
+    {
+        try
+        {
+            var current = LocalRepository.LoadWorking(record);
+            var moves = LearnableMoves(current);
+            if (moves.Length == 0)
+            {
+                Toast.MakeText(this, "当前来源版本没有可用学习表。", ToastLength.Short)!.Show();
+                return;
+            }
+            var strings = GameInfo.GetStrings("zh-Hans");
+            int Dp(float value) => (int)(value * Resources.DisplayMetrics.Density + 0.5f);
+            TextView Text(string value, float size, string color, bool bold = false)
+            {
+                var view = new TextView(this) { Text = value, TextSize = size };
+                view.SetTextColor(Color.ParseColor(color));
+                view.SetIncludeFontPadding(false);
+                if (bold)
+                    view.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+                return view;
+            }
+            GradientDrawable Panel(string fill = "#12201F", string stroke = "#315249", float radius = 10)
+            {
+                var background = new GradientDrawable();
+                background.SetColor(Color.ParseColor(fill));
+                background.SetCornerRadius(Dp(radius));
+                background.SetStroke(Dp(1), Color.ParseColor(stroke));
+                return background;
+            }
+            View TypeIcon(ushort move)
+            {
+                var typeId = MoveInfo.GetType(move, current.Context);
+                var typeName = StringAt(strings.Types, typeId, "未知属性");
+                var iconId = Resources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
+                if (iconId == 0)
+                {
+                    var fallback = Text(typeName, 8, "#DCEBE6", true);
+                    fallback.Gravity = GravityFlags.Center;
+                    return fallback;
+                }
+                var icon = new ImageView(this);
+                icon.SetScaleType(ImageView.ScaleType.CenterInside);
+                icon.SetPadding(Dp(2), Dp(2), Dp(2), Dp(2));
+                icon.SetImageResource(iconId);
+                icon.ContentDescription = $"属性：{typeName}";
+                return icon;
+            }
+            var dialog = new Dialog(this);
+            var root = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            root.SetPadding(Dp(14), Dp(12), Dp(14), Dp(10));
+            root.Background = Panel("#0F201C", "#315249", 16);
+            root.AddView(Text($"替换第 {slot + 1} 招式", 18, "#E9F4EF", true));
+            root.AddView(Text($"{ChineseSpeciesName(current.Species)} · {current.Version} · 仅显示当前可合法学习的招式", 10, "#91AAA1"));
+            var scroll = new ScrollView(this) { FillViewport = true };
+            scroll.VerticalScrollBarEnabled = false;
+            var list = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            list.SetPadding(0, Dp(10), 0, 0);
+            void CommitMove(ushort selectedMove)
+            {
+                try
+                {
+                    var nextMoves = new[] { current.Move1, current.Move2, current.Move3, current.Move4 };
+                    nextMoves[slot] = selectedMove;
+                    var edited = LocalRepository.ApplyEdit(current, new WorkingEdit(null, null, null, null, null, null, Moves: nextMoves.Select(move => (int)move).ToArray()));
+                    var updated = LocalRepository.SaveWorking(record, edited);
+                    dialog.Dismiss();
+                    storedPokemon = updated;
+                    RefreshWarehouse(updated.Id);
+                    Toast.MakeText(this, "招式已更换，仓库状态已标记为待复核。", ToastLength.Short)!.Show();
+                    ShowWarehouseDetail(updated);
+                }
+                catch (Exception ex)
+                {
+                    Toast.MakeText(this, ex.Message, ToastLength.Long)!.Show();
+                }
+            }
+            foreach (var move in moves)
+            {
+                var name = StringAt(strings.Move, move, $"招式 #{move}");
+                var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+                row.SetGravity(GravityFlags.CenterVertical);
+                row.SetPadding(Dp(10), Dp(6), Dp(10), Dp(6));
+                row.Background = Panel(move == current.GetMove(slot) ? "#244A3C" : "#12201F", move == current.GetMove(slot) ? "#D6FF63" : "#315249", 9);
+                row.Clickable = true;
+                row.AddView(Text(name, 12, "#E9F4EF", move == current.GetMove(slot)), new LinearLayout.LayoutParams(0, Dp(42), 1));
+                row.AddView(TypeIcon(move), new LinearLayout.LayoutParams(Dp(42), Dp(42)) { RightMargin = Dp(8) });
+                row.AddView(Text(move == current.GetMove(slot) ? "当前" : "可学习", 9, move == current.GetMove(slot) ? "#D6FF63" : "#91AAA1"), new LinearLayout.LayoutParams(Dp(42), -2));
+                row.Click += (_, _) => CommitMove(move);
+                list.AddView(row, new LinearLayout.LayoutParams(-1, Dp(56)) { BottomMargin = Dp(6) });
+            }
+            scroll.AddView(list);
+            root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+            var cancel = new Button(this) { Text = "取消" };
+            cancel.SetAllCaps(false);
+            cancel.SetTextColor(Color.ParseColor("#8DE4D1"));
+            cancel.Background = Panel("#132A25", "#315249", 8);
+            cancel.Click += (_, _) => dialog.Dismiss();
+            root.AddView(cancel, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(8) });
+            dialog.SetContentView(root);
+            dialog.Show();
+            if (dialog.Window is { } window)
+            {
+                window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+                window.SetDimAmount(0.72f);
+                window.AddFlags(WindowManagerFlags.DimBehind);
+                window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.92f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+            }
+        }
+        catch (Exception ex)
+        {
+            Toast.MakeText(this, $"招式列表读取失败：{ex.Message}", ToastLength.Long)!.Show();
+        }
+    }
+
     static string GenderText(byte gender) => gender switch { 0 => "雄", 1 => "雌", _ => "无性别" };
     static string StatusText(PKM pokemon) => pokemon.Status_Condition == 0 ? "无异常状态" : $"异常状态 #{pokemon.Status_Condition}";
 
