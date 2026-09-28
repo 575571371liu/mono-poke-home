@@ -21,6 +21,10 @@ public sealed record PokemonSlot(
     int Box,
     int Slot);
 
+public sealed record StorageSlot(int Index, PokemonSlot? Pokemon);
+
+public sealed record StoragePage(string Id, string Name, int Capacity, IReadOnlyList<StorageSlot> Slots);
+
 public static class BoxReader
 {
     public static IReadOnlyList<PokemonSlot> Read(string path)
@@ -43,6 +47,27 @@ public static class BoxReader
         return result;
     }
 
+    public static IReadOnlyList<StoragePage> ReadPages(ReadOnlyMemory<byte> bytes, string displayName)
+    {
+        var save = SaveUtil.GetSaveFile(bytes.ToArray(), displayName) ?? throw new InvalidDataException("Unsupported or corrupted Pokémon save.");
+        var pages = new List<StoragePage>
+        {
+            new("party", "随身携带", 6, Enumerable.Range(0, 6)
+                .Select(index => new StorageSlot(index, ToSlot(save.GetPartySlotAtIndex(index), "Party", -1, index)))
+                .ToArray()),
+        };
+
+        for (var box = 0; box < save.BoxCount; box++)
+        {
+            var slots = Enumerable.Range(0, save.BoxSlotCount)
+                .Select(index => new StorageSlot(index, ToSlot(save.GetBoxSlotAtIndex(box, index), "Box", box, index)))
+                .ToArray();
+            pages.Add(new StoragePage($"box-{box}", $"仓库 {box + 1}", save.BoxSlotCount, slots));
+        }
+
+        return pages;
+    }
+
     public static PKM ReadPokemon(string path, PokemonSlot selected)
     {
         var save = SaveUtil.GetSaveFile(path) ?? throw new InvalidDataException("Unsupported or corrupted Pokémon save.");
@@ -58,9 +83,16 @@ public static class BoxReader
 
     private static void Add(PKM pk, string location, int box, int slot, List<PokemonSlot> result)
     {
+        var value = ToSlot(pk, location, box, slot);
+        if (value is not null)
+            result.Add(value);
+    }
+
+    private static PokemonSlot? ToSlot(PKM pk, string location, int box, int slot)
+    {
         if (pk.Species == 0)
-            return;
-        result.Add(new PokemonSlot(
+            return null;
+        return new PokemonSlot(
             pk.Species,
             pk.Nickname,
             pk.Form,
@@ -77,6 +109,6 @@ public static class BoxReader
             pk is IRibbonSetRibbons ribbons ? ribbons.RibbonCount : 0,
             location,
             box,
-            slot));
+            slot);
     }
 }

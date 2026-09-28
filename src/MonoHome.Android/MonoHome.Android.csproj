@@ -11,7 +11,7 @@
     <JavaSdkDirectory>C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot</JavaSdkDirectory>
     <PublishTrimmed>false</PublishTrimmed>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <AndroidEnableMarshalMethods>true</AndroidEnableMarshalMethods>
+    <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
   </PropertyGroup>
   <ItemGroup>

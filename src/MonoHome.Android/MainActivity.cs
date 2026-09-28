@@ -31,6 +31,10 @@ public class MainActivity : Activity
     Button? navSaves;
     Button? navHistory;
     Button? uploadButton;
+    Button? sourcePreviousBox;
+    Button? sourceNextBox;
+    TextView? sourceBoxTitle;
+    GridLayout? sourceBoxGrid;
     Button? saveNicknameButton;
     Button? discardEditsButton;
     Spinner? sourcePicker;
@@ -41,6 +45,8 @@ public class MainActivity : Activity
     TextView? selectedPokemon;
     TextView? emeraldState;
     TextView? heartGoldState;
+    View? emeraldSourceCard;
+    View? heartGoldSourceCard;
     TextView? warehouseState;
     TextView? historyState;
     LinearLayout? warehouseGrid;
@@ -76,6 +82,12 @@ public class MainActivity : Activity
     byte[]? emeraldBytes;
     byte[]? heartGoldBytes;
     List<PokemonSlot> emeraldSlots = [];
+    List<StoragePage> emeraldPages = [];
+    List<PokemonSlot> heartGoldSlots = [];
+    List<StoragePage> heartGoldPages = [];
+    int activeSourceRequest = EmeraldRequest;
+    int sourcePageIndex;
+    readonly HashSet<PokemonSlot> selectedSourceSlots = [];
     List<StoredPokemon> warehouse = [];
     StoredPokemon? storedPokemon;
     RegisteredSave? emeraldSave;
@@ -108,6 +120,10 @@ public class MainActivity : Activity
         warehouseSection = FindViewById(Resource.Id.warehouse_section);
         historySection = FindViewById(Resource.Id.history_section);
         uploadButton = FindViewById<Button>(Resource.Id.upload_button);
+        sourcePreviousBox = FindViewById<Button>(Resource.Id.source_previous_box);
+        sourceNextBox = FindViewById<Button>(Resource.Id.source_next_box);
+        sourceBoxTitle = FindViewById<TextView>(Resource.Id.source_box_title);
+        sourceBoxGrid = FindViewById<GridLayout>(Resource.Id.source_box_grid);
         sourcePicker = FindViewById<Spinner>(Resource.Id.source_picker);
         warehousePicker = FindViewById<Spinner>(Resource.Id.warehouse_picker);
         targetPicker = FindViewById<Spinner>(Resource.Id.target_picker);
@@ -116,6 +132,8 @@ public class MainActivity : Activity
         selectedPokemon = FindViewById<TextView>(Resource.Id.selected_pokemon);
         emeraldState = FindViewById<TextView>(Resource.Id.emerald_state);
         heartGoldState = FindViewById<TextView>(Resource.Id.heartgold_state);
+        emeraldSourceCard = FindViewById(Resource.Id.emerald_source_card);
+        heartGoldSourceCard = FindViewById(Resource.Id.heartgold_source_card);
         warehouseState = FindViewById<TextView>(Resource.Id.warehouse_state);
         historyState = FindViewById<TextView>(Resource.Id.history_state);
         warehouseGrid = FindViewById<LinearLayout>(Resource.Id.warehouse_grid);
@@ -144,12 +162,15 @@ public class MainActivity : Activity
         evsInput = FindViewById<EditText>(Resource.Id.evs_input);
         saveNicknameButton = FindViewById<Button>(Resource.Id.save_nickname);
         discardEditsButton = FindViewById<Button>(Resource.Id.discard_edits);
-        sourcePicker!.ItemSelected += (_, _) => RenderSelectedPokemon();
         warehousePicker!.ItemSelected += (_, _) => SelectWarehousePokemon();
         FindViewById<Button>(Resource.Id.import_emerald)!.Click += (_, _) => PickSave(EmeraldRequest);
         FindViewById<Button>(Resource.Id.import_heartgold)!.Click += (_, _) => PickSave(HeartGoldRequest);
+        emeraldSourceCard!.Click += (_, _) => SelectSourceSave(EmeraldRequest);
+        heartGoldSourceCard!.Click += (_, _) => SelectSourceSave(HeartGoldRequest);
         uploadButton!.Click += async (_, _) => await UploadSelectedAsync();
-        warehouseBatchDownload!.Click += async (_, _) => await GenerateBatchTransferAsync();
+        sourcePreviousBox!.Click += (_, _) => CycleSourceBox(-1);
+        sourceNextBox!.Click += (_, _) => CycleSourceBox(1);
+        warehouseBatchDownload!.Click += (_, _) => ShowWarehouseTargetChooser();
         saveNicknameButton!.Click += (_, _) => SaveNickname();
         discardEditsButton!.Click += (_, _) => DiscardEdits();
         transferButton!.Click += async (_, _) => await GenerateTransferAsync();
@@ -391,6 +412,46 @@ public class MainActivity : Activity
         }
     }
 
+    void ShowWarehouseTargetChooser()
+    {
+        if (selectedWarehouseIds.Count == 0 || status is null)
+            return;
+
+        var choices = new List<string>();
+        var actions = new List<Action>();
+        if (heartGoldSave is not null)
+        {
+            choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · {heartGoldExternalState}");
+            actions.Add(async () =>
+            {
+                if (heartGoldExternalState != "已同步")
+                {
+                    status.Text = "目标存档需重新授权或已被外部修改，未开始下载。";
+                    return;
+                }
+                await GenerateBatchTransferAsync();
+            });
+        }
+        if (emeraldSave is not null)
+        {
+            choices.Add($"绿宝石 · Gen {emeraldSave.Generation} · 当前发布路线不支持作为目标");
+            actions.Add(() => status.Text = "绿宝石作为目标的合法转换尚未发布；仓库实体未被修改。" );
+        }
+        if (choices.Count == 0)
+        {
+            status.Text = "尚未登记目标存档。请先导入目标存档并授予读写权限。";
+            return;
+        }
+
+        var dialog = new AlertDialog.Builder(this);
+        if (dialog is null)
+            return;
+        dialog.SetTitle("选择下载目标存档");
+        dialog.SetItems(choices.ToArray(), (_, args) => actions[args?.Which ?? 0]());
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.Show();
+    }
+
     void RegisterSave(int requestCode, byte[] bytes, IReadOnlyList<PokemonSlot> slots, string? sourceUri, int sourceFlags = 0)
     {
         if (requestCode == EmeraldRequest)
@@ -400,9 +461,8 @@ public class MainActivity : Activity
             GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(EmeraldSaveKey, emeraldSave.Id)!.Apply();
             emeraldBytes = File.ReadAllBytes(emeraldSave.SnapshotPath);
             emeraldSlots = BoxReader.Read(emeraldBytes, emeraldSave.DisplayName).ToList();
-            var labels = emeraldSlots.Select(FormatSlot).ToArray();
-            sourcePicker!.Adapter = new ArrayAdapter<string>(this, global::Android.Resource.Layout.SimpleSpinnerDropDownItem, labels);
-            RenderSelectedPokemon();
+            emeraldPages = BoxReader.ReadPages(emeraldBytes, emeraldSave.DisplayName).ToList();
+            SelectSourceSave(EmeraldRequest, false);
         }
         else
         {
@@ -410,6 +470,10 @@ public class MainActivity : Activity
             heartGoldExternalState = "已同步";
             GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(HeartGoldSaveKey, heartGoldSave.Id)!.Apply();
             heartGoldBytes = File.ReadAllBytes(heartGoldSave.SnapshotPath);
+            heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+            heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+            if (emeraldSave is null)
+                SelectSourceSave(HeartGoldRequest, false);
         }
         UpdateButtons();
     }
@@ -437,15 +501,19 @@ public class MainActivity : Activity
                 emeraldBytes = bytes;
                 emeraldExternalState = CheckSourceUri(saved);
                 emeraldSlots = BoxReader.Read(bytes, saved.DisplayName).ToList();
-                sourcePicker!.Adapter = new ArrayAdapter<string>(this, global::Android.Resource.Layout.SimpleSpinnerDropDownItem,
-                    emeraldSlots.Select(FormatSlot).ToArray());
-                RenderSelectedPokemon();
+                emeraldPages = BoxReader.ReadPages(bytes, saved.DisplayName).ToList();
+                if (heartGoldSave is null || activeSourceRequest == EmeraldRequest)
+                    SelectSourceSave(EmeraldRequest, false);
             }
             else
             {
                 heartGoldSave = saved;
                 heartGoldBytes = bytes;
                 heartGoldExternalState = CheckSourceUri(saved);
+                heartGoldSlots = BoxReader.Read(bytes, saved.DisplayName).ToList();
+                heartGoldPages = BoxReader.ReadPages(bytes, saved.DisplayName).ToList();
+                if (emeraldSave is null)
+                    SelectSourceSave(HeartGoldRequest, false);
             }
         }
         catch (Exception ex)
@@ -456,25 +524,26 @@ public class MainActivity : Activity
 
     async Task UploadSelectedAsync()
     {
-        var selectedIndex = sourcePicker?.SelectedItemPosition ?? -1;
-        if (selectedIndex < 0 || selectedIndex >= emeraldSlots.Count || status is null)
+        if (selectedSourceSlots.Count == 0 || status is null)
             return;
-        if (emeraldExternalState != "已同步")
+        if (ActiveSourceState() != "已同步")
         {
             status.Text = "源存档已变更或无法验证；请重新导入后再上传。";
             return;
         }
         try
         {
-            var sourcePath = emeraldSave?.SnapshotPath ?? throw new InvalidDataException("绿宝石存档未登记。");
+            var sourcePath = ActiveSourceSave()?.SnapshotPath ?? throw new InvalidDataException("来源存档未登记。");
             SetBusy(true);
             status.Text = "正在复制宝可梦到本地仓库…";
-            await Task.Yield();
-            await Task.Delay(450);
-            var slot = emeraldSlots[selectedIndex];
-            storedPokemon = await Task.Run(() => LocalRepository.Upload(BoxReader.ReadPokemon(sourcePath, slot), WarehousePath));
-            RefreshWarehouse(storedPokemon.Id);
-            status.Text = $"已上传 #{storedPokemon.Species} 到本地仓库。可选择心金存档导出。";
+            await Task.Delay(2000);
+            var selected = selectedSourceSlots.ToArray();
+            var stored = await Task.Run(() => selected.Select(slot => LocalRepository.Upload(BoxReader.ReadPokemon(sourcePath, slot), WarehousePath)).ToArray());
+            storedPokemon = stored.LastOrDefault();
+            selectedSourceSlots.Clear();
+            RefreshWarehouse(storedPokemon?.Id);
+            RenderSourceBoard();
+            status.Text = $"已上传 {stored.Length} 只至中央仓库。";
             UpdateButtons();
         }
         catch (Exception ex)
@@ -487,10 +556,136 @@ public class MainActivity : Activity
         }
     }
 
+    void SelectSourceSave(int requestCode, bool announce = true)
+    {
+        if (ActiveSourceSave(requestCode) is null)
+        {
+            if (announce && status is not null)
+                status.Text = "该来源存档尚未导入。";
+            return;
+        }
+
+        activeSourceRequest = requestCode;
+        var pages = ActiveSourcePages();
+        sourcePageIndex = Math.Max(0, pages.FindIndex(page => page.Capacity == 30));
+        selectedSourceSlots.Clear();
+        RenderSourceBoard();
+        if (announce && status is not null)
+            status.Text = $"已切换来源：{ActiveSourceName()}。下方仓库已同步。";
+    }
+
+    RegisteredSave? ActiveSourceSave(int? requestCode = null) => (requestCode ?? activeSourceRequest) == EmeraldRequest ? emeraldSave : heartGoldSave;
+    List<StoragePage> ActiveSourcePages() => activeSourceRequest == EmeraldRequest ? emeraldPages : heartGoldPages;
+    string ActiveSourceState() => activeSourceRequest == EmeraldRequest ? emeraldExternalState : heartGoldExternalState;
+    string ActiveSourceName() => activeSourceRequest == EmeraldRequest ? "绿宝石" : "心金 / 魂银";
+
+    void CycleSourceBox(int delta)
+    {
+        var pages = ActiveSourcePages();
+        if (pages.Count == 0)
+            return;
+        sourcePageIndex = (sourcePageIndex + delta + pages.Count) % pages.Count;
+        RenderSourceBoard();
+    }
+
+    void RenderSourceBoard()
+    {
+        if (sourceBoxGrid is null || sourceBoxTitle is null || sourcePreviousBox is null || sourceNextBox is null)
+            return;
+
+        sourceBoxGrid.RemoveAllViews();
+        var pages = ActiveSourcePages();
+        if (pages.Count == 0)
+        {
+            sourceBoxTitle.Text = "导入来源存档后显示仓库";
+            sourcePreviousBox.Enabled = sourceNextBox.Enabled = false;
+            return;
+        }
+
+        sourcePreviousBox.Enabled = sourceNextBox.Enabled = true;
+        var page = pages[sourcePageIndex];
+        var occupied = page.Slots.Count(slot => slot.Pokemon is not null);
+        sourceBoxTitle.Text = $"{page.Name}\n{occupied} / {page.Capacity} 槽位";
+        var columns = Resources!.DisplayMetrics!.WidthPixels / Resources.DisplayMetrics.Density >= 600 ? 6 : 5;
+        sourceBoxGrid.ColumnCount = columns;
+        var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - (int)(Resources.DisplayMetrics.Density * 64)) / columns);
+
+        foreach (var slot in page.Slots)
+        {
+            View tile;
+            if (slot.Pokemon is null)
+            {
+                var empty = new TextView(this)
+                {
+                    Text = (slot.Index + 1).ToString("00"),
+                    Gravity = GravityFlags.Center,
+                    TextSize = 10,
+                    ContentDescription = $"空槽位 {slot.Index + 1}",
+                };
+                empty.SetTextColor(Color.Rgb(68, 105, 93));
+                empty.Background = CreateSlotBackground(false, false, true);
+                tile = empty;
+            }
+            else
+            {
+                var pokemon = slot.Pokemon;
+                var selected = selectedSourceSlots.Contains(pokemon);
+                var image = new ImageButton(this)
+                {
+                    ContentDescription = $"查看 {ChineseSpeciesName(pokemon.Species)} 详情",
+                };
+                image.SetScaleType(ImageView.ScaleType.CenterInside);
+                image.SetPadding(5, 5, 5, 5);
+                image.Background = CreateSlotBackground(true, selected, false);
+                var icon = Resources.GetIdentifier($"a_{pokemon.Species}", "drawable", PackageName);
+                if (icon != 0)
+                    image.SetImageResource(icon);
+                image.Click += (_, _) => ShowSourceSlotDetail(pokemon);
+                tile = image;
+            }
+
+            var parameters = new GridLayout.LayoutParams { Width = width, Height = width };
+            parameters.SetMargins(3, 3, 3, 3);
+            sourceBoxGrid.AddView(tile, parameters);
+        }
+
+        UpdateButtons();
+    }
+
+    void ShowSourceSlotDetail(PokemonSlot slot)
+    {
+        var selected = selectedSourceSlots.Contains(slot);
+        var dialog = new AlertDialog.Builder(this)!;
+        dialog.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}");
+        dialog.SetMessage($"{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n" +
+            $"{(slot.IsShiny ? "闪光 · " : string.Empty)}{(slot.HeldItem == 0 ? "无携带道具" : $"携带道具 #{slot.HeldItem}")}");
+        dialog.SetNegativeButton("关闭", (_, _) => { });
+        dialog.SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) =>
+        {
+            if (!selectedSourceSlots.Add(slot))
+                selectedSourceSlots.Remove(slot);
+            RenderSourceBoard();
+        });
+        dialog.Show();
+    }
+
+    static GradientDrawable CreateSlotBackground(bool occupied, bool selected, bool empty)
+    {
+        var background = new GradientDrawable();
+        background.SetCornerRadius(8);
+        background.SetColor(selected ? Color.Rgb(35, 70, 57) : Color.Rgb(13, 34, 28));
+        background.SetStroke(selected ? 2 : 1, selected ? Color.Rgb(214, 255, 99) : empty ? Color.Rgb(45, 84, 72) : Color.Rgb(49, 84, 72));
+        return background;
+    }
+
     void UpdateButtons()
     {
         if (uploadButton is not null)
-            uploadButton.Enabled = emeraldSlots.Count > 0 && emeraldExternalState == "已同步";
+        {
+            uploadButton.Visibility = selectedSourceSlots.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+            uploadButton.Enabled = selectedSourceSlots.Count > 0 && ActiveSourceState() == "已同步";
+            uploadButton.Text = $"上传 {selectedSourceSlots.Count} 只至中央仓库";
+        }
         if (transferButton is not null)
             transferButton.Enabled = heartGoldBytes is not null && storedPokemon is not null && heartGoldExternalState == "已同步";
         if (saveNicknameButton is not null)
@@ -525,7 +720,7 @@ public class MainActivity : Activity
         if (warehouseActionbar is not null)
             warehouseActionbar.Visibility = selectedWarehouseIds.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
         if (warehouseBatchDownload is not null)
-            warehouseBatchDownload.Enabled = selectedWarehouseIds.Count > 0 && heartGoldBytes is not null && heartGoldExternalState == "已同步";
+            warehouseBatchDownload.Enabled = selectedWarehouseIds.Count > 0;
         RenderWarehouseGrid();
         RenderHistory();
     }
@@ -762,6 +957,14 @@ public class MainActivity : Activity
         var name = SpeciesName.GetSpeciesNameGeneration((ushort)species, (int)LanguageID.ChineseS, generation);
         return string.IsNullOrWhiteSpace(name) ? $"宝可梦 #{species}" : name;
     }
+
+    static string ChineseGameName(string game) => game switch
+    {
+        "HeartGold" => "心灵之金",
+        "SoulSilver" => "魂银",
+        "Emerald" => "绿宝石",
+        _ => game,
+    };
 
     void BeginExport()
     {
