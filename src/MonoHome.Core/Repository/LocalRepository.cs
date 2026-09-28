@@ -171,7 +171,17 @@ public static class LocalRepository
         try
         {
             var analysis = new LegalityAnalysis(source);
-            if (analysis.Valid || analysis.EncounterMatch is not IEncounterConvertible encounter)
+            if (analysis.Valid)
+                return source;
+            var encounter = analysis.EncounterMatch as IEncounterConvertible;
+            if (encounter is null or EncounterInvalid)
+            {
+                encounter = EncounterGenerator.GetEncounters(source, analysis.Info)
+                    .Where(candidate => candidate is not EncounterInvalid && candidate.Species == source.Species && candidate.Form == source.Form)
+                    .OfType<IEncounterConvertible>()
+                    .FirstOrDefault();
+            }
+            if (encounter is null)
                 return source;
 
             var trainer = new SimpleTrainerInfo(source.Version)
