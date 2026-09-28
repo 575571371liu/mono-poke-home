@@ -166,7 +166,7 @@ public static class LocalRepository
     }
 
     /// <summary>Rebuilds only encounter/background data while retaining user-controlled battle data.</summary>
-    static PKM RepairBackground(PKM source)
+    public static PKM RepairBackground(PKM source)
     {
         try
         {

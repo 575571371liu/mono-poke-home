@@ -1,3 +1,4 @@
+using MonoHome.Core.Repository;
 using PKHeX.Core;
 
 namespace MonoHome.Core.Transfers;
@@ -67,7 +68,14 @@ public static class EmeraldHgssTransfer
             changes.Add(new("OriginalTrainer", pokemon.OriginalTrainerName, target.OT));
             changes.Add(new("TrainerID", $"{pokemon.TID16}/{pokemon.SID16}", $"{target.TID16}/{target.SID16}"));
         }
-        var conversionInput = mode == TransferMode.Fidelity ? pokemon : NormalizeGen3Correlation(pokemon, changes);
+        var conversionInput = pokemon;
+        if (mode == TransferMode.Conversion)
+        {
+            var repaired = LocalRepository.RepairBackground(pokemon);
+            if (!ReferenceEquals(repaired, pokemon))
+                changes.Add(new("Background", "原始背景", "已按 PKHeX 合法相遇模板修复"));
+            conversionInput = NormalizeGen3Correlation(repaired, changes);
+        }
 
         var previousCompatibility = EntityConverter.AllowIncompatibleConversion;
         EntityConverter.AllowIncompatibleConversion = EntityCompatibilitySetting.AllowIncompatibleSane;
