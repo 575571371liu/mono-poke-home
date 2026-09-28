@@ -68,7 +68,9 @@ public class MainActivity : Activity
     View? centralWarehouseContent;
     View? sourceArchiveContent;
     TextView? sourceArchiveTitle;
+    TextView? sourceArchiveName;
     TextView? sourceArchiveSubtitle;
+    ImageView? sourceArchiveIcon;
     TextView? mainPageTitle;
     View? mainDashboardHeader;
     View? mainDashboardStats;
@@ -135,7 +137,9 @@ public class MainActivity : Activity
         centralWarehouseContent = FindViewById(Resource.Id.central_warehouse_content);
         sourceArchiveContent = FindViewById(Resource.Id.source_archive_content);
         sourceArchiveTitle = FindViewById<TextView>(Resource.Id.source_archive_title);
+        sourceArchiveName = FindViewById<TextView>(Resource.Id.source_archive_name);
         sourceArchiveSubtitle = FindViewById<TextView>(Resource.Id.source_archive_subtitle);
+        sourceArchiveIcon = FindViewById<ImageView>(Resource.Id.source_archive_icon);
         mainPageTitle = FindViewById<TextView>(Resource.Id.main_page_title);
         mainDashboardHeader = FindViewById(Resource.Id.main_dashboard_header);
         mainDashboardStats = FindViewById(Resource.Id.main_dashboard_stats);
@@ -263,10 +267,22 @@ public class MainActivity : Activity
 
     void UpdateSourceArchiveHeader()
     {
+        if (sourceArchiveIcon is not null)
+            sourceArchiveIcon.SetImageResource(activeSourceRequest == EmeraldRequest ? Resource.Drawable.gen3_emerald : Resource.Drawable.gen4_hgss);
         if (sourceArchiveTitle is not null)
-            sourceArchiveTitle.Text = $"{ActiveSourceName()}的盒子";
+            sourceArchiveTitle.Text = ActiveSourceName();
+        if (sourceArchiveName is not null)
+            sourceArchiveName.Text = ActiveSourceSave()?.DisplayName ?? "未导入存档";
         if (sourceArchiveSubtitle is not null)
             sourceArchiveSubtitle.Text = $"{ActiveSourceName()} · 仅管理此存档的队伍与盒子";
+    }
+
+    void UpdateArchiveTabs()
+    {
+        if (navEmerald is not null)
+            navEmerald.Visibility = emeraldSave is null ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+        if (navHeartGold is not null)
+            navHeartGold.Visibility = heartGoldSave is null ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
     }
 
     void PickSave(int requestCode)
@@ -752,6 +768,7 @@ public class MainActivity : Activity
 
     void UpdateButtons()
     {
+        UpdateArchiveTabs();
         if (uploadButton is not null)
         {
             uploadButton.Visibility = selectedSourceSlots.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
