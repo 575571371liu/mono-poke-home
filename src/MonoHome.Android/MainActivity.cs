@@ -1275,10 +1275,27 @@ public class MainActivity : Activity
             root.Background = Panel("#0F201C", "#315249", 16);
             root.AddView(Text($"替换第 {slot + 1} 招式", 18, "#E9F4EF", true));
             root.AddView(Text($"{ChineseSpeciesName(current.Species)} · {current.Version} · 仅显示当前可合法学习的招式", 10, "#91AAA1"));
+            var currentMove = current.GetMove(slot);
+            var currentName = currentMove == 0 ? "—" : StringAt(strings.Move, currentMove, $"招式 #{currentMove}");
+            var currentType = currentMove == 0 ? 0 : MoveInfo.GetType(currentMove, current.Context);
+            var currentTypeName = currentMove == 0 ? "—" : StringAt(strings.Types, currentType, "未知属性");
+            var currentInfo = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+            currentInfo.SetGravity(GravityFlags.CenterVertical);
+            currentInfo.SetPadding(Dp(10), Dp(7), Dp(10), Dp(7));
+            currentInfo.Background = Panel("#132A25", "#315249", 10);
+            var currentLabel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            currentLabel.AddView(Text("当前招式", 9, "#91AAA1", true));
+            currentLabel.AddView(Text(currentName, 13, "#E9F4EF", true));
+            currentLabel.AddView(Text($"属性 · {currentTypeName}  ·  PP {MoveInfo.GetPP(current.Context, currentMove)}", 9, "#8DE4D1"));
+            currentInfo.AddView(currentLabel, new LinearLayout.LayoutParams(0, -2, 1));
+            if (currentMove != 0)
+                currentInfo.AddView(TypeIcon(currentMove), new LinearLayout.LayoutParams(Dp(30), Dp(30)) { RightMargin = Dp(4) });
+            root.AddView(currentInfo, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(10) });
             var scroll = new ScrollView(this) { FillViewport = true };
             scroll.VerticalScrollBarEnabled = false;
             var list = new LinearLayout(this) { Orientation = Orientation.Vertical };
             list.SetPadding(0, Dp(10), 0, 0);
+            list.AddView(Text($"可选招式  ·  {moves.Length} 项", 10, "#D6FF63", true), new LinearLayout.LayoutParams(-1, Dp(24)));
             void CommitMove(ushort selectedMove)
             {
                 try
@@ -1301,16 +1318,21 @@ public class MainActivity : Activity
             foreach (var move in moves)
             {
                 var name = StringAt(strings.Move, move, $"招式 #{move}");
+                var typeId = MoveInfo.GetType(move, current.Context);
+                var typeName = StringAt(strings.Types, typeId, "未知属性");
                 var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
                 row.SetGravity(GravityFlags.CenterVertical);
-                row.SetPadding(Dp(10), Dp(6), Dp(10), Dp(6));
-                row.Background = Panel(move == current.GetMove(slot) ? "#244A3C" : "#12201F", move == current.GetMove(slot) ? "#D6FF63" : "#315249", 9);
+                row.SetPadding(Dp(10), Dp(5), Dp(10), Dp(5));
+                row.Background = Panel(move == currentMove ? "#244A3C" : "#12201F", move == currentMove ? "#D6FF63" : "#315249", 9);
                 row.Clickable = true;
-                row.AddView(Text(name, 12, "#E9F4EF", move == current.GetMove(slot)), new LinearLayout.LayoutParams(0, Dp(42), 1));
-                row.AddView(TypeIcon(move), new LinearLayout.LayoutParams(Dp(42), Dp(42)) { RightMargin = Dp(8) });
-                row.AddView(Text(move == current.GetMove(slot) ? "当前" : "可学习", 9, move == current.GetMove(slot) ? "#D6FF63" : "#91AAA1"), new LinearLayout.LayoutParams(Dp(42), -2));
+                var moveLabel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+                moveLabel.AddView(Text(name, 12, "#E9F4EF", move == currentMove));
+                moveLabel.AddView(Text($"属性 · {typeName}  ·  PP {MoveInfo.GetPP(current.Context, move)}", 9, move == currentMove ? "#B6E8A0" : "#91AAA1"));
+                row.AddView(moveLabel, new LinearLayout.LayoutParams(0, Dp(42), 1));
+                row.AddView(TypeIcon(move), new LinearLayout.LayoutParams(Dp(30), Dp(30)) { RightMargin = Dp(8) });
+                row.AddView(Text(move == currentMove ? "当前" : "可学习", 9, move == currentMove ? "#D6FF63" : "#91AAA1"), new LinearLayout.LayoutParams(Dp(42), -2));
                 row.Click += (_, _) => CommitMove(move);
-                list.AddView(row, new LinearLayout.LayoutParams(-1, Dp(56)) { BottomMargin = Dp(6) });
+                list.AddView(row, new LinearLayout.LayoutParams(-1, Dp(54)) { BottomMargin = Dp(6) });
             }
             scroll.AddView(list);
             root.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
