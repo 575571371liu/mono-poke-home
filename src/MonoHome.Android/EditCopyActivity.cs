@@ -39,8 +39,6 @@ public sealed class EditCopyActivity : Activity
         {
             var source = LocalRepository.LoadWorking(parent!);
             var candidate = LocalRepository.ApplyEdit(source, new WorkingEdit(nickname?.Text?.Trim(), int.Parse(level?.Text ?? "0"), null, null, null, null));
-            if (!new LegalityAnalysis(candidate).Valid)
-                throw new InvalidOperationException("该修改无法形成来源合法的副本，请调整字段后重试。");
             var copy = LocalRepository.CreateLegalCopy(parent!, candidate, Path.Combine(FilesDir!.AbsolutePath, "warehouse"));
             SetResult(Result.Ok, new global::Android.Content.Intent().PutExtra("repository_id", copy.Id));
             Finish();

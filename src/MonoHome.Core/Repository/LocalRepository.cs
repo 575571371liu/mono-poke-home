@@ -40,6 +40,7 @@ public static class LocalRepository
 
     public static StoredPokemon Upload(PKM pokemon, string root)
     {
+        var working = RepairBackground(pokemon);
         var id = Guid.NewGuid().ToString("N");
         var directory = Path.Combine(root, id);
         Directory.CreateDirectory(directory);
@@ -52,9 +53,9 @@ public static class LocalRepository
             Path.Combine(directory, "record.json"),
             now,
             now,
-            "pending");
+            LegalityStatus(working));
         WritePokemon(stored.OriginalPath, pokemon);
-        File.Copy(stored.OriginalPath, stored.WorkingPath);
+        WritePokemon(stored.WorkingPath, working);
         WriteRecord(stored);
         return stored;
     }
@@ -150,24 +151,73 @@ public static class LocalRepository
 
     public static StoredPokemon SaveWorking(StoredPokemon stored, PKM pokemon)
     {
-        WritePokemon(stored.WorkingPath, pokemon);
-        var status = "stale";
-        try
-        {
-            status = new LegalityAnalysis(pokemon).Valid ? "valid" : "invalid";
-        }
-        catch
-        {
-            // Keep the explicit stale state if this format cannot be checked locally.
-        }
+        var working = RepairBackground(pokemon);
+        WritePokemon(stored.WorkingPath, working);
+        var status = LegalityStatus(working);
         var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status, Revision = stored.Revision + 1 };
         WriteRecord(updated);
         return updated;
     }
 
+    static string LegalityStatus(PKM pokemon)
+    {
+        try { return new LegalityAnalysis(pokemon).Valid ? "valid" : "invalid"; }
+        catch { return "stale"; }
+    }
+
+    /// <summary>Rebuilds only encounter/background data while retaining user-controlled battle data.</summary>
+    static PKM RepairBackground(PKM source)
+    {
+        try
+        {
+            var analysis = new LegalityAnalysis(source);
+            if (analysis.Valid || analysis.EncounterMatch is not IEncounterConvertible encounter)
+                return source;
+
+            var trainer = new SimpleTrainerInfo(source.Version)
+            {
+                OT = source.OriginalTrainerName,
+                TID16 = source.TID16,
+                SID16 = source.SID16,
+                Gender = source.OriginalTrainerGender,
+                Language = source.Language,
+            };
+            var repaired = encounter.ConvertToPKM(trainer, new EncounterCriteria
+            {
+                Gender = (Gender)source.Gender,
+                Nature = (Nature)source.Nature,
+                Shiny = source.IsShiny ? Shiny.Always : Shiny.Never,
+            });
+
+            repaired.Nickname = source.Nickname;
+            repaired.IsNicknamed = source.IsNicknamed;
+            repaired.CurrentLevel = Math.Max(repaired.CurrentLevel, source.CurrentLevel);
+            repaired.SetMoves([source.Move1, source.Move2, source.Move3, source.Move4]);
+            Span<int> ivs = stackalloc int[6];
+            Span<int> evs = stackalloc int[6];
+            source.GetIVs(ivs);
+            source.GetEVs(evs);
+            repaired.SetIVs(ivs);
+            repaired.SetEVs(evs);
+            repaired.HeldItem = source.HeldItem;
+            repaired.Status_Condition = source.Status_Condition;
+            repaired.PokerusStrain = source.PokerusStrain;
+            repaired.PokerusDays = source.PokerusDays;
+            repaired.IsEgg = source.IsEgg;
+            return repaired;
+        }
+        catch
+        {
+            return source;
+        }
+    }
+
     public static StoredPokemon CreateLegalCopy(StoredPokemon parent, PKM legalPokemon, string root)
     {
-        var copy = Upload(legalPokemon, root);
+        var repaired = RepairBackground(legalPokemon);
+        if (!new LegalityAnalysis(repaired).Valid)
+            throw new InvalidOperationException("自动修复背景信息后仍未通过合法性检查，请调整可编辑字段。" );
+        var copy = Upload(repaired, root);
         var linked = copy with { ParentId = parent.Id, Revision = 1, LegalityStatus = "valid" };
         WriteRecord(linked);
         return linked;
