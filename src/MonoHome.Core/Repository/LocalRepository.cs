@@ -192,12 +192,13 @@ public static class LocalRepository
                 Gender = source.OriginalTrainerGender,
                 Language = source.Language,
             };
-            var repaired = encounter.ConvertToPKM(trainer, new EncounterCriteria
+            var criteria = new EncounterCriteria
             {
                 Gender = (Gender)source.Gender,
                 Nature = (Nature)source.Nature,
                 Shiny = source.IsShiny ? Shiny.Always : Shiny.Never,
-            });
+            };
+            var repaired = encounter.ConvertToPKM(trainer, criteria);
 
             repaired.Nickname = source.Nickname;
             repaired.IsNicknamed = source.IsNicknamed;
@@ -214,6 +215,16 @@ public static class LocalRepository
             repaired.PokerusStrain = source.PokerusStrain;
             repaired.PokerusDays = source.PokerusDays;
             repaired.IsEgg = source.IsEgg;
+            if (repaired is PK3 pk3 && source is PK3 source3 && encounter is IEncounterSlot3 slot3)
+            {
+                var report = new LegalityAnalysis(pk3).Report();
+                if (report.Contains("PID+ correlation", StringComparison.Ordinal))
+                {
+                    var currentLevel = pk3.CurrentLevel;
+                    slot3.SetRandom(pk3, PersonalTable.E[pk3.Species], criteria, source3.PID ^ source3.IV32 ^ (uint)source.Species);
+                    pk3.CurrentLevel = Math.Max(pk3.MetLevel, currentLevel);
+                }
+            }
             return repaired;
         }
         catch
