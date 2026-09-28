@@ -47,6 +47,8 @@ public class MainActivity : Activity
     TextView? selectedPokemon;
     TextView? emeraldState;
     TextView? heartGoldState;
+    ImageView? emeraldSaveIcon;
+    ImageView? heartGoldSaveIcon;
     View? emeraldSourceCard;
     View? heartGoldSourceCard;
     TextView? warehouseState;
@@ -159,6 +161,8 @@ public class MainActivity : Activity
         selectedPokemon = FindViewById<TextView>(Resource.Id.selected_pokemon);
         emeraldState = FindViewById<TextView>(Resource.Id.emerald_state);
         heartGoldState = FindViewById<TextView>(Resource.Id.heartgold_state);
+        emeraldSaveIcon = FindViewById<ImageView>(Resource.Id.emerald_save_icon);
+        heartGoldSaveIcon = FindViewById<ImageView>(Resource.Id.heartgold_save_icon);
         emeraldSourceCard = FindViewById(Resource.Id.emerald_source_card);
         heartGoldSourceCard = FindViewById(Resource.Id.heartgold_source_card);
         warehouseState = FindViewById<TextView>(Resource.Id.warehouse_state);
@@ -255,7 +259,7 @@ public class MainActivity : Activity
         if (mainDashboardRoute is not null)
             mainDashboardRoute.Visibility = mainOnly;
         if (mainPageTitle is not null)
-            mainPageTitle.Text = archive ? $"{ActiveSourceName()}，\n上传或下载。" : "主仓库，\n上传与下载。";
+            mainPageTitle.Text = archive ? $"{ActiveSourceName()}，\n上传或下载。" : "主仓库";
         if (centralWarehouseContent is not null)
             centralWarehouseContent.Visibility = archive ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
         if (sourceArchiveContent is not null)
@@ -277,7 +281,10 @@ public class MainActivity : Activity
     void UpdateSourceArchiveHeader()
     {
         if (sourceArchiveIcon is not null)
-            sourceArchiveIcon.SetImageResource(activeSourceRequest == EmeraldRequest ? Resource.Drawable.gen3_emerald : Resource.Drawable.gen4_hgss);
+        {
+            sourceArchiveIcon.SetImageResource(activeSourceRequest == EmeraldRequest ? Resource.Drawable.a_384 : Resource.Drawable.a_250);
+            sourceArchiveIcon.ContentDescription = activeSourceRequest == EmeraldRequest ? "绿宝石代表宝可梦 烈空坐" : "心金代表宝可梦 凤王";
+        }
         if (sourceArchiveTitle is not null)
             sourceArchiveTitle.Text = ActiveSourceName();
         if (sourceArchiveName is not null)
@@ -547,11 +554,29 @@ public class MainActivity : Activity
             return;
 
         var choices = new List<string>();
-        var targets = new List<RegisteredSave>();
-        if (heartGoldSave is not null && heartGoldExternalState == "已同步")
+        var actions = new List<Action>();
+        if (heartGoldSave is not null)
         {
-            choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · 可传送");
-            targets.Add(heartGoldSave);
+            if (heartGoldExternalState == "已同步")
+            {
+                choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · 可传送");
+                actions.Add(() =>
+                {
+                    selectedTransferTarget = heartGoldSave;
+                    status.Text = $"已选择目标：{ChineseGameName(selectedTransferTarget.Game)}。再次点击传送。";
+                    UpdateButtons();
+                });
+            }
+            else
+            {
+                choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · 需要重新同步");
+                actions.Add(() => status.Text = "心金目标存档已变更或未授权，请重新导入后再传送。");
+            }
+        }
+        if (emeraldSave is not null)
+        {
+            choices.Add($"绿宝石 · Gen {emeraldSave.Generation} · 当前路线不支持目标写入");
+            actions.Add(() => status.Text = "绿宝石作为目标的合法转换尚未发布；仓库实体未被修改。" );
         }
         if (choices.Count == 0)
         {
@@ -561,15 +586,7 @@ public class MainActivity : Activity
 
         var dialog = new AlertDialog.Builder(this);
         dialog.SetTitle("选择传送目标存档");
-        dialog.SetItems(choices.ToArray(), (_, args) =>
-        {
-            var index = args?.Which ?? -1;
-            if (index < 0 || index >= targets.Count)
-                return;
-            selectedTransferTarget = targets[index];
-            status.Text = $"已选择目标：{ChineseGameName(selectedTransferTarget.Game)}。再次点击传送。";
-            UpdateButtons();
-        });
+        dialog.SetItems(choices.ToArray(), (_, args) => actions[args?.Which ?? 0]());
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.Show();
     }
@@ -839,10 +856,10 @@ public class MainActivity : Activity
         }
         if (transferButton is not null)
         {
-            var hasTarget = heartGoldBytes is not null && heartGoldSave is not null && heartGoldExternalState == "已同步";
+            var hasTarget = heartGoldSave is not null || emeraldSave is not null;
             transferButton.Text = selectedTransferTarget is null
                 ? "选择传送存档"
-                : $"传送至 {ChineseGameName(selectedTransferTarget.Game)}";
+                : $"传送至 {ChineseGameName(selectedTransferTarget.Game)} 存档";
             transferButton.Enabled = hasTarget && storedPokemon is not null;
         }
         if (saveNicknameButton is not null)
@@ -853,6 +870,8 @@ public class MainActivity : Activity
             emeraldState.Text = emeraldSave is null ? "尚未导入" : $"已登记 · {emeraldSlots.Count} 只 · Gen {emeraldSave.Generation} · {emeraldExternalState}";
         if (heartGoldState is not null)
             heartGoldState.Text = heartGoldSave is null ? "尚未导入" : $"已登记 · {heartGoldSave.Game} · Gen {heartGoldSave.Generation} · {heartGoldExternalState}";
+        emeraldSaveIcon?.SetImageResource(Resource.Drawable.a_384);
+        heartGoldSaveIcon?.SetImageResource(Resource.Drawable.a_250);
         if (targetPicker is not null)
         {
             string[] targets = heartGoldSave is null
