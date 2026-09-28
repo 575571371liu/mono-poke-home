@@ -1218,7 +1218,38 @@ public class MainActivity : Activity
         close.SetTextColor(Color.ParseColor("#8DE4D1"));
         close.Background = Panel("#132A25", "#315249", 8);
         close.Click += (_, _) => dialog.Dismiss();
-        actions.AddView(close, new LinearLayout.LayoutParams(0, Dp(44), primaryLabel is null ? 1 : 0.42f));
+        var repairable = warehouseRecord is not null && warehouseRecord.LegalityStatus == "invalid";
+        actions.AddView(close, new LinearLayout.LayoutParams(0, Dp(44), repairable ? 0.27f : primaryLabel is null ? 1 : 0.42f));
+        if (repairable && warehouseRecord is not null)
+        {
+            var repair = new Button(this) { Text = "自动修复" };
+            repair.SetAllCaps(false);
+            repair.SetTextColor(Color.ParseColor("#D6FF63"));
+            repair.Background = Panel("#132A25", "#D6FF63", 8);
+            repair.Click += (_, _) =>
+            {
+                try
+                {
+                    var repaired = LocalRepository.RepairBackground(pokemon);
+                    if (!new LegalityAnalysis(repaired).Valid)
+                    {
+                        Toast.MakeText(this, "背景信息已尝试修复，但当前招式或用户字段仍不合法。", ToastLength.Long)!.Show();
+                        return;
+                    }
+                    var updated = LocalRepository.SaveWorking(warehouseRecord, repaired);
+                    dialog.Dismiss();
+                    storedPokemon = updated;
+                    RefreshWarehouse(updated.Id);
+                    ShowWarehouseDetail(updated);
+                    Toast.MakeText(this, "已自动修复并保存为合法工作副本。", ToastLength.Short)!.Show();
+                }
+                catch (Exception ex)
+                {
+                    Toast.MakeText(this, $"自动修复失败：{ex.Message}", ToastLength.Long)!.Show();
+                }
+            };
+            actions.AddView(repair, new LinearLayout.LayoutParams(0, Dp(44), 0.31f) { LeftMargin = Dp(6) });
+        }
         if (primaryLabel is not null && primaryAction is not null)
         {
             var primary = new Button(this) { Text = primaryLabel };
@@ -1226,7 +1257,7 @@ public class MainActivity : Activity
             primary.SetTextColor(Color.ParseColor("#142019"));
             primary.Background = Panel("#D6FF63", "#D6FF63", 8);
             primary.Click += (_, _) => { dialog.Dismiss(); primaryAction(); };
-            actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), 0.58f) { LeftMargin = Dp(8) });
+            actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), repairable ? 0.42f : 0.58f) { LeftMargin = Dp(8) });
         }
         root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(10) });
         dialog.SetContentView(root);
