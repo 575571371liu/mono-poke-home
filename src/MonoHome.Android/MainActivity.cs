@@ -1111,9 +1111,28 @@ public class MainActivity : Activity
         body.AddView(header);
 
         var trainingLines = new List<string> { $"性格    {nature}", $"特性    {ability}" };
-        if (AbilityEffectText(ability) is { } effect)
-            trainingLines.Add($"效果    {effect}");
         var training = Card("训练信息", trainingLines.ToArray());
+        if (training.GetChildAt(2) is TextView abilityLine)
+        {
+            TextView? effectLine = null;
+            abilityLine.Clickable = true;
+            abilityLine.Focusable = true;
+            abilityLine.ContentDescription = $"查看特性 {ability} 的效果";
+            abilityLine.SetTextColor(Color.ParseColor("#8DE4D1"));
+            abilityLine.Click += (_, _) =>
+            {
+                if (effectLine is not null)
+                {
+                    training.RemoveView(effectLine);
+                    effectLine = null;
+                    return;
+                }
+                var expanded = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 10, "#8DE4D1");
+                expanded.SetPadding(0, Dp(2), 0, 0);
+                effectLine = expanded;
+                training.AddView(expanded, 3, new LinearLayout.LayoutParams(-1, -2));
+            };
+        }
         var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}");
         var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         cards.SetPadding(0, Dp(8), 0, 0);
