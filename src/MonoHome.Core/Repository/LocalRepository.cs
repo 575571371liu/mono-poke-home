@@ -151,7 +151,16 @@ public static class LocalRepository
     public static StoredPokemon SaveWorking(StoredPokemon stored, PKM pokemon)
     {
         WritePokemon(stored.WorkingPath, pokemon);
-        var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = "stale", Revision = stored.Revision + 1 };
+        var status = "stale";
+        try
+        {
+            status = new LegalityAnalysis(pokemon).Valid ? "valid" : "invalid";
+        }
+        catch
+        {
+            // Keep the explicit stale state if this format cannot be checked locally.
+        }
+        var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status, Revision = stored.Revision + 1 };
         WriteRecord(updated);
         return updated;
     }

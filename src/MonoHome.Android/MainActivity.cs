@@ -1201,7 +1201,7 @@ public class MainActivity : Activity
         _ => "暂无本地资料。",
     };
 
-    static ushort[] LearnableMoves(PKM pokemon)
+    static ushort[] LearnableMoves(PKM pokemon, int slot)
     {
         try
         {
@@ -1209,10 +1209,21 @@ public class MainActivity : Activity
             var possible = new bool[pokemon.MaxMoveID + 1];
             var criteria = new EvoCriteria { Species = pokemon.Species, Form = pokemon.Form, LevelMax = pokemon.CurrentLevel };
             source.GetAllMoves(possible, pokemon, criteria, MoveSourceType.All);
+            var current = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 };
             return possible
                 .Select((canLearn, move) => (canLearn, move))
                 .Where(entry => entry.canLearn && entry.move != 0)
                 .Select(entry => (ushort)entry.move)
+                .Where(move =>
+                {
+                    if (current.Where((_, index) => index != slot).Contains(move))
+                        return false;
+                    var probe = pokemon.Clone();
+                    var candidateMoves = current.ToArray();
+                    candidateMoves[slot] = move;
+                    probe.SetMoves(candidateMoves);
+                    return new LegalityAnalysis(probe).Info.Moves[slot].Valid;
+                })
                 .ToArray();
         }
         catch
@@ -1226,7 +1237,7 @@ public class MainActivity : Activity
         try
         {
             var current = LocalRepository.LoadWorking(record);
-            var moves = LearnableMoves(current);
+            var moves = LearnableMoves(current, slot);
             if (moves.Length == 0)
             {
                 Toast.MakeText(this, "当前来源版本没有可用学习表。", ToastLength.Short)!.Show();
@@ -1274,7 +1285,7 @@ public class MainActivity : Activity
             root.SetPadding(Dp(14), Dp(12), Dp(14), Dp(10));
             root.Background = Panel("#0F201C", "#315249", 16);
             root.AddView(Text($"替换第 {slot + 1} 招式", 18, "#E9F4EF", true));
-            root.AddView(Text($"{ChineseSpeciesName(current.Species)} · {current.Version} · 仅显示当前可合法学习的招式", 10, "#91AAA1"));
+            root.AddView(Text($"{ChineseSpeciesName(current.Species)} · {current.Version} · 仅显示通过 PKHeX 招式位检查的招式", 10, "#91AAA1"));
             var currentMove = current.GetMove(slot);
             var currentName = currentMove == 0 ? "—" : StringAt(strings.Move, currentMove, $"招式 #{currentMove}");
             var currentType = currentMove == 0 ? 0 : MoveInfo.GetType(currentMove, current.Context);
@@ -1307,7 +1318,13 @@ public class MainActivity : Activity
                     dialog.Dismiss();
                     storedPokemon = updated;
                     RefreshWarehouse(updated.Id);
-                    Toast.MakeText(this, "招式已更换，仓库状态已标记为待复核。", ToastLength.Short)!.Show();
+                    var legalityMessage = updated.LegalityStatus switch
+                    {
+                        "valid" => "招式已更换，当前副本合法。",
+                        "invalid" => "招式已更换；该宝可梦还有其他合法性问题。",
+                        _ => "招式已更换，等待合法性检查。",
+                    };
+                    Toast.MakeText(this, legalityMessage, ToastLength.Short)!.Show();
                     ShowWarehouseDetail(updated);
                 }
                 catch (Exception ex)
