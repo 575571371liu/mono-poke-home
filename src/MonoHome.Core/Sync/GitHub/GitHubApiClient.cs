@@ -30,8 +30,8 @@ public sealed record GitHubReference(string Ref, string Sha);
 
 public sealed record GitHubBranchInfo(string Name, string CommitSha);
 
-public sealed class GitHubApiException(HttpStatusCode statusCode, string message, TimeSpan? retryAfter = null)
-    : HttpRequestException(message, null, statusCode)
+public sealed class GitHubApiException(HttpStatusCode? statusCode, string message, TimeSpan? retryAfter = null, Exception? innerException = null)
+    : HttpRequestException(message, innerException, statusCode)
 {
     public TimeSpan? RetryAfter { get; } = retryAfter;
 
@@ -43,6 +43,7 @@ public sealed class GitHubApiException(HttpStatusCode statusCode, string message
         HttpStatusCode.Conflict => "远端存档已被其他设备修改，请先刷新版本。",
         HttpStatusCode.UnprocessableEntity => "GitHub 拒绝了请求参数，请检查仓库、分支或存档线。",
         (HttpStatusCode)429 => "GitHub 请求过于频繁，请稍后重试。",
+        null => "无法连接 GitHub，请检查网络后重试。",
         _ => $"GitHub 请求失败（{(int?)StatusCode}）。",
     };
 }
@@ -227,9 +228,14 @@ public sealed class GitHubApiClient
                     throw new GitHubApiException(response.StatusCode, message, retryAfter);
                 await Task.Delay(GetRetryDelay(attempt, retryAfter), cancellationToken);
             }
-            catch (HttpRequestException ex) when (ex is not GitHubApiException && retryable && attempt < 2)
+            catch (HttpRequestException ex) when (ex is not GitHubApiException)
             {
-                await Task.Delay(GetRetryDelay(attempt, null), cancellationToken);
+                if (retryable && attempt < 2)
+                {
+                    await Task.Delay(GetRetryDelay(attempt, null), cancellationToken);
+                    continue;
+                }
+                throw new GitHubApiException(null, "GitHub network request failed.", null, ex);
             }
         }
     }

@@ -215,6 +215,20 @@ foreach (var statusCode in new[]
     }
     AssertTrue(error is not null && error.StatusCode == statusCode && !string.IsNullOrWhiteSpace(error.UserMessage), $"GitHub {(int)statusCode} has user message");
 }
+var offlineHandler = new GitHubFakeHttpHandler { ThrowTransportFailure = true };
+using var offlineHttp = new HttpClient(offlineHandler) { BaseAddress = new Uri("https://api.github.test/") };
+GitHubApiException? offlineError = null;
+try
+{
+    await new GitHubApiClient(offlineHttp, _ => Task.FromResult("test-token"))
+        .GetRepositoryAsync("test", "repo", CancellationToken.None);
+}
+catch (GitHubApiException ex)
+{
+    offlineError = ex;
+}
+AssertTrue(offlineError is not null && offlineError.StatusCode is null && offlineError.UserMessage.Contains("无法连接", StringComparison.Ordinal), "GitHub transport failure has offline user message");
+AssertEqual(3, offlineHandler.RequestLog.Count, "GitHub GET transport failure uses finite retries");
 var timeoutHandler = new GitHubFakeHttpHandler { ResponseDelay = TimeSpan.FromSeconds(1) };
 using var timeoutHttp = new HttpClient(timeoutHandler) { BaseAddress = new Uri("https://api.github.test/") };
 await AssertThrowsAsync<OperationCanceledException>(

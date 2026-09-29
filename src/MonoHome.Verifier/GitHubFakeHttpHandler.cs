@@ -18,6 +18,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     public TimeSpan ResponseDelay { get; set; }
     public string SavePath { get; set; } = "saves/emerald/emerald.srm";
     public string ManifestSavePath { get; set; } = "saves/emerald/emerald.srm";
+    public bool ThrowTransportFailure { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -25,6 +26,8 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         var path = request.RequestUri!.AbsolutePath;
         var body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
         RequestLog.Add((request.Method, path, body));
+        if (ThrowTransportFailure)
+            throw new HttpRequestException("simulated offline");
         if (ResponseDelay > TimeSpan.Zero)
             await Task.Delay(ResponseDelay, cancellationToken);
         if (ForcedStatusCode is { } forcedStatusCode)
