@@ -37,6 +37,13 @@ MONO / HOME 是一个运行在 Android 上的本地宝可梦存档管理与传�
 - 上传前和拉取前都会保留本地 recovery。远端历史版本只读保留；从旧版本继续游玩并上传时，需明确确认创建新的存档线。
 - 当前 APK 的 GitHub App Client ID 配置为空时，连接入口会提示配置，应用不会要求用户把 Token 粘贴进普通输入框。
 
+### 远程同步发布前验收
+
+1. 在 `src/MonoHome.Android/Resources/values/strings.xml` 的 `github_client_id` 填入 GitHub App 的公开 Client ID；不得填入 Client Secret、private key 或任何 Token。
+2. 为该 GitHub App 启用 Device Flow，并授予测试账号可用的仓库 Contents 读写权限。
+3. 用独立私有测试仓库在两台 Android 设备验证：首次绑定、绿宝石上传/拉取、心金复用路径、历史回滚、分叉上传和 recovery 恢复。
+4. 验收完成后再构建 Release APK；不要提交测试存档、Token、私有仓库 URL 或签名 APK。
+
 ## 支持范围
 
 导入和浏览使用 PKHeX.Core 的存档识别能力；正式传送路线目前是 Emerald → HeartGold / SoulSilver。其他世代可以导入、查看或管理时，不会被界面伪装成已支持的传送路线。
