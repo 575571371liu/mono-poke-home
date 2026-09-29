@@ -14,6 +14,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     public HttpStatusCode? ForcedStatusCode { get; set; }
     public TimeSpan? RetryAfter { get; set; }
     public TimeSpan ResponseDelay { get; set; }
+    public string SavePath { get; set; } = "saves/emerald/emerald.srm";
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -44,19 +45,19 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo")
             return Json("{\"private\":true,\"default_branch\":\"main\",\"permissions\":{\"push\":true},\"name\":\"repo\"}");
 
-        if (request.Method == HttpMethod.Get && path == "/repos/test/repo/contents/saves/emerald/emerald.srm")
+        if (request.Method == HttpMethod.Get && path == $"/repos/test/repo/contents/{SavePath}")
         {
             var reference = Query(request.RequestUri, "ref");
             var content = reference == "commit-2" ? new byte[] { 40, 50, 60 } : InitialContent;
             var blob = reference == "commit-2" ? "blob-2" : "blob-1";
-            return Json($"{{\"path\":\"saves/emerald/emerald.srm\",\"sha\":\"{blob}\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(content)}\"}}");
+            return Json($"{{\"path\":\"{SavePath}\",\"sha\":\"{blob}\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(content)}\"}}");
         }
 
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/contents/.mono-home/manifest.json")
         {
             if (ManifestMissing)
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
-            var manifest = "{\"schema\":1,\"app\":\"mono-home\",\"saves\":{\"emerald\":{\"displayName\":\"绿宝石\",\"path\":\"saves/emerald/emerald.srm\",\"format\":\"srm\"}}}";
+            var manifest = $"{{\"schema\":1,\"app\":\"mono-home\",\"saves\":{{\"emerald\":{{\"displayName\":\"绿宝石\",\"path\":\"{SavePath}\",\"format\":\"srm\"}}}}}}";
             return Json($"{{\"path\":\".mono-home/manifest.json\",\"sha\":\"manifest-1\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(manifest))}\"}}");
         }
 
@@ -66,7 +67,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/branches")
             return Json("[{\"name\":\"main\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/emerald/test-lineage\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/heartgold/other-lineage\",\"commit\":{\"sha\":\"heartgold-1\"}}]");
 
-        if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/saves/emerald/emerald.srm")
+        if (request.Method == HttpMethod.Put && path == $"/repos/test/repo/contents/{SavePath}")
             return Json("{\"content\":{\"sha\":\"blob-2\"},\"commit\":{\"sha\":\"commit-2\"}}");
 
         if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/.mono-home/manifest.json")

@@ -476,6 +476,7 @@ public class MainActivity : Activity
             var provider = new GitHubRemoteSaveProvider(api, repository);
             var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey)
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
+            await provider.GetManifestAsync(saveBinding.LineageId, false, operation.Token);
             var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token);
             var state = new SaveSyncService(provider).Compare(saveKey, local, saveBinding, remote);
             var message = $"仓库：{repository.Owner}/{repository.Repository}\n本地 SHA-256：{state.LocalHash}\n远端版本：{remote?.CommitSha ?? "尚无远端存档"}\n状态：{SyncStatusText(state.Status)}";
@@ -557,6 +558,7 @@ public class MainActivity : Activity
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();
             var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
+            await provider.GetManifestAsync(saveBinding.LineageId, false, operation.Token);
             var versions = await provider.ListAllVersionsAsync(saveKey, saveBinding.LineageId, operation.Token);
             if (versions.Count == 0)
             {
@@ -619,6 +621,7 @@ public class MainActivity : Activity
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();
             var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
+            await provider.GetManifestAsync(saveBinding.LineageId, false, operation.Token);
             var service = new SaveSyncService(provider);
             SyncOperationResult result;
             if (upload)

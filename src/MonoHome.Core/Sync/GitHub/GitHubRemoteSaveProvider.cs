@@ -16,7 +16,7 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
 
     readonly GitHubApiClient api;
     readonly RepositoryBinding binding;
-    readonly IReadOnlyDictionary<string, string> paths;
+    readonly Dictionary<string, string> paths;
 
     public GitHubRemoteSaveProvider(
         GitHubApiClient api,
@@ -25,7 +25,7 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
     {
         this.api = api;
         this.binding = binding;
-        this.paths = paths ?? DefaultPaths;
+        this.paths = new Dictionary<string, string>(paths ?? DefaultPaths, StringComparer.OrdinalIgnoreCase);
     }
 
     public async Task<RepositoryBinding> BindRepositoryAsync(string owner, string repository, CancellationToken cancellationToken)
@@ -49,6 +49,7 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
             var manifest = JsonSerializer.Deserialize<SaveRepositoryManifest>(file.Content, Json)
                 ?? throw new InvalidDataException("MONO / HOME repository manifest is empty.");
             manifest.Validate();
+            ApplyManifest(manifest);
             return manifest;
         }
         catch (GitHubApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound && initializeIfMissing)
@@ -63,6 +64,7 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
                 "Initialize MONO / HOME save manifest",
                 null,
                 cancellationToken);
+            ApplyManifest(manifest);
             return manifest;
         }
     }
@@ -191,6 +193,12 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
     {
         await api.CreateReferenceAsync(binding.Owner, binding.Repository, lineageId, fromCommitSha, cancellationToken);
         return lineageId;
+    }
+
+    void ApplyManifest(SaveRepositoryManifest manifest)
+    {
+        foreach (var (saveKey, entry) in manifest.Saves)
+            paths[saveKey] = entry.Path;
     }
 
     string GetPath(string saveKey) => paths.TryGetValue(saveKey, out var path)
