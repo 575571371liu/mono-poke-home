@@ -139,7 +139,11 @@ AssertEqual("saves/emerald/emerald.srm", githubManifest.Saves["emerald"].Path, "
 var githubLatest = await githubProvider.GetLatestAsync("emerald", "main", CancellationToken.None);
 AssertTrue(githubLatest is not null && githubLatest.CommitSha == "commit-1" && githubLatest.BlobSha == "blob-1", "GitHub provider separates commit SHA and blob SHA");
 AssertEqual(SaveSyncService.ComputeHash(new byte[] { 10, 20, 30 }), githubLatest!.ContentHash!, "GitHub provider computes content hash from bytes");
-var customPathHandler = new GitHubFakeHttpHandler { SavePath = "saves/emerald/custom.srm" };
+var customPathHandler = new GitHubFakeHttpHandler
+{
+    SavePath = "saves/emerald/custom.srm",
+    ManifestSavePath = "saves/emerald/custom.srm",
+};
 using var customPathHttp = new HttpClient(customPathHandler) { BaseAddress = new Uri("https://api.github.test/") };
 var customPathProvider = new GitHubRemoteSaveProvider(
     new GitHubApiClient(customPathHttp, _ => Task.FromResult("test-token")),
@@ -148,6 +152,14 @@ await customPathProvider.GetManifestAsync("main", false, CancellationToken.None)
 AssertTrue(await customPathProvider.GetLatestAsync("emerald", "main", CancellationToken.None) is not null, "GitHub provider reads the manifest save path");
 await customPathProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "custom path", CancellationToken.None);
 AssertTrue(customPathHandler.Requests.Any(request => request.Method == HttpMethod.Put && request.RequestUri!.AbsolutePath.EndsWith("/saves/emerald/custom.srm", StringComparison.Ordinal)), "GitHub provider uploads to the manifest save path");
+var invalidManifestHandler = new GitHubFakeHttpHandler { ManifestSavePath = "../outside.sav" };
+using var invalidManifestHttp = new HttpClient(invalidManifestHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var invalidManifestProvider = new GitHubRemoteSaveProvider(
+    new GitHubApiClient(invalidManifestHttp, _ => Task.FromResult("test-token")),
+    githubBinding);
+await AssertThrowsAsync<InvalidDataException>(
+    () => invalidManifestProvider.GetManifestAsync("main", false, CancellationToken.None),
+    "GitHub manifest rejects unsafe save paths");
 var githubHistory = await githubProvider.ListVersionsAsync("emerald", "save/emerald/test-lineage", CancellationToken.None);
 AssertTrue(githubHistory.Count == 1 && githubHistory[0].ContentHash is null && githubHistory[0].LineageId == "save/emerald/test-lineage", "GitHub history keeps lineage and defers content hash");
 var githubAllHistory = await githubProvider.ListAllVersionsAsync("emerald", "save/emerald/test-lineage", CancellationToken.None);

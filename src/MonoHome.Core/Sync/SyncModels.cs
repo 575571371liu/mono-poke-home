@@ -21,8 +21,20 @@ public sealed record SaveRepositoryManifest(
     {
         if (Schema != 1 || !string.Equals(App, "mono-home", StringComparison.Ordinal))
             throw new InvalidDataException("Unsupported MONO / HOME repository manifest.");
-        if (Saves.Count == 0 || Saves.Any(pair => string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value.Path)))
+        if (Saves is null || Saves.Count == 0 || Saves.Any(pair =>
+                string.IsNullOrWhiteSpace(pair.Key) ||
+                pair.Value is null ||
+                string.IsNullOrWhiteSpace(pair.Value.DisplayName) ||
+                string.IsNullOrWhiteSpace(pair.Value.Format) ||
+                !IsSafeSavePath(pair.Value.Path)))
             throw new InvalidDataException("MONO / HOME repository manifest has no valid saves.");
+    }
+
+    static bool IsSafeSavePath(string path)
+    {
+        if (!path.StartsWith("saves/", StringComparison.Ordinal) || path.Contains('\\'))
+            return false;
+        return path.Split('/').All(segment => segment.Length > 0 && segment is not "." and not "..");
     }
 }
 

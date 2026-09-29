@@ -15,6 +15,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     public TimeSpan? RetryAfter { get; set; }
     public TimeSpan ResponseDelay { get; set; }
     public string SavePath { get; set; } = "saves/emerald/emerald.srm";
+    public string ManifestSavePath { get; set; } = "saves/emerald/emerald.srm";
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -57,7 +58,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         {
             if (ManifestMissing)
                 return new HttpResponseMessage(HttpStatusCode.NotFound);
-            var manifest = $"{{\"schema\":1,\"app\":\"mono-home\",\"saves\":{{\"emerald\":{{\"displayName\":\"绿宝石\",\"path\":\"{SavePath}\",\"format\":\"srm\"}}}}}}";
+            var manifest = $"{{\"schema\":1,\"app\":\"mono-home\",\"saves\":{{\"emerald\":{{\"displayName\":\"绿宝石\",\"path\":\"{ManifestSavePath}\",\"format\":\"srm\"}}}}}}";
             return Json($"{{\"path\":\".mono-home/manifest.json\",\"sha\":\"manifest-1\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(manifest))}\"}}");
         }
 
