@@ -82,6 +82,16 @@ AssertTrue(changedUpload.Succeeded && !changedUpload.NoOp, "sync changed upload 
 AssertEqual(2, uploadProvider.UploadCount, "sync changed upload creates a commit");
 AssertTrue(changedUpload.State.BaseCommitSha is not null && changedUpload.State.BaseCommitSha == changedUpload.State.RemoteLatest!.CommitSha, "sync upload aligns commit sha");
 AssertTrue(changedUpload.State.RemoteLatest?.ContentHash is not null && changedUpload.State.LocalHash == changedUpload.State.RemoteLatest.ContentHash, "sync upload aligns content hash");
+var forkedLineage = await uploadProvider.CreateLineageAsync("emerald", firstUpload.State.BaseCommitSha!, CancellationToken.None);
+var forkedLatest = await uploadProvider.GetLatestAsync("emerald", forkedLineage, CancellationToken.None);
+AssertTrue(forkedLatest is not null && forkedLatest.CommitSha == firstUpload.State.BaseCommitSha && forkedLatest.ParentCommitSha == firstUpload.State.BaseCommitSha, "sync lineage starts from selected historical commit");
+var forkedUpload = await uploadService.UploadAsync(
+    new LocalSaveSnapshot("emerald", syncRemote, SaveSyncService.ComputeHash(syncRemote), DateTimeOffset.UtcNow),
+    repositoryBinding,
+    new SaveRemoteBinding("emerald", forkedLineage, forkedLatest!.CommitSha, forkedLatest.ContentHash),
+    CancellationToken.None);
+AssertTrue(forkedUpload.Succeeded && forkedUpload.State.LineageId == forkedLineage, "sync changed historical save uploads to a new lineage");
+AssertTrue((await uploadProvider.ListVersionsAsync("emerald", CancellationToken.None)).Count >= 4, "sync history retains old and forked versions");
 Console.WriteLine("PASS: V0 save sync state machine and fake remote.");
 
 var pullProvider = new SyncFakeRemoteSaveProvider();
@@ -126,6 +136,8 @@ var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byt
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
 AssertTrue(githubHandler.Requests.All(request => request.Headers.Authorization?.Scheme == "Bearer"), "GitHub requests carry bearer authorization");
+var githubLineage = await githubProvider.CreateLineageAsync("emerald", "commit-1", CancellationToken.None);
+AssertTrue(githubLineage.StartsWith("save/emerald/", StringComparison.Ordinal), "GitHub provider creates a save lineage ref");
 githubHandler.ManifestMissing = true;
 var initializedManifest = await githubProvider.GetManifestAsync("main", true, CancellationToken.None);
 AssertEqual("mono-home", initializedManifest.App, "GitHub missing manifest is initialized");

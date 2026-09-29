@@ -153,7 +153,16 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
     }
 
     public Task<string> CreateLineageAsync(string saveKey, string fromCommitSha, CancellationToken cancellationToken)
-        => throw new NotSupportedException("GitHub 存档分叉将在历史版本小版本中启用。");
+    {
+        var lineageId = $"save/{saveKey}/{Guid.NewGuid():N}";
+        return CreateLineageCoreAsync(saveKey, lineageId, fromCommitSha, cancellationToken);
+    }
+
+    async Task<string> CreateLineageCoreAsync(string saveKey, string lineageId, string fromCommitSha, CancellationToken cancellationToken)
+    {
+        await api.CreateReferenceAsync(binding.Owner, binding.Repository, lineageId, fromCommitSha, cancellationToken);
+        return lineageId;
+    }
 
     string GetPath(string saveKey) => paths.TryGetValue(saveKey, out var path)
         ? path

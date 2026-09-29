@@ -26,6 +26,8 @@ public sealed record GitHubPutContentResult(
     string CommitSha,
     DateTimeOffset ModifiedAt);
 
+public sealed record GitHubReference(string Ref, string Sha);
+
 public sealed class GitHubApiException(HttpStatusCode statusCode, string message, TimeSpan? retryAfter = null)
     : HttpRequestException(message, null, statusCode)
 {
@@ -149,6 +151,24 @@ public sealed class GitHubApiClient
             root.GetProperty("content").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub update response did not include a file SHA."),
             root.GetProperty("commit").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub update response did not include a commit SHA."),
             DateTimeOffset.UtcNow);
+    }
+
+    public async Task<GitHubReference> CreateReferenceAsync(
+        string owner,
+        string repository,
+        string branch,
+        string commitSha,
+        CancellationToken cancellationToken)
+    {
+        using var json = await SendAsync(
+            HttpMethod.Post,
+            $"repos/{Segment(owner)}/{Segment(repository)}/git/refs",
+            JsonContent.Create(new { @ref = $"refs/heads/{branch}", sha = commitSha }),
+            cancellationToken);
+        var root = json.RootElement;
+        return new GitHubReference(
+            root.GetProperty("ref").GetString() ?? throw new InvalidDataException("GitHub ref response did not include a ref."),
+            root.GetProperty("object").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub ref response did not include a commit SHA."));
     }
 
     async Task<JsonDocument> SendAsync(HttpMethod method, string endpoint, HttpContent? content, CancellationToken cancellationToken)

@@ -42,6 +42,9 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/.mono-home/manifest.json")
             return Json("{\"content\":{\"sha\":\"manifest-1\"},\"commit\":{\"sha\":\"manifest-commit\"}}");
 
+        if (request.Method == HttpMethod.Post && path == "/repos/test/repo/git/refs")
+            return Json("{\"ref\":\"refs/heads/save/emerald/test-lineage\",\"object\":{\"sha\":\"commit-1\"}}");
+
         return new HttpResponseMessage(HttpStatusCode.NotFound)
         {
             Content = new StringContent("{\"message\":\"not found\"}", Encoding.UTF8, "application/json"),

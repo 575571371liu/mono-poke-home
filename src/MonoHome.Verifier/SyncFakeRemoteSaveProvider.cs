@@ -83,7 +83,7 @@ public sealed class SyncFakeRemoteSaveProvider : IRemoteSaveProvider
             throw new InvalidDataException("Fake source commit is missing.");
 
         var lineageId = $"lineage-{versions.Keys.Count + 1}";
-        Seed(saveKey, lineageId, fromCommitSha, source.Content);
+        Seed(saveKey, lineageId, fromCommitSha, source.Content, fromCommitSha);
         return Task.FromResult(lineageId);
     }
 
