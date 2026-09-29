@@ -4,10 +4,19 @@
 
 认证方案已改为个人细粒度 PAT + 私有仓库。GitHub App/Client ID/Device Flow 不再是本分支的发布前置条件；权威设计见 [PAT 方案](../superpowers/specs/2026-09-29-save-sync-pat.md)。
 
-当前会话完成了远程存档同步的交互原型、技术边界和分阶段实施计划，但没有实现真实 GitHub 同步。下一会话应先阅读以下两个文件，再按计划从 V0 开始：
+当前分支已实现 GitHub Contents API 同步，并完成一条真实 Emerald 存档的绑定、上传、远端回读、历史读取和拉取验收。下一会话应以 PAT 方案和实施计划为准，继续完成双设备与冲突验收：
 
 - 设计：[2026-09-29-save-sync-design.md](../superpowers/specs/2026-09-29-save-sync-design.md)
 - 计划：[2026-09-29-save-sync-implementation.md](../superpowers/plans/2026-09-29-save-sync-implementation.md)
+
+## 本次真实验收（2026-09-29）
+
+- 模拟器 `emulator-5554` 使用 Android Keystore 中保存的细粒度 PAT，成功绑定并初始化私有仓库 `575571371liu/mono-home-saves`。
+- `emerald.srm` 首次上传成功；同步面板回读远端 commit `a101c702be794c5c367c0f220e89d1f40ff92d5f`，状态为“已对齐”。
+- 历史界面成功读取当前线 `v1`、提交和父提交；未将 blob SHA 伪装为内容 hash。
+- “拉取最新”成功下载并重新校验远端存档，写入本地快照；上传和拉取前均创建了应用私有 recovery 文件。
+- `MonoHome.Verifier` 全量通过；在当前终端环境需将 `TEMP`/`TMP` 指向可写的 build 输出目录，用户 profile 的 Temp ACL 会拒绝 .NET 子进程创建测试目录。
+- 尚未完成：第二台设备上传/拉取、远端变更冲突、历史拉取后新 lineage，以及合并前代码审查。
 
 ## 当前仓库状态
 

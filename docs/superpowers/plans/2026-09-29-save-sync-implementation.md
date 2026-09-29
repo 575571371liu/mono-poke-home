@@ -8,6 +8,8 @@
 2. **移除 OAuth 依赖**：删除 UI 到 `GitHubDeviceFlowClient` 的调用、空 Client ID 前置条件和刷新路径；Core 同步 HTTP 与 lineage 不回滚。
 3. **回归验收**：运行 verifier、Android Release 构建、模拟器 smoke；生成 PAT 后完成真实双设备测试，最后才合并。
 
+**进度（2026-09-29）：** PAT Keystore 保存、私有仓库绑定、manifest 初始化、Emerald 首次上传、远端回读、历史读取和最新拉取已在 `emulator-5554` 验收；尚缺第二台设备和冲突/lineage 的真实验收。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在不影响本地中央仓库的前提下，为每个已登记游戏存档增加 GitHub 私有仓库绑定、版本同步、历史恢复和分叉存档能力。
