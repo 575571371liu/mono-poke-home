@@ -484,7 +484,11 @@ public class MainActivity : Activity
         using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         try
         {
-            await RefreshRegisteredSaveAsync(requestCode);
+            if (!await RefreshRegisteredSaveAsync(requestCode))
+            {
+                ShowSyncMessage("存档同步", "无法读取当前授权存档，未使用旧本地快照。请重新授权或导入。");
+                return;
+            }
             current = saveKey == "emerald" ? emeraldSave : heartGoldSave;
             if (current is null)
             {
@@ -642,7 +646,8 @@ public class MainActivity : Activity
         try
         {
             var requestCode = saveKey == "emerald" ? EmeraldRequest : HeartGoldRequest;
-            await RefreshRegisteredSaveAsync(requestCode);
+            if (!await RefreshRegisteredSaveAsync(requestCode))
+                throw new InvalidOperationException("无法读取当前授权存档，未使用旧本地快照。请重新授权或导入。");
             var current = saveKey == "emerald" ? emeraldSave : heartGoldSave;
             if (current is null)
                 throw new InvalidOperationException("请先导入对应存档。");
@@ -2083,7 +2088,7 @@ public class MainActivity : Activity
         }
     }
 
-    async Task RefreshRegisteredSaveAsync(int requestCode)
+    async Task<bool> RefreshRegisteredSaveAsync(int requestCode)
     {
         var current = requestCode switch
         {
@@ -2097,7 +2102,7 @@ public class MainActivity : Activity
                 emeraldExternalState = "仅本地快照";
             else
                 heartGoldExternalState = "仅本地快照";
-            return;
+            return false;
         }
 
         try
@@ -2140,6 +2145,7 @@ public class MainActivity : Activity
                 otherPages = BoxReader.ReadPages(bytes, updated.DisplayName).ToList();
                 otherExternalState = "已同步";
             }
+            return true;
         }
         catch (Exception ex)
         {
@@ -2149,6 +2155,7 @@ public class MainActivity : Activity
                 heartGoldExternalState = ex.Message.Contains("授权", StringComparison.Ordinal) ? "需要重新授权" : "刷新失败";
             else
                 otherExternalState = ex.Message.Contains("授权", StringComparison.Ordinal) ? "需要重新授权" : "刷新失败";
+            return false;
         }
     }
 
