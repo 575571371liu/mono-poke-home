@@ -2,6 +2,7 @@ using MonoHome.Core.Saves;
 using MonoHome.Core.Transfers;
 using MonoHome.Core.Repository;
 using MonoHome.Core.Sync;
+using MonoHome.Core.Sync.GitHub;
 using MonoHome.Verifier;
 using System.Security.Cryptography;
 using PKHeX.Core;
@@ -82,6 +83,24 @@ AssertEqual(2, uploadProvider.UploadCount, "sync changed upload creates a commit
 AssertTrue(changedUpload.State.BaseCommitSha is not null && changedUpload.State.BaseCommitSha == changedUpload.State.RemoteLatest!.CommitSha, "sync upload aligns commit sha");
 AssertTrue(changedUpload.State.RemoteLatest?.ContentHash is not null && changedUpload.State.LocalHash == changedUpload.State.RemoteLatest.ContentHash, "sync upload aligns content hash");
 Console.WriteLine("PASS: V0 save sync state machine and fake remote.");
+
+var githubHandler = new GitHubFakeHttpHandler();
+using var githubHttp = new HttpClient(githubHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var githubApi = new GitHubApiClient(githubHttp, _ => Task.FromResult("test-token"));
+var githubProbe = new GitHubRemoteSaveProvider(
+    githubApi,
+    new RepositoryBinding("github", "test", "repo", "main", DateTimeOffset.UtcNow, 1));
+var githubBinding = await githubProbe.BindRepositoryAsync("test", "repo", CancellationToken.None);
+AssertTrue(githubBinding.Provider == "github" && githubBinding.Owner == "test" && githubBinding.Repository == "repo", "GitHub binding validates private writable repository");
+var githubProvider = new GitHubRemoteSaveProvider(githubApi, githubBinding);
+var githubLatest = await githubProvider.GetLatestAsync("emerald", "main", CancellationToken.None);
+AssertTrue(githubLatest is not null && githubLatest.CommitSha == "commit-1" && githubLatest.BlobSha == "blob-1", "GitHub provider separates commit SHA and blob SHA");
+AssertEqual(SaveSyncService.ComputeHash(new byte[] { 10, 20, 30 }), githubLatest!.ContentHash!, "GitHub provider computes content hash from bytes");
+var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
+AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
+AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
+AssertTrue(githubHandler.Requests.All(request => request.Headers.Authorization?.Scheme == "Bearer"), "GitHub requests carry bearer authorization");
+Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
 var repositoryRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-repository", Guid.NewGuid().ToString("N"));
