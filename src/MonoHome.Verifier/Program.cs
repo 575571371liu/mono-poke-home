@@ -135,6 +135,14 @@ AssertTrue(authRequest.AuthorizationUri.Query.Contains("code_challenge_method=S2
 AssertTrue(authRequest.AuthorizationUri.Query.Contains("state=", StringComparison.Ordinal) && authRequest.CodeVerifier.Length >= 43, "GitHub auth includes state and verifier");
 AssertEqual("auth-code", GitHubAuthClient.ValidateCallback(authRequest.State, authRequest.State, "auth-code"), "GitHub auth accepts matching callback state");
 AssertThrows<InvalidOperationException>(() => GitHubAuthClient.ValidateCallback(authRequest.State, "wrong-state", "auth-code"), "GitHub auth rejects mismatched callback state");
+var deviceHandler = new GitHubDeviceFlowFakeHttpHandler();
+using var deviceHttp = new HttpClient(deviceHandler) { BaseAddress = new Uri("https://github.test/") };
+var deviceFlow = new GitHubDeviceFlowClient(deviceHttp, "public-client-id");
+var deviceCode = await deviceFlow.RequestDeviceCodeAsync(CancellationToken.None);
+AssertEqual("ABCD-EFGH", deviceCode.UserCode, "GitHub device flow returns user code");
+var deviceToken = await deviceFlow.WaitForAccessTokenAsync(deviceCode, CancellationToken.None);
+AssertEqual("ghu-test", deviceToken.AccessToken, "GitHub device flow returns user access token");
+AssertEqual(2, deviceHandler.PollCount, "GitHub device flow handles pending response before success");
 Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
