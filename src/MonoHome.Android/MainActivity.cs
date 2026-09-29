@@ -299,10 +299,43 @@ public class MainActivity : Activity
         var dialog = new AlertDialog.Builder(this);
         dialog.SetTitle("存档仓库");
         dialog.SetMessage(message);
-        dialog.SetNegativeButton("关闭", (_, _) => { });
+        if (repository is null)
+            dialog.SetNegativeButton("关闭", (_, _) => { });
+        else
+            dialog.SetNegativeButton("解除绑定", (_, _) => ConfirmUnbindRepository());
         dialog.SetNeutralButton(string.IsNullOrWhiteSpace(token) ? "连接 GitHub" : "重新连接", (_, _) => _ = ConnectGitHubAsync());
         dialog.SetPositiveButton(repository is null ? "绑定仓库" : "更换仓库", (_, _) => ShowRepositoryChoice());
         dialog.Show();
+    }
+
+    void ConfirmUnbindRepository()
+    {
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("解除本机绑定");
+        dialog.SetMessage("只清除本机保存的 GitHub 凭据、仓库绑定和存档线记录，不删除远端仓库或远端存档。之后仍可重新连接并绑定。");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("确认解除", async (_, _) => await UnbindRepositoryAsync());
+        dialog.Show();
+    }
+
+    async Task UnbindRepositoryAsync()
+    {
+        SetBusy(true);
+        try
+        {
+            await new AndroidTokenStore(this).ClearTokenAsync();
+            await new AndroidRepositoryBindingStore(this).ClearAsync();
+            status!.Text = "已解除本机存档仓库绑定，远端仓库未删除。";
+            ShowSyncMessage("解除绑定完成", "本机凭据和绑定记录已清除；远端仓库与存档未删除。");
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("解除绑定失败", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
     }
 
     void ShowRepositoryChoice()
