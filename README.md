@@ -35,13 +35,13 @@ MONO / HOME 是一个运行在 Android 上的本地宝可梦存档管理与传�
 - Token 只保存于 Android Keystore 保护的应用私有存储；普通绑定配置只保存 owner、仓库、分支和 lineage。
 - 设置中的“解除绑定”只清除本机凭据和绑定记录，不删除远端仓库或远端存档。
 - 上传前和拉取前都会保留本地 recovery。远端历史版本只读保留；从旧版本继续游玩并上传时，需明确确认创建新的存档线。
-- 当前 APK 的 GitHub App Client ID 配置为空时，连接入口会提示配置，应用不会要求用户把 Token 粘贴进普通输入框。
+- 个人版通过细粒度 PAT 连接指定私有仓库；PAT 仅保存在 Android Keystore，永不过期是个人使用的可撤销取舍。公开版本不得复用该 PAT。
 
 ### 远程同步发布前验收
 
-1. 在 `src/MonoHome.Android/Resources/values/strings.xml` 的 `github_client_id` 填入 GitHub App 的公开 Client ID；不得填入 Client Secret、private key 或任何 Token。
-2. 为该 GitHub App 启用 Device Flow，并授予测试账号可用的仓库 Contents 读写权限。
-3. 用独立私有测试仓库在两台 Android 设备验证：首次绑定、绿宝石上传/拉取、心金复用路径、历史回滚、分叉上传和 recovery 恢复。
+1. 创建细粒度 PAT，仅选择 `mono-home-saves`，授予 `Contents: Read and write`；不得扩大仓库范围，也不得提交 PAT。
+2. 用独立私有测试仓库在两台 Android 设备验证：首次绑定、绿宝石上传/拉取、心金复用路径、历史回滚、分叉上传和 recovery 恢复。
+3. 验收前确认普通配置和日志不含 PAT；Token 只应存在于 Android Keystore。
 4. 验收完成后再构建 Release APK；不要提交测试存档、Token、私有仓库 URL 或签名 APK。
 
 ## 支持范围

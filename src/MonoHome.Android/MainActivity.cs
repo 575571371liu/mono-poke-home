@@ -303,7 +303,7 @@ public class MainActivity : Activity
             dialog.SetNegativeButton("关闭", (_, _) => { });
         else
             dialog.SetNegativeButton("解除绑定", (_, _) => ConfirmUnbindRepository());
-        dialog.SetNeutralButton(string.IsNullOrWhiteSpace(token) ? "连接 GitHub" : "重新连接", (_, _) => _ = ConnectGitHubAsync());
+        dialog.SetNeutralButton(string.IsNullOrWhiteSpace(token) ? "输入 PAT" : "更新 PAT", (_, _) => ShowPersonalAccessTokenInput());
         dialog.SetPositiveButton(repository is null ? "绑定仓库" : "更换仓库", (_, _) => ShowRepositoryChoice());
         dialog.Show();
     }
@@ -348,7 +348,7 @@ public class MainActivity : Activity
     {
         if (string.IsNullOrWhiteSpace(await tokenStore.LoadTokenAsync()))
         {
-            ShowSyncMessage("存档仓库", "请先连接 GitHub 账号，再绑定私有仓库。");
+            ShowSyncMessage("存档仓库", "请先输入 GitHub PAT，再绑定私有仓库。");
             return;
         }
 
@@ -466,42 +466,45 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
-    async Task ConnectGitHubAsync()
+    void ShowPersonalAccessTokenInput()
     {
-        var clientId = GetString(Resource.String.github_client_id);
-        if (string.IsNullOrWhiteSpace(clientId))
+        var input = new EditText(this) { Hint = "github_pat_…" };
+        input.InputType = global::Android.Text.InputTypes.ClassText | global::Android.Text.InputTypes.TextVariationPassword;
+        input.SetSingleLine(true);
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("输入 GitHub PAT");
+        dialog.SetMessage("PAT 必须仅限已选私有存档仓库，并授予 Contents 读写权限。它只会保存到 Android Keystore。");
+        dialog.SetView(input);
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("校验并保存", async (_, _) => await SavePersonalAccessTokenAsync(input.Text?.Trim()));
+        dialog.Show();
+    }
+
+    async Task SavePersonalAccessTokenAsync(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
         {
-            ShowSyncMessage("连接 GitHub", "当前 APK 尚未配置 GitHub App Client ID。配置公开的 Client ID 后即可使用 device flow；应用不会要求在普通输入框粘贴 Token。");
+            ShowSyncMessage("输入 GitHub PAT", "PAT 不能为空。");
             return;
         }
-
         SetBusy(true);
-        using var authCancellation = new CancellationTokenSource();
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(1));
         try
         {
-            using var client = new HttpClient { BaseAddress = new Uri("https://github.com/") };
-            var flow = new GitHubDeviceFlowClient(client, clientId);
-            var device = await flow.RequestDeviceCodeAsync(authCancellation.Token);
-            var authDialog = new AlertDialog.Builder(this);
-            authDialog.SetTitle("连接 GitHub");
-            authDialog.SetMessage($"请在浏览器打开：\n{device.VerificationUri}\n\n输入一次性代码：{device.UserCode}\n\n完成授权后返回应用，应用会自动等待结果。");
-            authDialog.SetNegativeButton("取消", (_, _) => authCancellation.Cancel());
-            var shown = authDialog.Show();
-            StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(device.VerificationUri.ToString())));
-            var access = await flow.WaitForAccessTokenAsync(device, authCancellation.Token);
-            await new AndroidTokenStore(this).SaveAccessTokenAsync(access);
-            if (shown?.IsShowing == true)
-                shown.Dismiss();
-            status!.Text = "GitHub 已连接，请继续绑定私有存档仓库。";
+            using var client = new HttpClient();
+            var api = new GitHubApiClient(client, _ => Task.FromResult(token));
+            await api.ListRepositoriesAsync(operation.Token);
+            await new AndroidTokenStore(this).SaveTokenAsync(token, operation.Token);
+            status!.Text = "PAT 已校验并保存，请继续绑定私有存档仓库。";
             await ShowRepositoryDialogAsync();
         }
         catch (OperationCanceledException)
         {
-            status!.Text = "已取消 GitHub 连接。";
+            status!.Text = "PAT 校验超时或已取消。";
         }
         catch (Exception ex)
         {
-            ShowSyncMessage("连接 GitHub 失败", ex.Message);
+            ShowSyncMessage("PAT 校验失败", ex is GitHubApiException github ? github.UserMessage : ex.Message);
         }
         finally
         {
@@ -511,21 +514,8 @@ public class MainActivity : Activity
 
     async Task<string> LoadGithubAccessTokenAsync(CancellationToken cancellationToken)
     {
-        var store = new AndroidTokenStore(this);
-        var token = await store.LoadAccessTokenAsync(cancellationToken)
-            ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
-        if (token.ExpiresAt is null || token.ExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1))
-            return token.AccessToken;
-
-        var clientId = GetString(Resource.String.github_client_id);
-        if (string.IsNullOrWhiteSpace(token.RefreshToken) || string.IsNullOrWhiteSpace(clientId))
-            throw new InvalidOperationException("GitHub 授权已过期，请重新连接账号。");
-
-        using var client = new HttpClient { BaseAddress = new Uri("https://github.com/") };
-        var refreshed = await new GitHubDeviceFlowClient(client, clientId)
-            .RefreshAccessTokenAsync(token.RefreshToken, cancellationToken);
-        await store.SaveAccessTokenAsync(refreshed, cancellationToken);
-        return refreshed.AccessToken;
+        return await new AndroidTokenStore(this).LoadTokenAsync(cancellationToken)
+            ?? throw new InvalidOperationException("尚未输入 GitHub PAT。");
     }
 
     async Task BindRepositoryAsync(string? owner, string? repositoryName)
