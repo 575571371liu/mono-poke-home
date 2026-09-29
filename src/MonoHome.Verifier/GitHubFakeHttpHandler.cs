@@ -8,10 +8,12 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     static readonly byte[] InitialContent = [10, 20, 30];
 
     public List<HttpRequestMessage> Requests { get; } = [];
+    public List<(HttpMethod Method, string Path, string? Body)> RequestLog { get; } = [];
     public bool ManifestMissing { get; set; }
     public int TransientGetFailures { get; set; }
     public bool ReturnUnprocessable { get; set; }
     public HttpStatusCode? ForcedStatusCode { get; set; }
+    public HttpStatusCode? ForcedPutStatusCode { get; set; }
     public TimeSpan? RetryAfter { get; set; }
     public TimeSpan ResponseDelay { get; set; }
     public string SavePath { get; set; } = "saves/emerald/emerald.srm";
@@ -21,6 +23,8 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     {
         Requests.Add(request);
         var path = request.RequestUri!.AbsolutePath;
+        var body = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
+        RequestLog.Add((request.Method, path, body));
         if (ResponseDelay > TimeSpan.Zero)
             await Task.Delay(ResponseDelay, cancellationToken);
         if (ForcedStatusCode is { } forcedStatusCode)
@@ -67,6 +71,12 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
 
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/branches")
             return Json("[{\"name\":\"main\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/emerald/test-lineage\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/heartgold/other-lineage\",\"commit\":{\"sha\":\"heartgold-1\"}}]");
+
+        if (request.Method == HttpMethod.Put && ForcedPutStatusCode is { } forcedPutStatusCode)
+            return new HttpResponseMessage(forcedPutStatusCode)
+            {
+                Content = new StringContent("{\"message\":\"write conflict\"}", Encoding.UTF8, "application/json"),
+            };
 
         if (request.Method == HttpMethod.Put && path == $"/repos/test/repo/contents/{SavePath}")
             return Json("{\"content\":{\"sha\":\"blob-2\"},\"commit\":{\"sha\":\"commit-2\"}}");

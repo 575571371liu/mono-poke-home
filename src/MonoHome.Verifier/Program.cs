@@ -6,6 +6,7 @@ using MonoHome.Core.Sync.GitHub;
 using MonoHome.Verifier;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text.Json;
 using PKHeX.Core;
 
 var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "fixtures", "private"));
@@ -122,6 +123,16 @@ invalidProvider.Seed("emerald", "main", "commit-invalid", new byte[] { 1, 2, 3 }
 var invalidVersion = (await invalidProvider.GetLatestAsync("emerald", "main", CancellationToken.None))!;
 AssertThrows<InvalidDataException>(() => invalidService.PullAsync(invalidLocal, invalidVersion, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None).GetAwaiter().GetResult(), "sync pull rejects invalid remote save");
 AssertEqual(invalidLocal.Hash, SaveRegistry.Get(invalidPullRoot, invalidLocal.Id)!.Hash, "sync invalid pull preserves the local snapshot");
+var failedPullProvider = new SyncFakeRemoteSaveProvider
+{
+    DownloadFailure = new GitHubApiException(HttpStatusCode.ServiceUnavailable, "remote unavailable"),
+};
+failedPullProvider.Seed("emerald", "main", "commit-failed", pullContent);
+var failedPullVersion = (await failedPullProvider.GetLatestAsync("emerald", "main", CancellationToken.None))!;
+AssertThrows<GitHubApiException>(() => new SaveSyncService(failedPullProvider)
+    .PullAsync(invalidLocal, failedPullVersion, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None)
+    .GetAwaiter().GetResult(), "sync network pull failure is surfaced");
+AssertEqual(invalidLocal.Hash, SaveRegistry.Get(invalidPullRoot, invalidLocal.Id)!.Hash, "sync network pull failure preserves the local snapshot");
 Console.WriteLine("PASS: V0 save sync pull validation and recovery.");
 
 var githubHandler = new GitHubFakeHttpHandler();
@@ -219,6 +230,26 @@ await AssertThrowsAsync<OperationCanceledException>(() => cancellationTask, "Git
 var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
+var uploadedRequest = githubHandler.RequestLog.Last(request => request.Method == HttpMethod.Put && request.Path.EndsWith("/saves/emerald/emerald.srm", StringComparison.Ordinal));
+using var uploadedPayload = JsonDocument.Parse(uploadedRequest.Body!);
+AssertEqual("blob-1", uploadedPayload.RootElement.GetProperty("sha").GetString()!, "GitHub upload carries expected blob SHA");
+AssertEqual("main", uploadedPayload.RootElement.GetProperty("branch").GetString()!, "GitHub upload carries expected branch");
+var conflictHandler = new GitHubFakeHttpHandler { ForcedPutStatusCode = HttpStatusCode.Conflict };
+using var conflictHttp = new HttpClient(conflictHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var conflictProvider = new GitHubRemoteSaveProvider(
+    new GitHubApiClient(conflictHttp, _ => Task.FromResult("test-token")),
+    githubBinding);
+GitHubApiException? conflictError = null;
+try
+{
+    await conflictProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "conflict", CancellationToken.None);
+}
+catch (GitHubApiException ex)
+{
+    conflictError = ex;
+}
+AssertTrue(conflictError?.StatusCode == HttpStatusCode.Conflict, "GitHub write conflict is surfaced");
+AssertEqual(1, conflictHandler.RequestLog.Count(request => request.Method == HttpMethod.Put), "GitHub write conflict is not retried");
 AssertTrue(githubHandler.Requests.All(request => request.Headers.Authorization?.Scheme == "Bearer"), "GitHub requests carry bearer authorization");
 var githubLineage = await githubProvider.CreateLineageAsync("emerald", "commit-1", CancellationToken.None);
 AssertTrue(githubLineage.StartsWith("save/emerald/", StringComparison.Ordinal), "GitHub provider creates a save lineage ref");
