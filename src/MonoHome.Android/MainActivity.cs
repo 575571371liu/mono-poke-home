@@ -408,7 +408,7 @@ public class MainActivity : Activity
             var shown = authDialog.Show();
             StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(device.VerificationUri.ToString())));
             var access = await flow.WaitForAccessTokenAsync(device, authCancellation.Token);
-            await new AndroidTokenStore(this).SaveTokenAsync(access.AccessToken);
+            await new AndroidTokenStore(this).SaveAccessTokenAsync(access);
             if (shown?.IsShowing == true)
                 shown.Dismiss();
             status!.Text = "GitHub 已连接，请继续绑定私有存档仓库。";
@@ -428,6 +428,25 @@ public class MainActivity : Activity
         }
     }
 
+    async Task<string> LoadGithubAccessTokenAsync(CancellationToken cancellationToken)
+    {
+        var store = new AndroidTokenStore(this);
+        var token = await store.LoadAccessTokenAsync(cancellationToken)
+            ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+        if (token.ExpiresAt is null || token.ExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1))
+            return token.AccessToken;
+
+        var clientId = GetString(Resource.String.github_client_id);
+        if (string.IsNullOrWhiteSpace(token.RefreshToken) || string.IsNullOrWhiteSpace(clientId))
+            throw new InvalidOperationException("GitHub 授权已过期，请重新连接账号。");
+
+        using var client = new HttpClient { BaseAddress = new Uri("https://github.com/") };
+        var refreshed = await new GitHubDeviceFlowClient(client, clientId)
+            .RefreshAccessTokenAsync(token.RefreshToken, cancellationToken);
+        await store.SaveAccessTokenAsync(refreshed, cancellationToken);
+        return refreshed.AccessToken;
+    }
+
     async Task BindRepositoryAsync(string? owner, string? repositoryName)
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repositoryName))
@@ -440,7 +459,7 @@ public class MainActivity : Activity
         using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         try
         {
-            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var token = await LoadGithubAccessTokenAsync(operation.Token);
             using var client = new HttpClient();
             var api = new GitHubApiClient(client, _ => Task.FromResult(token));
             var placeholder = new RepositoryBinding("github", owner, repositoryName, "main", DateTimeOffset.UtcNow, 1);
@@ -501,12 +520,13 @@ public class MainActivity : Activity
             var localHash = SaveSyncService.ComputeHash(local);
             var bindingStore = new AndroidRepositoryBindingStore(this);
             var repository = await bindingStore.LoadRepositoryAsync(operation.Token);
-            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token);
-            if (repository is null || string.IsNullOrWhiteSpace(token))
+            var storedToken = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token);
+            if (repository is null || string.IsNullOrWhiteSpace(storedToken))
             {
                 ShowSyncMessage("存档同步", $"本地 SHA-256：{localHash}\n\n尚未绑定远端仓库或 GitHub 账号。\n远程同步需要先完成私有仓库绑定。");
                 return;
             }
+            var token = await LoadGithubAccessTokenAsync(operation.Token);
 
             using var client = new HttpClient();
             var api = new GitHubApiClient(client, _ => Task.FromResult(token));
@@ -591,7 +611,7 @@ public class MainActivity : Activity
         {
             var bindingStore = new AndroidRepositoryBindingStore(this);
             var repository = await bindingStore.LoadRepositoryAsync(operation.Token) ?? throw new InvalidOperationException("尚未绑定远端仓库。");
-            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var token = await LoadGithubAccessTokenAsync(operation.Token);
             var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey, operation.Token)
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();
@@ -657,7 +677,7 @@ public class MainActivity : Activity
 
             var bindingStore = new AndroidRepositoryBindingStore(this);
             var repository = await bindingStore.LoadRepositoryAsync(operation.Token) ?? throw new InvalidOperationException("尚未绑定远端仓库。");
-            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var token = await LoadGithubAccessTokenAsync(operation.Token);
             var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey, operation.Token)
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();

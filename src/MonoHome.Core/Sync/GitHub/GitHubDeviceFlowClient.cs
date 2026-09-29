@@ -82,21 +82,47 @@ public sealed class GitHubDeviceFlowClient
                 throw new GitHubOAuthException(error, root.TryGetProperty("error_description", out var description) ? description.GetString() : null);
             }
 
-            var token = root.GetProperty("access_token").GetString() ?? throw new InvalidDataException("GitHub token response has no access token.");
-            var expiresIn = root.TryGetProperty("expires_in", out var expires) ? expires.GetInt32() : 0;
-            return new GitHubAccessToken(
-                token,
-                root.TryGetProperty("token_type", out var type) ? type.GetString() ?? "bearer" : "bearer",
-                expiresIn > 0 ? DateTimeOffset.UtcNow.AddSeconds(expiresIn) : null,
-                root.TryGetProperty("refresh_token", out var refresh) ? refresh.GetString() : null);
+            return ParseAccessToken(root);
         }
         throw new GitHubOAuthException("expired_token", "GitHub device authorization expired.");
+    }
+
+    public async Task<GitHubAccessToken> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    {
+        EnsureClientId();
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            throw new ArgumentException("Refresh token is required.", nameof(refreshToken));
+
+        using var response = await client.PostAsync(
+            "login/oauth/access_token",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = clientId,
+                ["refresh_token"] = refreshToken,
+                ["grant_type"] = "refresh_token",
+            }),
+            cancellationToken);
+        using var json = await ReadJsonAsync(response, cancellationToken);
+        ThrowOAuthError(json);
+        var refreshed = ParseAccessToken(json.RootElement);
+        return refreshed with { RefreshToken = refreshed.RefreshToken ?? refreshToken };
     }
 
     void EnsureClientId()
     {
         if (string.IsNullOrWhiteSpace(clientId))
             throw new InvalidOperationException("GitHub App client ID is not configured.");
+    }
+
+    static GitHubAccessToken ParseAccessToken(JsonElement root)
+    {
+        var token = root.GetProperty("access_token").GetString() ?? throw new InvalidDataException("GitHub token response has no access token.");
+        var expiresIn = root.TryGetProperty("expires_in", out var expires) ? expires.GetInt32() : 0;
+        return new GitHubAccessToken(
+            token,
+            root.TryGetProperty("token_type", out var type) ? type.GetString() ?? "bearer" : "bearer",
+            expiresIn > 0 ? DateTimeOffset.UtcNow.AddSeconds(expiresIn) : null,
+            root.TryGetProperty("refresh_token", out var refresh) ? refresh.GetString() : null);
     }
 
     static async Task<JsonDocument> ReadJsonAsync(HttpResponseMessage response, CancellationToken cancellationToken)

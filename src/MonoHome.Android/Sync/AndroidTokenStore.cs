@@ -5,7 +5,9 @@ using Java.Security;
 using Javax.Crypto;
 using Javax.Crypto.Spec;
 using MonoHome.Core.Sync;
+using MonoHome.Core.Sync.GitHub;
 using System.Text;
+using System.Text.Json;
 
 namespace MonoHome.Android.Sync;
 
@@ -15,17 +17,22 @@ public sealed class AndroidTokenStore(Context context)
     const string Alias = "mono_home_github_token";
     const string Preferences = "remote-save-secret";
     const string TokenKey = "github_token";
+    static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     readonly Context appContext = context.ApplicationContext ?? context;
 
-    public Task SaveTokenAsync(string token, CancellationToken cancellationToken = default)
+    public Task SaveTokenAsync(string token, CancellationToken cancellationToken = default) =>
+        SaveAccessTokenAsync(new GitHubAccessToken(token, "bearer", null, null), cancellationToken);
+
+    public Task SaveAccessTokenAsync(GitHubAccessToken token, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(token.AccessToken))
             throw new ArgumentException("Token is required.", nameof(token));
 
         var cipher = Cipher.GetInstance("AES/GCM/NoPadding") ?? throw new InvalidOperationException("Android cipher is unavailable.");
         cipher.Init(CipherMode.EncryptMode, GetOrCreateKey());
-        var encrypted = cipher.DoFinal(Encoding.UTF8.GetBytes(token)) ?? throw new InvalidOperationException("Android encryption failed.");
+        var serialized = JsonSerializer.SerializeToUtf8Bytes(token, Json);
+        var encrypted = cipher.DoFinal(serialized) ?? throw new InvalidOperationException("Android encryption failed.");
         var iv = cipher.GetIV() ?? throw new InvalidOperationException("Android cipher did not return an IV.");
         var payload = new byte[iv.Length + encrypted.Length];
         Buffer.BlockCopy(iv, 0, payload, 0, iv.Length);
@@ -37,12 +44,15 @@ public sealed class AndroidTokenStore(Context context)
         return Task.CompletedTask;
     }
 
-    public Task<string?> LoadTokenAsync(CancellationToken cancellationToken = default)
+    public async Task<string?> LoadTokenAsync(CancellationToken cancellationToken = default) =>
+        (await LoadAccessTokenAsync(cancellationToken))?.AccessToken;
+
+    public Task<GitHubAccessToken?> LoadAccessTokenAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var encoded = appContext.GetSharedPreferences(Preferences, FileCreationMode.Private)?.GetString(TokenKey, null);
         if (string.IsNullOrWhiteSpace(encoded))
-            return Task.FromResult<string?>(null);
+            return Task.FromResult<GitHubAccessToken?>(null);
 
         var payload = Convert.FromBase64String(encoded);
         const int ivLength = 12;
@@ -53,7 +63,18 @@ public sealed class AndroidTokenStore(Context context)
         var cipher = Cipher.GetInstance("AES/GCM/NoPadding") ?? throw new InvalidOperationException("Android cipher is unavailable.");
         cipher.Init(CipherMode.DecryptMode, GetOrCreateKey(), new GCMParameterSpec(128, iv));
         var plaintext = cipher.DoFinal(ciphertext) ?? throw new InvalidDataException("Stored GitHub token could not be decrypted.");
-        return Task.FromResult<string?>(Encoding.UTF8.GetString(plaintext));
+        var value = Encoding.UTF8.GetString(plaintext);
+        try
+        {
+            var token = JsonSerializer.Deserialize<GitHubAccessToken>(value, Json);
+            if (token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
+                return Task.FromResult<GitHubAccessToken?>(token);
+        }
+        catch (JsonException)
+        {
+            // Migrate the previous encrypted plain-token format on read.
+        }
+        return Task.FromResult<GitHubAccessToken?>(new GitHubAccessToken(value, "bearer", null, null));
     }
 
     public Task ClearTokenAsync(CancellationToken cancellationToken = default)

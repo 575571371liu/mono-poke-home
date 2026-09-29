@@ -292,7 +292,12 @@ var deviceCode = await deviceFlow.RequestDeviceCodeAsync(CancellationToken.None)
 AssertEqual("ABCD-EFGH", deviceCode.UserCode, "GitHub device flow returns user code");
 var deviceToken = await deviceFlow.WaitForAccessTokenAsync(deviceCode, CancellationToken.None);
 AssertEqual("ghu-test", deviceToken.AccessToken, "GitHub device flow returns user access token");
+AssertTrue(deviceToken.ExpiresAt > DateTimeOffset.UtcNow, "GitHub device flow preserves token expiry");
+AssertEqual("ghr-test", deviceToken.RefreshToken!, "GitHub device flow preserves refresh token");
 AssertEqual(2, deviceHandler.PollCount, "GitHub device flow handles pending response before success");
+var refreshedToken = await deviceFlow.RefreshAccessTokenAsync(deviceToken.RefreshToken!, CancellationToken.None);
+AssertEqual("ghu-refreshed", refreshedToken.AccessToken, "GitHub device flow refreshes expired access token");
+AssertEqual(1, deviceHandler.RefreshCount, "GitHub device flow sends one refresh request");
 Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
