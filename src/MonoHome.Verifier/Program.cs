@@ -1,6 +1,8 @@
 using MonoHome.Core.Saves;
 using MonoHome.Core.Transfers;
 using MonoHome.Core.Repository;
+using MonoHome.Core.Sync;
+using MonoHome.Verifier;
 using System.Security.Cryptography;
 using PKHeX.Core;
 
@@ -44,6 +46,43 @@ AssertEqual(registered.Hash, SaveRegistry.Get(savesRoot, registered.Id)!.Hash, "
 AssertEqual("content://local/emerald.srm", SaveRegistry.Get(savesRoot, registered.Id)!.SourceUri!, "save registry persists source URI");
 var writableRegistered = SaveRegistry.Register(File.ReadAllBytes(heartGoldPath), "heartgold-writable.sav", savesRoot, "content://local/heartgold-writable.sav", sourceFlags: 3);
 AssertEqual(3, SaveRegistry.Get(savesRoot, writableRegistered.Id)!.SourceFlags, "save registry persists URI flags");
+
+var syncBase = new byte[] { 1, 2, 3 };
+var syncLocal = new byte[] { 1, 2, 4 };
+var syncRemote = new byte[] { 1, 2, 5 };
+var syncProvider = new SyncFakeRemoteSaveProvider();
+var syncService = new SaveSyncService(syncProvider);
+var syncBaseHash = SaveSyncService.ComputeHash(syncBase);
+syncProvider.Seed("emerald", "main", "commit-1", syncBase);
+var syncBinding = new SaveRemoteBinding("emerald", "main", "commit-1", syncBaseHash);
+AssertEqual(SyncStatus.Aligned, syncService.Compare("emerald", syncBase, syncBinding, await syncProvider.GetLatestAsync("emerald", "main", CancellationToken.None)).Status, "sync equal content is aligned");
+AssertEqual(SyncStatus.LocalNewer, syncService.Compare("emerald", syncLocal, syncBinding, await syncProvider.GetLatestAsync("emerald", "main", CancellationToken.None)).Status, "sync local change is local newer");
+syncProvider.Seed("emerald", "main", "commit-2", syncRemote, "commit-1");
+AssertEqual(SyncStatus.RemoteNewer, syncService.Compare("emerald", syncBase, syncBinding, await syncProvider.GetLatestAsync("emerald", "main", CancellationToken.None)).Status, "sync remote-only change is remote newer");
+AssertEqual(SyncStatus.Diverged, syncService.Compare("emerald", syncLocal, syncBinding, await syncProvider.GetLatestAsync("emerald", "main", CancellationToken.None)).Status, "sync local and remote changes diverge");
+
+var uploadProvider = new SyncFakeRemoteSaveProvider();
+var uploadService = new SaveSyncService(uploadProvider);
+var repositoryBinding = new RepositoryBinding("fake", "tester", "mono-home-saves", "main", DateTimeOffset.UtcNow, 1);
+var uploadSnapshot = new LocalSaveSnapshot("emerald", syncBase, syncBaseHash, DateTimeOffset.UtcNow);
+var firstUpload = await uploadService.UploadAsync(uploadSnapshot, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None);
+AssertTrue(firstUpload.Succeeded && !firstUpload.NoOp, "sync first upload succeeds");
+AssertEqual(1, uploadProvider.UploadCount, "sync first upload creates one commit");
+var alignedBinding = new SaveRemoteBinding("emerald", "main", firstUpload.State.BaseCommitSha, firstUpload.State.LocalHash);
+var repeatedUpload = await uploadService.UploadAsync(uploadSnapshot, repositoryBinding, alignedBinding, CancellationToken.None);
+AssertTrue(repeatedUpload.Succeeded && repeatedUpload.NoOp, "sync repeated upload is no-op");
+AssertEqual(1, uploadProvider.UploadCount, "sync repeated upload does not create a commit");
+var changedUpload = await uploadService.UploadAsync(
+    new LocalSaveSnapshot("emerald", syncLocal, SaveSyncService.ComputeHash(syncLocal), DateTimeOffset.UtcNow),
+    repositoryBinding,
+    alignedBinding,
+    CancellationToken.None);
+AssertTrue(changedUpload.Succeeded && !changedUpload.NoOp, "sync changed upload succeeds");
+AssertEqual(2, uploadProvider.UploadCount, "sync changed upload creates a commit");
+AssertTrue(changedUpload.State.BaseCommitSha is not null && changedUpload.State.BaseCommitSha == changedUpload.State.RemoteLatest!.CommitSha, "sync upload aligns commit sha");
+AssertTrue(changedUpload.State.RemoteLatest?.ContentHash is not null && changedUpload.State.LocalHash == changedUpload.State.RemoteLatest.ContentHash, "sync upload aligns content hash");
+Console.WriteLine("PASS: V0 save sync state machine and fake remote.");
+
 var selected = emeraldPokemon[1];
 var repositoryRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-repository", Guid.NewGuid().ToString("N"));
 var stored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, selected), repositoryRoot);
