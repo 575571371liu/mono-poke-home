@@ -133,6 +133,15 @@ AssertThrows<GitHubApiException>(() => new SaveSyncService(failedPullProvider)
     .PullAsync(invalidLocal, failedPullVersion, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None)
     .GetAwaiter().GetResult(), "sync network pull failure is surfaced");
 AssertEqual(invalidLocal.Hash, SaveRegistry.Get(invalidPullRoot, invalidLocal.Id)!.Hash, "sync network pull failure preserves the local snapshot");
+var concurrentBytes = File.ReadAllBytes(heartGoldPath);
+var concurrentPullProvider = new SyncFakeRemoteSaveProvider();
+concurrentPullProvider.Seed("emerald", "main", "commit-concurrent", pullContent);
+concurrentPullProvider.BeforeDownload = () => File.WriteAllBytes(invalidLocal.SnapshotPath, concurrentBytes);
+var concurrentVersion = (await concurrentPullProvider.GetLatestAsync("emerald", "main", CancellationToken.None))!;
+AssertThrows<InvalidOperationException>(() => new SaveSyncService(concurrentPullProvider)
+    .PullAsync(invalidLocal, concurrentVersion, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None)
+    .GetAwaiter().GetResult(), "sync pull rejects a local change during download");
+AssertEqual(SaveSyncService.ComputeHash(concurrentBytes), SaveSyncService.ComputeHash(File.ReadAllBytes(invalidLocal.SnapshotPath)), "sync pull preserves a concurrent local change");
 Console.WriteLine("PASS: V0 save sync pull validation and recovery.");
 
 var githubHandler = new GitHubFakeHttpHandler();

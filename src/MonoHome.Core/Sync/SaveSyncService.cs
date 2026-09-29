@@ -95,6 +95,7 @@ public sealed class SaveSyncService(IRemoteSaveProvider provider)
 
         var original = File.ReadAllBytes(localSave.SnapshotPath);
         var recoveryPath = $"{localSave.SnapshotPath}.{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}.recovery";
+        var writeStarted = false;
         try
         {
             var downloaded = await provider.DownloadAsync(version, cancellationToken);
@@ -102,7 +103,10 @@ public sealed class SaveSyncService(IRemoteSaveProvider provider)
             if (version.ContentHash is not null && !string.Equals(ComputeHash(downloaded), version.ContentHash, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Downloaded save hash does not match the selected remote version.");
 
+            if (!original.SequenceEqual(File.ReadAllBytes(localSave.SnapshotPath)))
+                throw new InvalidOperationException("本地存档在拉取期间发生改变，请刷新后重试。");
             File.Copy(localSave.SnapshotPath, recoveryPath, overwrite: false);
+            writeStarted = true;
             SaveRegistry.UpdateSnapshot(localSave, downloaded);
             var state = new SaveSyncState(
                 saveBinding.SaveKey,
@@ -115,7 +119,7 @@ public sealed class SaveSyncService(IRemoteSaveProvider provider)
         }
         catch
         {
-            if (!File.Exists(localSave.SnapshotPath) || !original.SequenceEqual(File.ReadAllBytes(localSave.SnapshotPath)))
+            if (writeStarted && (!File.Exists(localSave.SnapshotPath) || !original.SequenceEqual(File.ReadAllBytes(localSave.SnapshotPath))))
                 File.WriteAllBytes(localSave.SnapshotPath, original);
             throw;
         }

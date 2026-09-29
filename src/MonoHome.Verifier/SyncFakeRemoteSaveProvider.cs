@@ -10,6 +10,7 @@ public sealed class SyncFakeRemoteSaveProvider : IRemoteSaveProvider
 
     public int UploadCount { get; private set; }
     public Exception? DownloadFailure { get; set; }
+    public Action? BeforeDownload { get; set; }
 
     public void Seed(string saveKey, string lineageId, string commitSha, byte[] content, string? parentCommitSha = null)
     {
@@ -44,6 +45,7 @@ public sealed class SyncFakeRemoteSaveProvider : IRemoteSaveProvider
     {
         if (DownloadFailure is { } failure)
             throw failure;
+        BeforeDownload?.Invoke();
         var match = GetVersions(version.SaveKey, version.LineageId).FirstOrDefault(item => item.Version.CommitSha == version.CommitSha);
         return Task.FromResult(match.Content?.ToArray() ?? throw new InvalidDataException("Fake remote version is missing."));
     }
