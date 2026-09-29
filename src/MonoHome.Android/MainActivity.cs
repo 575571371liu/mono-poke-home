@@ -385,14 +385,44 @@ public class MainActivity : Activity
                 return;
             }
 
-            var labels = repositories
-                .Select(repository => $"{repository.Owner}/{repository.Name}\n默认分支：{repository.DefaultBranch}")
+            var candidates = new List<(GitHubRepositoryInfo Repository, bool HasManifest)>();
+            foreach (var repository in repositories)
+            {
+                var candidateBinding = new RepositoryBinding(
+                    "github",
+                    repository.Owner,
+                    repository.Name,
+                    repository.DefaultBranch,
+                    DateTimeOffset.UtcNow,
+                    1);
+                var hasManifest = false;
+                try
+                {
+                    await new GitHubRemoteSaveProvider(api, candidateBinding)
+                        .GetManifestAsync(repository.DefaultBranch, false, operation.Token);
+                    hasManifest = true;
+                }
+                catch (GitHubApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    // A private writable repository without a manifest remains bindable and can be initialized.
+                }
+                candidates.Add((repository, hasManifest));
+            }
+
+            var orderedCandidates = candidates
+                .OrderByDescending(candidate => candidate.HasManifest)
+                .ThenBy(candidate => candidate.Repository.Owner, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(candidate => candidate.Repository.Name, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            var labels = orderedCandidates
+                .Select(candidate => $"{candidate.Repository.Owner}/{candidate.Repository.Name}\n" +
+                    $"{(candidate.HasManifest ? "已发现 MONO / HOME" : "可初始化") } · 默认分支：{candidate.Repository.DefaultBranch}")
                 .ToArray();
             var dialog = new AlertDialog.Builder(this);
             dialog.SetTitle("选择可写的私有仓库");
             dialog.SetItems(labels, (_, args) =>
             {
-                var repository = repositories[args.Which];
+                var repository = orderedCandidates[args.Which].Repository;
                 _ = BindRepositoryAsync(repository.Owner, repository.Name);
             });
             dialog.SetNegativeButton("取消", (_, _) => { });
