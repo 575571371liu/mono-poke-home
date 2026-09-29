@@ -605,7 +605,9 @@ public class MainActivity : Activity
             }
 
             var labels = versions.Select((version, index) =>
-                $"v{versions.Count - index}{(version.LineageId == saveBinding.LineageId ? " · 当前线" : " · 其他线")} · {version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n{version.CommitSha}\n{version.Message}\n存档线：{version.LineageId}").ToArray();
+                $"v{versions.Count - index}{(version.LineageId == saveBinding.LineageId ? " · 当前线" : " · 其他线")} · {version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n" +
+                $"提交：{version.CommitSha}\n内容 hash：{version.ContentHash ?? "未下载"}\n设备：{version.Device}\n{version.Message}\n存档线：{version.LineageId}" +
+                (version.ParentCommitSha is null ? string.Empty : $"\n父提交：{version.ParentCommitSha}")).ToArray();
             var dialog = new AlertDialog.Builder(this);
             dialog.SetTitle("选择历史版本");
             dialog.SetItems(labels, (_, args) => ConfirmSaveVersionPull(saveKey, versions[args.Which]));
