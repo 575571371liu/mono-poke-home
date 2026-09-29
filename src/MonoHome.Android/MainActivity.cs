@@ -31,6 +31,7 @@ public class MainActivity : Activity
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
     const string OtherSaveKey = "other-save-id";
+    const string DefaultRemoteRepository = "mono-home-saves";
     TextView? status;
     ProgressBar? progress;
     Button? transferButton;
@@ -282,9 +283,158 @@ public class MainActivity : Activity
         dialog.SetTitle("设置");
         dialog.SetMessage(message);
         dialog.SetNegativeButton("关闭", (_, _) => { });
-        dialog.SetNeutralButton("刷新存档", async (_, _) => await RefreshRegisteredSavesAsync());
+        dialog.SetNeutralButton("存档仓库", async (_, _) => await ShowRepositoryDialogAsync());
         dialog.SetPositiveButton("检查版本更新", async (_, _) => await CheckForUpdatesAsync());
         dialog.Show();
+    }
+
+    async Task ShowRepositoryDialogAsync()
+    {
+        var bindingStore = new AndroidRepositoryBindingStore(this);
+        var repository = await bindingStore.LoadRepositoryAsync();
+        var token = await new AndroidTokenStore(this).LoadTokenAsync();
+        var message = repository is null
+            ? "尚未绑定存档仓库。\n\n远程同步只访问你明确绑定的私有 GitHub 仓库。"
+            : $"已绑定：{repository.Owner}/{repository.Repository}\n默认分支：{repository.DefaultBranch}\n授权：{(string.IsNullOrWhiteSpace(token) ? "未连接" : "已连接")}";
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("存档仓库");
+        dialog.SetMessage(message);
+        dialog.SetNegativeButton("关闭", (_, _) => { });
+        dialog.SetNeutralButton(string.IsNullOrWhiteSpace(token) ? "连接 GitHub" : "重新连接", (_, _) => _ = ConnectGitHubAsync());
+        dialog.SetPositiveButton(repository is null ? "绑定仓库" : "更换仓库", (_, _) => ShowRepositoryChoice());
+        dialog.Show();
+    }
+
+    void ShowRepositoryChoice()
+    {
+        var tokenStore = new AndroidTokenStore(this);
+        _ = ShowRepositoryChoiceAsync(tokenStore);
+    }
+
+    async Task ShowRepositoryChoiceAsync(AndroidTokenStore tokenStore)
+    {
+        if (string.IsNullOrWhiteSpace(await tokenStore.LoadTokenAsync()))
+        {
+            ShowSyncMessage("存档仓库", "请先连接 GitHub 账号，再绑定私有仓库。");
+            return;
+        }
+
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("选择仓库操作");
+        dialog.SetMessage("创建专用仓库会打开 GitHub 的新建私有仓库页面；已有仓库则直接填写 owner 和仓库名。两种方式都会在绑定前验证私有状态和写权限。");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetNeutralButton("创建专用仓库", (_, _) =>
+        {
+            var url = $"https://github.com/new?name={Uri.EscapeDataString(DefaultRemoteRepository)}&visibility=private&auto_init=1";
+            StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(url)));
+            ShowRepositoryBindingInput(DefaultRemoteRepository);
+        });
+        dialog.SetPositiveButton("绑定已有仓库", (_, _) => ShowRepositoryBindingInput());
+        dialog.Show();
+    }
+
+    void ShowRepositoryBindingInput(string? defaultRepository = null)
+    {
+        var ownerInput = new EditText(this) { Hint = "GitHub 用户名或组织" };
+        var repositoryInput = new EditText(this) { Hint = "仓库名" };
+        if (!string.IsNullOrWhiteSpace(defaultRepository))
+            repositoryInput.Text = defaultRepository;
+        var fields = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        fields.SetPadding(Dp(20), 0, Dp(20), 0);
+        fields.AddView(ownerInput);
+        fields.AddView(repositoryInput);
+
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("绑定 GitHub 私有仓库");
+        dialog.SetView(fields);
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("验证并绑定", async (_, _) => await BindRepositoryAsync(ownerInput.Text?.Trim(), repositoryInput.Text?.Trim()));
+        dialog.Show();
+    }
+
+    async Task ConnectGitHubAsync()
+    {
+        var clientId = GetString(Resource.String.github_client_id);
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            ShowSyncMessage("连接 GitHub", "当前 APK 尚未配置 GitHub App Client ID。配置公开的 Client ID 后即可使用 device flow；应用不会要求在普通输入框粘贴 Token。");
+            return;
+        }
+
+        SetBusy(true);
+        using var authCancellation = new CancellationTokenSource();
+        try
+        {
+            using var client = new HttpClient { BaseAddress = new Uri("https://github.com/") };
+            var flow = new GitHubDeviceFlowClient(client, clientId);
+            var device = await flow.RequestDeviceCodeAsync(authCancellation.Token);
+            var authDialog = new AlertDialog.Builder(this);
+            authDialog.SetTitle("连接 GitHub");
+            authDialog.SetMessage($"请在浏览器打开：\n{device.VerificationUri}\n\n输入一次性代码：{device.UserCode}\n\n完成授权后返回应用，应用会自动等待结果。");
+            authDialog.SetNegativeButton("取消", (_, _) => authCancellation.Cancel());
+            var shown = authDialog.Show();
+            StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(device.VerificationUri.ToString())));
+            var access = await flow.WaitForAccessTokenAsync(device, authCancellation.Token);
+            await new AndroidTokenStore(this).SaveTokenAsync(access.AccessToken);
+            if (shown?.IsShowing == true)
+                shown.Dismiss();
+            status!.Text = "GitHub 已连接，请继续绑定私有存档仓库。";
+            await ShowRepositoryDialogAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            status!.Text = "已取消 GitHub 连接。";
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("连接 GitHub 失败", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    async Task BindRepositoryAsync(string? owner, string? repositoryName)
+    {
+        if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repositoryName))
+        {
+            ShowSyncMessage("绑定仓库", "用户名/组织和仓库名都不能为空。");
+            return;
+        }
+
+        SetBusy(true);
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        try
+        {
+            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            using var client = new HttpClient();
+            var api = new GitHubApiClient(client, _ => Task.FromResult(token));
+            var placeholder = new RepositoryBinding("github", owner, repositoryName, "main", DateTimeOffset.UtcNow, 1);
+            var provider = new GitHubRemoteSaveProvider(api, placeholder);
+            var binding = await provider.BindRepositoryAsync(owner, repositoryName, operation.Token);
+            var boundProvider = new GitHubRemoteSaveProvider(api, binding);
+            await boundProvider.GetManifestAsync(binding.DefaultBranch, true, operation.Token);
+            await new AndroidRepositoryBindingStore(this).SaveRepositoryAsync(binding, operation.Token);
+            status!.Text = $"已绑定 GitHub 私有仓库：{binding.Owner}/{binding.Repository}。";
+            ShowSyncMessage("绑定成功", $"已验证并初始化 {binding.Owner}/{binding.Repository}。\n\n现在可以打开存档卡片中的“存档同步”。");
+        }
+        catch (OperationCanceledException)
+        {
+            ShowSyncMessage("绑定仓库失败", "GitHub 请求超时或已取消，请稍后重试。");
+        }
+        catch (GitHubApiException ex)
+        {
+            ShowSyncMessage("绑定仓库失败", ex.UserMessage);
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("绑定仓库失败", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
     }
 
     async Task ShowSaveSyncDialogAsync(string saveKey)
@@ -298,6 +448,7 @@ public class MainActivity : Activity
         }
 
         SetBusy(true);
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         try
         {
             await RefreshRegisteredSaveAsync(requestCode);
@@ -312,8 +463,8 @@ public class MainActivity : Activity
             var local = File.ReadAllBytes(save.SnapshotPath);
             var localHash = SaveSyncService.ComputeHash(local);
             var bindingStore = new AndroidRepositoryBindingStore(this);
-            var repository = await bindingStore.LoadRepositoryAsync();
-            var token = await new AndroidTokenStore(this).LoadTokenAsync();
+            var repository = await bindingStore.LoadRepositoryAsync(operation.Token);
+            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token);
             if (repository is null || string.IsNullOrWhiteSpace(token))
             {
                 ShowSyncMessage("存档同步", $"本地 SHA-256：{localHash}\n\n尚未绑定远端仓库或 GitHub 账号。\n远程同步需要先完成私有仓库绑定。");
@@ -325,7 +476,7 @@ public class MainActivity : Activity
             var provider = new GitHubRemoteSaveProvider(api, repository);
             var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey)
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
-            var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, CancellationToken.None);
+            var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token);
             var state = new SaveSyncService(provider).Compare(saveKey, local, saveBinding, remote);
             var message = $"仓库：{repository.Owner}/{repository.Repository}\n本地 SHA-256：{state.LocalHash}\n远端版本：{remote?.CommitSha ?? "尚无远端存档"}\n状态：{SyncStatusText(state.Status)}";
             var dialog = new AlertDialog.Builder(this);
@@ -335,6 +486,10 @@ public class MainActivity : Activity
             dialog.SetNeutralButton("上传", (_, _) => ConfirmSaveSyncAction(saveKey, true));
             dialog.SetPositiveButton("拉取", (_, _) => ConfirmSaveSyncAction(saveKey, false));
             dialog.Show();
+        }
+        catch (OperationCanceledException)
+        {
+            ShowSyncMessage("存档同步失败", "GitHub 请求超时或已取消，请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -364,6 +519,7 @@ public class MainActivity : Activity
     async Task RunSaveSyncActionAsync(string saveKey, bool upload)
     {
         SetBusy(true);
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         try
         {
             var requestCode = saveKey == "emerald" ? EmeraldRequest : HeartGoldRequest;
@@ -373,9 +529,9 @@ public class MainActivity : Activity
                 throw new InvalidOperationException("请先导入对应存档。");
 
             var bindingStore = new AndroidRepositoryBindingStore(this);
-            var repository = await bindingStore.LoadRepositoryAsync() ?? throw new InvalidOperationException("尚未绑定远端仓库。");
-            var token = await new AndroidTokenStore(this).LoadTokenAsync() ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
-            var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey)
+            var repository = await bindingStore.LoadRepositoryAsync(operation.Token) ?? throw new InvalidOperationException("尚未绑定远端仓库。");
+            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey, operation.Token)
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();
             var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
@@ -388,13 +544,13 @@ public class MainActivity : Activity
                     new LocalSaveSnapshot(saveKey, local, SaveSyncService.ComputeHash(local), DateTimeOffset.UtcNow),
                     repository,
                     saveBinding,
-                    CancellationToken.None);
+                    operation.Token);
             }
             else
             {
-                var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, CancellationToken.None)
+                var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token)
                     ?? throw new InvalidOperationException("远端还没有这个存档版本。");
-                result = await service.PullAsync(current, remote, repository, saveBinding, CancellationToken.None);
+                result = await service.PullAsync(current, remote, repository, saveBinding, operation.Token);
                 if (saveKey == "emerald")
                     emeraldSave = SaveRegistry.Get(SavesPath, current.Id);
                 else
@@ -405,10 +561,14 @@ public class MainActivity : Activity
                 saveKey,
                 result.State.LineageId,
                 result.State.BaseCommitSha,
-                result.State.RemoteLatest?.ContentHash ?? result.State.LocalHash));
+                result.State.RemoteLatest?.ContentHash ?? result.State.LocalHash), operation.Token);
             UpdateButtons();
             status!.Text = result.Message;
             ShowSyncMessage("存档同步完成", result.Message);
+        }
+        catch (OperationCanceledException)
+        {
+            ShowSyncMessage("存档同步失败", "GitHub 请求超时或已取消，请稍后重试。");
         }
         catch (GitHubApiException ex)
         {

@@ -4,4 +4,5 @@
     <string name="import_emerald">导入绿宝石存档</string>
     <string name="import_heartgold">导入心金存档</string>
     <string name="transfer_button">生成合法心金传送副本</string>
+    <string name="github_client_id" translatable="false"></string>
 </resources>
