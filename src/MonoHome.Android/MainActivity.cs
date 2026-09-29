@@ -1707,6 +1707,14 @@ public class MainActivity : Activity
     void UpdateButtons()
     {
         UpdateArchiveTabs();
+        var centralPage = centralWarehouseContent?.Visibility == global::Android.Views.ViewStates.Visible;
+        if (connectedSavesSection is not null)
+        {
+            var hasConnectedSaves = emeraldSave is not null || heartGoldSave is not null;
+            connectedSavesSection.Visibility = centralPage && hasConnectedSaves
+                ? global::Android.Views.ViewStates.Visible
+                : global::Android.Views.ViewStates.Gone;
+        }
         if (uploadButton is not null)
         {
             uploadButton.Visibility = selectedSourceSlots.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
@@ -1715,7 +1723,6 @@ public class MainActivity : Activity
         }
         if (transferButton is not null)
         {
-            var centralPage = centralWarehouseContent?.Visibility == global::Android.Views.ViewStates.Visible;
             transferButton.Visibility = centralPage ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
             transferButton.Text = selectedWarehouseIds.Count > 1
                 ? $"传送已选 {selectedWarehouseIds.Count} 只"
