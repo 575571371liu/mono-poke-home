@@ -86,8 +86,13 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
     }
 
     public async Task<IReadOnlyList<RemoteSaveVersion>> ListVersionsAsync(string saveKey, CancellationToken cancellationToken)
+        => await ListVersionsAsync(saveKey, binding.DefaultBranch, cancellationToken);
+
+    public async Task<IReadOnlyList<RemoteSaveVersion>> ListVersionsAsync(
+        string saveKey,
+        string lineageId,
+        CancellationToken cancellationToken)
     {
-        var lineageId = binding.DefaultBranch;
         var commits = await api.ListCommitsAsync(binding.Owner, binding.Repository, GetPath(saveKey), lineageId, cancellationToken);
         return commits.Select(commit => new RemoteSaveVersion(
             saveKey,

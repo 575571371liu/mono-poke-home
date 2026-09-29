@@ -483,8 +483,8 @@ public class MainActivity : Activity
             dialog.SetTitle($"{save.DisplayName} · 存档同步");
             dialog.SetMessage(message);
             dialog.SetNegativeButton("关闭", (_, _) => { });
-            dialog.SetNeutralButton("上传", (_, _) => ConfirmSaveSyncAction(saveKey, true));
-            dialog.SetPositiveButton("拉取", (_, _) => ConfirmSaveSyncAction(saveKey, false));
+            dialog.SetNeutralButton("历史版本", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
+            dialog.SetPositiveButton("操作", (_, _) => ShowSaveSyncActions(saveKey));
             dialog.Show();
         }
         catch (OperationCanceledException)
@@ -516,7 +516,74 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
-    async Task RunSaveSyncActionAsync(string saveKey, bool upload)
+    void ShowSaveSyncActions(string saveKey)
+    {
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("存档同步操作");
+        dialog.SetMessage("所有上传、拉取都会再次确认；拉取前会保留本地 recovery 文件。");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetNeutralButton("上传", (_, _) => ConfirmSaveSyncAction(saveKey, true));
+        dialog.SetPositiveButton("拉取最新", (_, _) => ConfirmSaveSyncAction(saveKey, false));
+        dialog.Show();
+    }
+
+    async Task ShowSaveHistoryAsync(string saveKey)
+    {
+        SetBusy(true);
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        try
+        {
+            var bindingStore = new AndroidRepositoryBindingStore(this);
+            var repository = await bindingStore.LoadRepositoryAsync(operation.Token) ?? throw new InvalidOperationException("尚未绑定远端仓库。");
+            var token = await new AndroidTokenStore(this).LoadTokenAsync(operation.Token) ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey, operation.Token)
+                ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
+            using var client = new HttpClient();
+            var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
+            var versions = await provider.ListVersionsAsync(saveKey, saveBinding.LineageId, operation.Token);
+            if (versions.Count == 0)
+            {
+                ShowSyncMessage("历史版本", "当前存档线还没有可选择的历史版本。");
+                return;
+            }
+
+            var labels = versions.Select((version, index) =>
+                $"v{versions.Count - index} · {version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n{version.CommitSha}\n{version.Message}\n存档线：{version.LineageId}").ToArray();
+            var dialog = new AlertDialog.Builder(this);
+            dialog.SetTitle("选择历史版本");
+            dialog.SetItems(labels, (_, args) => ConfirmSaveVersionPull(saveKey, versions[args.Which]));
+            dialog.SetNegativeButton("取消", (_, _) => { });
+            dialog.Show();
+        }
+        catch (OperationCanceledException)
+        {
+            ShowSyncMessage("历史版本", "GitHub 请求超时或已取消，请稍后重试。");
+        }
+        catch (GitHubApiException ex)
+        {
+            ShowSyncMessage("历史版本", ex.UserMessage);
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("历史版本", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    void ConfirmSaveVersionPull(string saveKey, RemoteSaveVersion version)
+    {
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("确认回滚到历史版本");
+        dialog.SetMessage($"版本：{version.CommitSha}\n时间：{version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n\n当前本地快照会先保存为 recovery 文件。");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("确认拉取", async (_, _) => await RunSaveSyncActionAsync(saveKey, false, version));
+        dialog.Show();
+    }
+
+    async Task RunSaveSyncActionAsync(string saveKey, bool upload, RemoteSaveVersion? selectedVersion = null)
     {
         SetBusy(true);
         using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
@@ -548,7 +615,7 @@ public class MainActivity : Activity
             }
             else
             {
-                var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token)
+                var remote = selectedVersion ?? await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token)
                     ?? throw new InvalidOperationException("远端还没有这个存档版本。");
                 result = await service.PullAsync(current, remote, repository, saveBinding, operation.Token);
                 if (saveKey == "emerald")

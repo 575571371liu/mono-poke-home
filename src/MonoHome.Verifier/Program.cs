@@ -132,6 +132,8 @@ AssertEqual("saves/emerald/emerald.srm", githubManifest.Saves["emerald"].Path, "
 var githubLatest = await githubProvider.GetLatestAsync("emerald", "main", CancellationToken.None);
 AssertTrue(githubLatest is not null && githubLatest.CommitSha == "commit-1" && githubLatest.BlobSha == "blob-1", "GitHub provider separates commit SHA and blob SHA");
 AssertEqual(SaveSyncService.ComputeHash(new byte[] { 10, 20, 30 }), githubLatest!.ContentHash!, "GitHub provider computes content hash from bytes");
+var githubHistory = await githubProvider.ListVersionsAsync("emerald", "save/emerald/test-lineage", CancellationToken.None);
+AssertTrue(githubHistory.Count == 1 && githubHistory[0].ContentHash is null && githubHistory[0].LineageId == "save/emerald/test-lineage", "GitHub history keeps lineage and defers content hash");
 var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
