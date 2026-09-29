@@ -84,6 +84,29 @@ AssertTrue(changedUpload.State.BaseCommitSha is not null && changedUpload.State.
 AssertTrue(changedUpload.State.RemoteLatest?.ContentHash is not null && changedUpload.State.LocalHash == changedUpload.State.RemoteLatest.ContentHash, "sync upload aligns content hash");
 Console.WriteLine("PASS: V0 save sync state machine and fake remote.");
 
+var pullProvider = new SyncFakeRemoteSaveProvider();
+var pullService = new SaveSyncService(pullProvider);
+var pullContent = File.ReadAllBytes(emeraldPath);
+pullProvider.Seed("emerald", "main", "commit-pull", pullContent);
+var pullVersion = (await pullProvider.GetLatestAsync("emerald", "main", CancellationToken.None))!;
+var pullResult = await pullService.PullAsync(
+    registered,
+    pullVersion,
+    repositoryBinding,
+    new SaveRemoteBinding("emerald", "main", null),
+    CancellationToken.None);
+AssertTrue(pullResult.Succeeded && pullResult.RecoveryPointPath is not null && File.Exists(pullResult.RecoveryPointPath), "sync pull creates a recovery point after validation");
+AssertEqual(emeraldHash, SaveRegistry.Get(savesRoot, registered.Id)!.Hash, "sync pull keeps a valid local snapshot");
+var invalidPullRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-invalid-pull", Guid.NewGuid().ToString("N"));
+var invalidLocal = SaveRegistry.Register(pullContent, "invalid-pull.srm", invalidPullRoot);
+var invalidProvider = new SyncFakeRemoteSaveProvider();
+var invalidService = new SaveSyncService(invalidProvider);
+invalidProvider.Seed("emerald", "main", "commit-invalid", new byte[] { 1, 2, 3 });
+var invalidVersion = (await invalidProvider.GetLatestAsync("emerald", "main", CancellationToken.None))!;
+AssertThrows<InvalidDataException>(() => invalidService.PullAsync(invalidLocal, invalidVersion, repositoryBinding, new SaveRemoteBinding("emerald", "main", null), CancellationToken.None).GetAwaiter().GetResult(), "sync pull rejects invalid remote save");
+AssertEqual(invalidLocal.Hash, SaveRegistry.Get(invalidPullRoot, invalidLocal.Id)!.Hash, "sync invalid pull preserves the local snapshot");
+Console.WriteLine("PASS: V0 save sync pull validation and recovery.");
+
 var githubHandler = new GitHubFakeHttpHandler();
 using var githubHttp = new HttpClient(githubHandler) { BaseAddress = new Uri("https://api.github.test/") };
 var githubApi = new GitHubApiClient(githubHttp, _ => Task.FromResult("test-token"));

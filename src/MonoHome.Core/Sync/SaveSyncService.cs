@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using MonoHome.Core.Saves;
 
 namespace MonoHome.Core.Sync;
 
@@ -60,6 +61,45 @@ public sealed class SaveSyncService(IRemoteSaveProvider provider)
             uploaded,
             SyncStatus.Aligned);
         return new SyncOperationResult(true, false, aligned, "本地存档已上传并与远端对齐。");
+    }
+
+    public async Task<SyncOperationResult> PullAsync(
+        RegisteredSave localSave,
+        RemoteSaveVersion version,
+        RepositoryBinding binding,
+        SaveRemoteBinding saveBinding,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!string.Equals(version.SaveKey, saveBinding.SaveKey, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Remote version does not belong to the selected save.");
+
+        var original = File.ReadAllBytes(localSave.SnapshotPath);
+        var recoveryPath = $"{localSave.SnapshotPath}.{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}.recovery";
+        try
+        {
+            var downloaded = await provider.DownloadAsync(version, cancellationToken);
+            SaveInspector.Inspect(downloaded, localSave.DisplayName);
+            if (version.ContentHash is not null && !string.Equals(ComputeHash(downloaded), version.ContentHash, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Downloaded save hash does not match the selected remote version.");
+
+            File.Copy(localSave.SnapshotPath, recoveryPath, overwrite: false);
+            SaveRegistry.UpdateSnapshot(localSave, downloaded);
+            var state = new SaveSyncState(
+                saveBinding.SaveKey,
+                version.LineageId,
+                ComputeHash(downloaded),
+                version.CommitSha,
+                version,
+                SyncStatus.Aligned);
+            return new SyncOperationResult(true, false, state, "远端存档已校验并写入本地快照。", recoveryPath);
+        }
+        catch
+        {
+            if (!File.Exists(localSave.SnapshotPath) || !original.SequenceEqual(File.ReadAllBytes(localSave.SnapshotPath)))
+                File.WriteAllBytes(localSave.SnapshotPath, original);
+            throw;
+        }
     }
 
     public static string ComputeHash(ReadOnlySpan<byte> content) => Convert.ToHexString(SHA256.HashData(content));
