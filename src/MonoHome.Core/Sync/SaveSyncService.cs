@@ -63,6 +63,25 @@ public sealed class SaveSyncService(IRemoteSaveProvider provider)
         return new SyncOperationResult(true, false, aligned, "本地存档已上传并与远端对齐。");
     }
 
+    public async Task<SyncOperationResult> ForkAndUploadAsync(
+        LocalSaveSnapshot localSnapshot,
+        RepositoryBinding binding,
+        SaveRemoteBinding saveBinding,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (saveBinding.BaseCommitSha is null)
+            throw new InvalidOperationException("创建新存档线需要一个已有的远端 commit。");
+
+        var lineageId = await provider.CreateLineageAsync(saveBinding.SaveKey, saveBinding.BaseCommitSha, cancellationToken);
+        var forked = await UploadAsync(
+            localSnapshot,
+            binding,
+            saveBinding with { LineageId = lineageId },
+            cancellationToken);
+        return forked with { Message = $"已从 {saveBinding.BaseCommitSha} 创建新存档线并上传。{forked.Message}" };
+    }
+
     public async Task<SyncOperationResult> PullAsync(
         RegisteredSave localSave,
         RemoteSaveVersion version,

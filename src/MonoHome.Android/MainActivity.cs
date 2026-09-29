@@ -516,6 +516,16 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
+    void ConfirmSaveForkAction(string saveKey)
+    {
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle("创建新的存档线");
+        dialog.SetMessage("远端和本地都已偏离共同基线。将从本地基线 commit 创建新存档线，再上传当前本地内容；原有远端历史不会被覆盖。");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("创建并上传", async (_, _) => await RunSaveSyncActionAsync(saveKey, true, null, true));
+        dialog.Show();
+    }
+
     void ShowSaveSyncActions(string saveKey)
     {
         var dialog = new AlertDialog.Builder(this);
@@ -583,7 +593,7 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
-    async Task RunSaveSyncActionAsync(string saveKey, bool upload, RemoteSaveVersion? selectedVersion = null)
+    async Task RunSaveSyncActionAsync(string saveKey, bool upload, RemoteSaveVersion? selectedVersion = null, bool createLineage = false)
     {
         SetBusy(true);
         using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
@@ -607,11 +617,10 @@ public class MainActivity : Activity
             if (upload)
             {
                 var local = File.ReadAllBytes(current.SnapshotPath);
-                result = await service.UploadAsync(
-                    new LocalSaveSnapshot(saveKey, local, SaveSyncService.ComputeHash(local), DateTimeOffset.UtcNow),
-                    repository,
-                    saveBinding,
-                    operation.Token);
+                var snapshot = new LocalSaveSnapshot(saveKey, local, SaveSyncService.ComputeHash(local), DateTimeOffset.UtcNow);
+                result = createLineage
+                    ? await service.ForkAndUploadAsync(snapshot, repository, saveBinding, operation.Token)
+                    : await service.UploadAsync(snapshot, repository, saveBinding, operation.Token);
             }
             else
             {
@@ -622,6 +631,15 @@ public class MainActivity : Activity
                     emeraldSave = SaveRegistry.Get(SavesPath, current.Id);
                 else
                     heartGoldSave = SaveRegistry.Get(SavesPath, current.Id);
+            }
+
+            if (!result.Succeeded)
+            {
+                if (upload && result.State.Status == SyncStatus.Diverged)
+                    ConfirmSaveForkAction(saveKey);
+                else
+                    ShowSyncMessage("存档同步", result.Message);
+                return;
             }
 
             await bindingStore.SaveSaveBindingAsync(new SaveRemoteBinding(

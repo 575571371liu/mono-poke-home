@@ -85,12 +85,18 @@ AssertTrue(changedUpload.State.RemoteLatest?.ContentHash is not null && changedU
 var forkedLineage = await uploadProvider.CreateLineageAsync("emerald", firstUpload.State.BaseCommitSha!, CancellationToken.None);
 var forkedLatest = await uploadProvider.GetLatestAsync("emerald", forkedLineage, CancellationToken.None);
 AssertTrue(forkedLatest is not null && forkedLatest.CommitSha == firstUpload.State.BaseCommitSha && forkedLatest.ParentCommitSha == firstUpload.State.BaseCommitSha, "sync lineage starts from selected historical commit");
-var forkedUpload = await uploadService.UploadAsync(
+var divergentUpload = await uploadService.UploadAsync(
     new LocalSaveSnapshot("emerald", syncRemote, SaveSyncService.ComputeHash(syncRemote), DateTimeOffset.UtcNow),
     repositoryBinding,
-    new SaveRemoteBinding("emerald", forkedLineage, forkedLatest!.CommitSha, forkedLatest.ContentHash),
+    new SaveRemoteBinding("emerald", "main", firstUpload.State.BaseCommitSha, syncBaseHash),
     CancellationToken.None);
-AssertTrue(forkedUpload.Succeeded && forkedUpload.State.LineageId == forkedLineage, "sync changed historical save uploads to a new lineage");
+AssertEqual(SyncStatus.Diverged, divergentUpload.State.Status, "sync divergent upload requires an explicit new lineage");
+var forkedUpload = await uploadService.ForkAndUploadAsync(
+    new LocalSaveSnapshot("emerald", syncRemote, SaveSyncService.ComputeHash(syncRemote), DateTimeOffset.UtcNow),
+    repositoryBinding,
+    new SaveRemoteBinding("emerald", "main", firstUpload.State.BaseCommitSha, syncBaseHash),
+    CancellationToken.None);
+AssertTrue(forkedUpload.Succeeded && forkedUpload.State.LineageId != "main", "sync changed historical save uploads to a new lineage");
 AssertTrue((await uploadProvider.ListVersionsAsync("emerald", CancellationToken.None)).Count >= 4, "sync history retains old and forked versions");
 Console.WriteLine("PASS: V0 save sync state machine and fake remote.");
 
