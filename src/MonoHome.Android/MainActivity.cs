@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.1.0";
+    const string CurrentVersion = "1.2.0";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";

@@ -226,7 +226,7 @@ public sealed class GitHubApiClient
                 using var request = new HttpRequestMessage(method, endpoint) { Content = content };
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
                 request.Headers.Add("X-GitHub-Api-Version", ApiVersion);
-                request.Headers.UserAgent.ParseAdd("MonoHome/1.1");
+                request.Headers.UserAgent.ParseAdd("MonoHome/1.2");
                 var token = await accessTokenProvider(requestCancellation.Token);
                 if (string.IsNullOrWhiteSpace(token))
                     throw new InvalidOperationException("GitHub access token is missing.");
