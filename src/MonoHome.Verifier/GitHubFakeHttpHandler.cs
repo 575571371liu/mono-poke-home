@@ -11,11 +11,26 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     public bool ManifestMissing { get; set; }
     public int TransientGetFailures { get; set; }
     public bool ReturnUnprocessable { get; set; }
+    public HttpStatusCode? ForcedStatusCode { get; set; }
+    public TimeSpan? RetryAfter { get; set; }
+    public TimeSpan ResponseDelay { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         Requests.Add(request);
         var path = request.RequestUri!.AbsolutePath;
+        if (ResponseDelay > TimeSpan.Zero)
+            await Task.Delay(ResponseDelay, cancellationToken);
+        if (ForcedStatusCode is { } forcedStatusCode)
+        {
+            var response = new HttpResponseMessage(forcedStatusCode)
+            {
+                Content = new StringContent("{\"message\":\"forced failure\"}", Encoding.UTF8, "application/json"),
+            };
+            if (RetryAfter is { } retryAfter)
+                response.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(retryAfter);
+            return response;
+        }
         if (ReturnUnprocessable)
             return new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
             {

@@ -4,6 +4,7 @@ using MonoHome.Core.Repository;
 using MonoHome.Core.Sync;
 using MonoHome.Core.Sync.GitHub;
 using MonoHome.Verifier;
+using System.Net;
 using System.Security.Cryptography;
 using PKHeX.Core;
 
@@ -159,6 +160,41 @@ catch (GitHubApiException ex)
     invalidError = ex;
 }
 AssertTrue(invalidError is not null && invalidError.UserMessage.Contains("请求参数", StringComparison.Ordinal), "GitHub 422 error has user message");
+foreach (var statusCode in new[]
+{
+    HttpStatusCode.Unauthorized,
+    HttpStatusCode.Forbidden,
+    HttpStatusCode.NotFound,
+    HttpStatusCode.Conflict,
+    (HttpStatusCode)429,
+})
+{
+    var errorHandler = new GitHubFakeHttpHandler { ForcedStatusCode = statusCode, RetryAfter = TimeSpan.Zero };
+    using var errorHttp = new HttpClient(errorHandler) { BaseAddress = new Uri("https://api.github.test/") };
+    var errorApi = new GitHubApiClient(errorHttp, _ => Task.FromResult("test-token"));
+    GitHubApiException? error = null;
+    try
+    {
+        await errorApi.GetRepositoryAsync("test", "repo", CancellationToken.None);
+    }
+    catch (GitHubApiException ex)
+    {
+        error = ex;
+    }
+    AssertTrue(error is not null && error.StatusCode == statusCode && !string.IsNullOrWhiteSpace(error.UserMessage), $"GitHub {(int)statusCode} has user message");
+}
+var timeoutHandler = new GitHubFakeHttpHandler { ResponseDelay = TimeSpan.FromSeconds(1) };
+using var timeoutHttp = new HttpClient(timeoutHandler) { BaseAddress = new Uri("https://api.github.test/") };
+await AssertThrowsAsync<OperationCanceledException>(
+    () => new GitHubApiClient(timeoutHttp, _ => Task.FromResult("test-token"), TimeSpan.FromMilliseconds(10))
+        .GetRepositoryAsync("test", "repo", CancellationToken.None),
+    "GitHub request timeout cancels the request");
+using var cancellationHttp = new HttpClient(new GitHubFakeHttpHandler { ResponseDelay = TimeSpan.FromSeconds(1) }) { BaseAddress = new Uri("https://api.github.test/") };
+using var cancellation = new CancellationTokenSource();
+var cancellationTask = new GitHubApiClient(cancellationHttp, _ => Task.FromResult("test-token"))
+    .GetRepositoryAsync("test", "repo", cancellation.Token);
+cancellation.CancelAfter(10);
+await AssertThrowsAsync<OperationCanceledException>(() => cancellationTask, "GitHub caller cancellation is preserved");
 var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
@@ -360,6 +396,19 @@ static void AssertThrows<T>(Action action, string label) where T : Exception
     try
     {
         action();
+    }
+    catch (T)
+    {
+        return;
+    }
+    throw new InvalidOperationException($"{label}: expected {typeof(T).Name}.");
+}
+
+static async Task AssertThrowsAsync<T>(Func<Task> action, string label) where T : Exception
+{
+    try
+    {
+        await action();
     }
     catch (T)
     {

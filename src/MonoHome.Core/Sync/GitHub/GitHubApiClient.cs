@@ -52,11 +52,18 @@ public sealed class GitHubApiClient
     const string ApiVersion = "2022-11-28";
     readonly HttpClient client;
     readonly Func<CancellationToken, Task<string>> accessTokenProvider;
+    readonly TimeSpan requestTimeout;
 
-    public GitHubApiClient(HttpClient client, Func<CancellationToken, Task<string>> accessTokenProvider)
+    public GitHubApiClient(
+        HttpClient client,
+        Func<CancellationToken, Task<string>> accessTokenProvider,
+        TimeSpan? requestTimeout = null)
     {
         this.client = client;
         this.accessTokenProvider = accessTokenProvider;
+        this.requestTimeout = requestTimeout ?? TimeSpan.FromSeconds(30);
+        if (this.requestTimeout <= TimeSpan.Zero || this.requestTimeout == Timeout.InfiniteTimeSpan)
+            throw new ArgumentOutOfRangeException(nameof(requestTimeout));
         client.BaseAddress ??= new Uri("https://api.github.com/");
     }
 
@@ -198,17 +205,19 @@ public sealed class GitHubApiClient
         {
             try
             {
+                using var requestCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                requestCancellation.CancelAfter(requestTimeout);
                 using var request = new HttpRequestMessage(method, endpoint) { Content = content };
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
                 request.Headers.Add("X-GitHub-Api-Version", ApiVersion);
                 request.Headers.UserAgent.ParseAdd("MonoHome/1.1");
-                var token = await accessTokenProvider(cancellationToken);
+                var token = await accessTokenProvider(requestCancellation.Token);
                 if (string.IsNullOrWhiteSpace(token))
                     throw new InvalidOperationException("GitHub access token is missing.");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, requestCancellation.Token);
+                var body = await response.Content.ReadAsStringAsync(requestCancellation.Token);
                 if (response.IsSuccessStatusCode)
                     return JsonDocument.Parse(body);
 
@@ -234,8 +243,8 @@ public sealed class GitHubApiClient
     static TimeSpan GetRetryDelay(int attempt, TimeSpan? retryAfter)
     {
         var serverDelay = retryAfter.GetValueOrDefault();
-        if (serverDelay > TimeSpan.Zero)
-            return TimeSpan.FromSeconds(Math.Min(30, serverDelay.TotalSeconds));
+        if (retryAfter.HasValue)
+            return TimeSpan.FromSeconds(Math.Clamp(serverDelay.TotalSeconds, 0, 30));
         return TimeSpan.FromSeconds(Math.Pow(2, attempt));
     }
 
