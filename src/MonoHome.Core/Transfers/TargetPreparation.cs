@@ -24,13 +24,13 @@ public sealed record TargetPreparation(
 
 public static class TargetPreparationService
 {
-    public static TargetPreparation Prepare(StoredPokemon stored, RegisteredSave target, string targetSavePath, string cacheRoot)
+    public static TargetPreparation Prepare(StoredPokemon stored, RegisteredSave target, string targetSavePath, string cacheRoot, int destinationSlot = -1)
     {
         Directory.CreateDirectory(cacheRoot);
-        var output = Path.Combine(cacheRoot, $"{stored.Id}-{target.Id}-{stored.Revision}.sav");
+        var output = Path.Combine(cacheRoot, $"{stored.Id}-{target.Id}-{stored.Revision}-{destinationSlot}.sav");
         try
         {
-            var report = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(stored), targetSavePath, output, TransferMode.Conversion);
+            var report = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(stored), targetSavePath, output, TransferMode.Conversion, destinationSlot);
             return new(
                 stored.Id,
                 stored.Revision,

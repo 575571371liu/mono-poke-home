@@ -62,6 +62,9 @@ var advancedEdit = LocalRepository.ApplyEdit(storedPokemon, new WorkingEdit(null
 AssertEqual((ushort)1, advancedEdit.Move1, "working edit changes moves");
 AssertEqual(6, advancedEdit.IV_SPD, "working edit changes IVs");
 AssertEqual(6, advancedEdit.EV_SPD, "working edit changes EVs");
+var repairOutcome = LocalRepository.RepairWithStrategy(advancedEdit);
+AssertTrue(repairOutcome.Valid, $"automatic repair produces a legal {repairOutcome.Template} candidate");
+Console.WriteLine($"PASS: automatic repair used {repairOutcome.Template}; {string.Join(", ", repairOutcome.Changes)}");
 var attributeEdit = LocalRepository.ApplyEdit(advancedEdit, new WorkingEdit(
     null, null, null, null, null, null,
     Species: selected.Species,
@@ -117,6 +120,16 @@ AssertEqual(targetSave.SID16, inserted.SID16, "converted Pokémon uses target SI
 AssertEqual(emeraldHash, Hash(emeraldPath), "Emerald source stays unchanged");
 AssertEqual(heartGoldHash, Hash(heartGoldPath), "HeartGold source stays unchanged");
 Console.WriteLine($"PASS: transfer output {transferPath}; species {transfer.Species}; {transfer.Message}");
+var chosenDestination = heartGoldPages.Skip(1)
+    .SelectMany((page, pageIndex) => page.Slots.Where(slot => slot.Pokemon is null).Select(slot => pageIndex * page.Capacity + slot.Index))
+    .Skip(1)
+    .First();
+var routedTransferPath = Path.Combine(Path.GetTempPath(), "mono-home-heartgold-routed.sav");
+var routedTransfer = EmeraldHgssTransfer.TransferStored(storedPokemon, heartGoldPath, routedTransferPath, TransferMode.Conversion, chosenDestination);
+AssertTrue(routedTransfer.Succeeded, $"routed transfer: {routedTransfer.Message}");
+var routedSave = (SAV4HGSS)SaveUtil.GetSaveFile(routedTransferPath)!;
+AssertEqual(selected.Species, routedSave.GetBoxSlotAtIndex(chosenDestination).Species, "routed transfer uses selected destination slot");
+Console.WriteLine($"PASS: routed transfer wrote selected slot {chosenDestination}.");
 
 var special = emeraldPokemon.FirstOrDefault(slot => slot.IsShiny || slot.HeldItem != 0 || slot.StatusCondition != 0 || slot.PokerusStrain != 0 || slot.IsEgg);
 AssertTrue(special is not null, "Emerald fixture has a special-state Pokémon");
@@ -185,6 +198,10 @@ AssertEqual(transferLog.Id, TransferJournal.List(transferLogRoot).Single().Id, "
 AssertEqual("conversion", transferLog.Mode!, "transfer journal persists conversion mode");
 var exportedLog = TransferJournal.MarkExported(transferLogRoot, transferLog.Id, "heartgold-transfer.sav");
 AssertEqual("succeeded", exportedLog.Status, "transfer journal records completed export");
+var removable = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), Path.Combine(Path.GetTempPath(), "mono-home-verifier-removal"));
+LocalRepository.Remove(removable);
+AssertTrue(!File.Exists(removable.ManifestPath), "transferred repository record is removed");
+Console.WriteLine("PASS: successful transfer removal deletes the central warehouse record.");
 
 static void AssertEqual<T>(T expected, T actual, string label) where T : notnull
 {

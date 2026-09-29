@@ -33,6 +33,13 @@ public sealed record WorkingEdit(
     bool? Shiny = null,
     bool? Egg = null);
 
+public sealed record RepairOutcome(
+    PKM Pokemon,
+    bool Valid,
+    string Template,
+    IReadOnlyList<string> Changes,
+    string? FailureReason = null);
+
 public static class LocalRepository
 {
     static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
@@ -165,14 +172,16 @@ public static class LocalRepository
         catch { return "stale"; }
     }
 
-    /// <summary>Rebuilds only encounter/background data while retaining user-controlled battle data.</summary>
-    public static PKM RepairBackground(PKM source)
+    /// <summary>Repairs an entity in stages, never returning an unverified replacement.</summary>
+    public static RepairOutcome RepairWithStrategy(PKM source)
     {
+        var template = RepairTemplateName(source);
+        LegalityAnalysis analysis;
         try
         {
-            var analysis = new LegalityAnalysis(source);
+            analysis = new LegalityAnalysis(source);
             if (analysis.Valid)
-                return source;
+                return new(source, true, template, ["原始数据已通过合法性检查"]);
             var encounter = analysis.EncounterMatch as IEncounterConvertible;
             if (encounter is null or EncounterInvalid)
             {
@@ -182,56 +191,140 @@ public static class LocalRepository
                     .FirstOrDefault();
             }
             if (encounter is null)
-                return source;
+                return new(source, false, template, [], "找不到与当前种类、形态和来源世代匹配的合法相遇模板。请改用“编辑并另存为合法副本”，或选择受支持的来源世代。");
 
-            var trainer = new SimpleTrainerInfo(source.Version)
-            {
-                OT = source.OriginalTrainerName,
-                TID16 = source.TID16,
-                SID16 = source.SID16,
-                Gender = source.OriginalTrainerGender,
-                Language = source.Language,
-            };
-            var criteria = new EncounterCriteria
-            {
-                Gender = (Gender)source.Gender,
-                Nature = (Nature)source.Nature,
-                Shiny = source.IsShiny ? Shiny.Always : Shiny.Never,
-            };
-            var repaired = encounter.ConvertToPKM(trainer, criteria);
+            var baseCandidate = BuildEncounterTemplate(source, encounter);
+            if (IsLegal(baseCandidate))
+                return new(baseCandidate, true, template, ["按世代背景模板重建"]);
+            var preserved = PreserveUserFields(baseCandidate, source);
+            if (TryRepairGen3Correlation(preserved, source, encounter) && IsLegal(preserved))
+                return new(preserved, true, template, ["背景信息", "Gen 3 PID/IV 关联"]);
+            if (IsLegal(preserved))
+                return new(preserved, true, template, ["背景信息"]);
 
-            repaired.Nickname = source.Nickname;
-            repaired.IsNicknamed = source.IsNicknamed;
-            repaired.CurrentLevel = Math.Max(repaired.CurrentLevel, source.CurrentLevel);
-            repaired.SetMoves([source.Move1, source.Move2, source.Move3, source.Move4]);
-            Span<int> ivs = stackalloc int[6];
-            Span<int> evs = stackalloc int[6];
-            source.GetIVs(ivs);
-            source.GetEVs(evs);
-            repaired.SetIVs(ivs);
-            repaired.SetEVs(evs);
-            repaired.HeldItem = source.HeldItem;
-            repaired.Status_Condition = source.Status_Condition;
-            repaired.PokerusStrain = source.PokerusStrain;
-            repaired.PokerusDays = source.PokerusDays;
-            repaired.IsEgg = source.IsEgg;
-            if (repaired is PK3 pk3 && source is PK3 source3 && encounter is IEncounterSlot3 slot3)
-            {
-                var report = new LegalityAnalysis(pk3).Report();
-                if (report.Contains("PID+ correlation", StringComparison.Ordinal))
-                {
-                    var currentLevel = pk3.CurrentLevel;
-                    slot3.SetRandom(pk3, PersonalTable.E[pk3.Species], criteria, source3.PID ^ source3.IV32 ^ (uint)source.Species);
-                    pk3.CurrentLevel = Math.Max(pk3.MetLevel, currentLevel);
-                }
-            }
-            return repaired;
+            var moveSafe = preserved.Clone();
+            ApplyLegalMoves(moveSafe);
+            if (TryRepairGen3Correlation(moveSafe, source, encounter) && IsLegal(moveSafe))
+                return new(moveSafe, true, template, ["背景信息", "替换为该世代可学习招式", "Gen 3 PID/IV 关联"]);
+            if (IsLegal(moveSafe))
+                return new(moveSafe, true, template, ["背景信息", "替换为该世代可学习招式"]);
+
+            var clean = BuildSafeTemplate(baseCandidate, source);
+            if (TryRepairGen3Correlation(clean, source, encounter) && IsLegal(clean))
+                return new(clean, true, template, ["按世代背景模板重建", "清理不兼容招式、道具和状态", "Gen 3 PID/IV 关联"]);
+            if (IsLegal(clean))
+                return new(clean, true, template, ["按世代背景模板重建", "清理不兼容招式、道具和状态"]);
+
+            return new(source, false, template, ["保留背景字段", "替换合法招式", "按世代模板重建"],
+                "所有候选仍未通过合法性检查。请查看编辑页中的招式、昵称、等级、形态和性别，或选择一个在当前来源世代真实存在的个体。");
         }
-        catch
+        catch (Exception ex)
         {
-            return source;
+            return new(source, false, template, [], $"修复过程无法完成：{ex.Message}");
         }
     }
+
+    public static PKM RepairBackground(PKM source) => RepairWithStrategy(source).Pokemon;
+
+    static PKM BuildEncounterTemplate(PKM source, IEncounterConvertible encounter)
+    {
+        var trainer = new SimpleTrainerInfo(source.Version)
+        {
+            OT = source.OriginalTrainerName,
+            TID16 = source.TID16,
+            SID16 = source.SID16,
+            Gender = source.OriginalTrainerGender,
+            Language = source.Language,
+        };
+        var criteria = new EncounterCriteria
+        {
+            Gender = (Gender)source.Gender,
+            Nature = (Nature)source.Nature,
+            Shiny = source.IsShiny ? Shiny.Always : Shiny.Never,
+        };
+        try { return encounter.ConvertToPKM(trainer, criteria); }
+        catch { return encounter.ConvertToPKM(trainer); }
+    }
+
+    static PKM PreserveUserFields(PKM destination, PKM source)
+    {
+        destination.Nickname = source.Nickname;
+        destination.IsNicknamed = source.IsNicknamed;
+        destination.CurrentLevel = (byte)Math.Clamp(Math.Max((int)destination.MetLevel, (int)source.CurrentLevel), (int)destination.MetLevel, 100);
+        destination.SetMoves([source.Move1, source.Move2, source.Move3, source.Move4]);
+        Span<int> ivs = stackalloc int[6];
+        Span<int> evs = stackalloc int[6];
+        source.GetIVs(ivs);
+        source.GetEVs(evs);
+        destination.SetIVs(ivs);
+        destination.SetEVs(evs);
+        destination.HeldItem = source.HeldItem;
+        destination.Status_Condition = source.Status_Condition;
+        destination.PokerusStrain = source.PokerusStrain;
+        destination.PokerusDays = source.PokerusDays;
+        destination.IsEgg = source.IsEgg;
+        return destination;
+    }
+
+    static PKM BuildSafeTemplate(PKM destination, PKM source)
+    {
+        destination.Nickname = SpeciesName.GetSpeciesNameGeneration(destination.Species, source.Language, (byte)destination.Generation);
+        destination.IsNicknamed = false;
+        destination.CurrentLevel = (byte)Math.Clamp(Math.Max((int)destination.MetLevel, (int)source.CurrentLevel), (int)destination.MetLevel, 100);
+        destination.SetMoveset();
+        destination.SetIVs([0, 0, 0, 0, 0, 0]);
+        destination.SetEVs([0, 0, 0, 0, 0, 0]);
+        destination.HeldItem = 0;
+        destination.Status_Condition = 0;
+        destination.PokerusStrain = 0;
+        destination.PokerusDays = 0;
+        destination.IsEgg = false;
+        if (destination.Generation >= 4)
+            destination.SetRelearnMoves([0, 0, 0, 0]);
+        return destination;
+    }
+
+    static void ApplyLegalMoves(PKM pokemon)
+    {
+        Span<ushort> moves = stackalloc ushort[4];
+        var analysis = new LegalityAnalysis(pokemon);
+        analysis.GetSuggestedCurrentMoves(moves, MoveSourceType.Encounter);
+        if (moves[0] == 0)
+            pokemon.SetMoveset();
+        else
+            pokemon.SetMoves(moves);
+    }
+
+    static bool TryRepairGen3Correlation(PKM pokemon, PKM source, IEncounterConvertible encounter)
+    {
+        if (pokemon is not PK3 pk3 || source is not PK3 source3 || encounter is not IEncounterSlot3 slot3)
+            return true;
+        var report = new LegalityAnalysis(pk3).Report();
+        if (!report.Contains("PID+ correlation", StringComparison.Ordinal))
+            return true;
+        var currentLevel = pk3.CurrentLevel;
+        slot3.SetRandom(pk3, PersonalTable.E[pk3.Species], new EncounterCriteria
+        {
+            Gender = (Gender)source.Gender,
+            Nature = source.Nature,
+            Shiny = source.IsShiny ? Shiny.Always : Shiny.Never,
+        }, source3.PID ^ source3.IV32 ^ (uint)source.Species);
+        pk3.CurrentLevel = Math.Max(pk3.MetLevel, currentLevel);
+        return true;
+    }
+
+    static bool IsLegal(PKM pokemon)
+    {
+        try { return new LegalityAnalysis(pokemon).Valid; }
+        catch { return false; }
+    }
+
+    static string RepairTemplateName(PKM pokemon) => pokemon.Generation switch
+    {
+        3 => "Gen 3 · Emerald 背景模板",
+        4 => "Gen 4 · HGSS 背景模板",
+        _ => $"Gen {pokemon.Generation} · 通用背景模板",
+    };
 
     public static StoredPokemon CreateLegalCopy(StoredPokemon parent, PKM legalPokemon, string root)
     {
@@ -260,6 +353,16 @@ public static class LocalRepository
         var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status };
         WriteRecord(updated);
         return updated;
+    }
+
+    public static void Remove(StoredPokemon stored)
+    {
+        var directory = Path.GetDirectoryName(stored.ManifestPath) ?? throw new InvalidDataException("Repository record directory is missing.");
+        foreach (var path in new[] { stored.ManifestPath, stored.WorkingPath, stored.OriginalPath })
+            if (File.Exists(path))
+                File.Delete(path);
+        if (Directory.Exists(directory))
+            Directory.Delete(directory);
     }
 
     public static StoredPokemon? GetLatest(string root)

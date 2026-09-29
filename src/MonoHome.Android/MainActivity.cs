@@ -9,6 +9,9 @@ using global::Android.Graphics;
 using global::Android.Graphics.Drawables;
 using global::Android.Views;
 using System.Security.Cryptography;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using PKHeX.Core;
 using MonoHome.Core.Repository;
 using MonoHome.Core.Saves;
@@ -19,13 +22,19 @@ public class MainActivity : Activity
 {
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
+    const int AnySaveRequest = 14;
+    const string CurrentVersion = "1.1.0";
+    const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
+    const string OtherSaveKey = "other-save-id";
     TextView? status;
     ProgressBar? progress;
     Button? transferButton;
     Button? exportBackupButton;
     Button? topImportButton;
+    Button? refreshSavesButton;
+    Button? warehouseFilterButton;
     Button? settingsButton;
     Button? navHome;
     Button? navSaves;
@@ -58,8 +67,6 @@ public class MainActivity : Activity
     TextView? warehouseSelectedCount;
     Button? warehouseBatchDownload;
     readonly HashSet<string> selectedWarehouseIds = [];
-    TextView? warehouseCount;
-    TextView? saveCount;
     LinearLayout? transferVisual;
     TextView? transferCaption;
     View? transferPacket;
@@ -75,7 +82,6 @@ public class MainActivity : Activity
     ImageView? sourceArchiveIcon;
     TextView? mainPageTitle;
     View? mainDashboardHeader;
-    View? mainDashboardStats;
     View? mainDashboardRoute;
     View? historySection;
     EditText? nicknameInput;
@@ -95,24 +101,40 @@ public class MainActivity : Activity
     EditText? evsInput;
     byte[]? emeraldBytes;
     byte[]? heartGoldBytes;
+    byte[]? otherBytes;
     List<PokemonSlot> emeraldSlots = [];
     List<StoragePage> emeraldPages = [];
     List<PokemonSlot> heartGoldSlots = [];
     List<StoragePage> heartGoldPages = [];
+    List<PokemonSlot> otherSlots = [];
+    List<StoragePage> otherPages = [];
     int activeSourceRequest = EmeraldRequest;
     int sourcePageIndex;
     int warehousePageIndex;
     readonly HashSet<PokemonSlot> selectedSourceSlots = [];
+    List<StoredPokemon> allWarehouse = [];
     List<StoredPokemon> warehouse = [];
+    int? filterMinLevel;
+    int? filterMaxLevel;
+    int filterType = -1;
+    int filterEggGroup = -1;
+    int filterGender = -1;
+    int filterShiny = -1;
+    int filterEgg = -1;
     StoredPokemon? storedPokemon;
     RegisteredSave? emeraldSave;
     RegisteredSave? heartGoldSave;
+    RegisteredSave? otherSave;
     RegisteredSave? selectedTransferTarget;
+    int selectedTransferSlot = -1;
     string? pendingTransferId;
     readonly List<string> pendingTransferIds = [];
     string? lastBackupPath;
+    IReadOnlyDictionary<string, string>? abilityEffects;
+    IReadOnlyDictionary<int, MoveEffectData>? moveEffects;
     string emeraldExternalState = "尚未导入";
     string heartGoldExternalState = "尚未导入";
+    string otherExternalState = "尚未导入";
 
     string WarehousePath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "warehouse");
     string SavesPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "saves");
@@ -128,6 +150,8 @@ public class MainActivity : Activity
         transferButton = FindViewById<Button>(Resource.Id.transfer_button);
         exportBackupButton = FindViewById<Button>(Resource.Id.export_backup_button);
         topImportButton = FindViewById<Button>(Resource.Id.top_import_button);
+        refreshSavesButton = FindViewById<Button>(Resource.Id.refresh_saves_button);
+        warehouseFilterButton = FindViewById<Button>(Resource.Id.warehouse_filter_button);
         settingsButton = FindViewById<Button>(Resource.Id.settings_button);
         navHome = FindViewById<Button>(Resource.Id.nav_home);
         navSaves = FindViewById<Button>(Resource.Id.nav_saves);
@@ -145,7 +169,6 @@ public class MainActivity : Activity
         sourceArchiveIcon = FindViewById<ImageView>(Resource.Id.source_archive_icon);
         mainPageTitle = FindViewById<TextView>(Resource.Id.main_page_title);
         mainDashboardHeader = FindViewById(Resource.Id.main_dashboard_header);
-        mainDashboardStats = FindViewById(Resource.Id.main_dashboard_stats);
         mainDashboardRoute = FindViewById(Resource.Id.main_dashboard_route);
         historySection = FindViewById(Resource.Id.history_section);
         uploadButton = FindViewById<Button>(Resource.Id.upload_button);
@@ -171,8 +194,6 @@ public class MainActivity : Activity
         warehouseActionbar = FindViewById<LinearLayout>(Resource.Id.warehouse_actionbar);
         warehouseSelectedCount = FindViewById<TextView>(Resource.Id.warehouse_selected_count);
         warehouseBatchDownload = FindViewById<Button>(Resource.Id.warehouse_batch_download);
-        warehouseCount = FindViewById<TextView>(Resource.Id.warehouse_count);
-        saveCount = FindViewById<TextView>(Resource.Id.save_count);
         transferVisual = FindViewById<LinearLayout>(Resource.Id.transfer_visual);
         transferCaption = FindViewById<TextView>(Resource.Id.transfer_caption);
         transferPacket = FindViewById<View>(Resource.Id.transfer_packet);
@@ -194,8 +215,8 @@ public class MainActivity : Activity
         saveNicknameButton = FindViewById<Button>(Resource.Id.save_nickname);
         discardEditsButton = FindViewById<Button>(Resource.Id.discard_edits);
         warehousePicker!.ItemSelected += (_, _) => SelectWarehousePokemon();
-        FindViewById<Button>(Resource.Id.import_emerald)!.Click += (_, _) => PickSave(EmeraldRequest);
-        FindViewById<Button>(Resource.Id.import_heartgold)!.Click += (_, _) => PickSave(HeartGoldRequest);
+        FindViewById<Button>(Resource.Id.import_emerald)!.Click += (_, _) => PickSave(AnySaveRequest);
+        FindViewById<Button>(Resource.Id.import_heartgold)!.Click += (_, _) => PickSave(AnySaveRequest);
         emeraldSourceCard!.Click += (_, _) => SelectSourceSave(EmeraldRequest);
         heartGoldSourceCard!.Click += (_, _) => SelectSourceSave(HeartGoldRequest);
         uploadButton!.Click += async (_, _) => await UploadSelectedAsync();
@@ -204,22 +225,34 @@ public class MainActivity : Activity
         warehouseBatchDownload!.Click += (_, _) => ShowWarehouseTargetChooser();
         saveNicknameButton!.Click += (_, _) => SaveNickname();
         discardEditsButton!.Click += (_, _) => DiscardEdits();
-        transferButton!.Click += async (_, _) =>
+        transferButton!.Click += (_, _) =>
         {
+            if (selectedWarehouseIds.Count > 1)
+            {
+                ShowWarehouseTargetChooser();
+                return;
+            }
+            if (storedPokemon is null)
+            {
+                status!.Text = "请先在中央仓库选择要传送的宝可梦。";
+                return;
+            }
             if (selectedTransferTarget is null)
             {
                 ShowTransferTargetChooser();
                 return;
             }
-            await GenerateTransferAsync();
+            ShowTransferPlacementDialog(selectedTransferTarget);
         };
         exportBackupButton!.Click += (_, _) => BeginBackupExport();
         topImportButton!.Click += (_, _) => ShowImportChooser();
-        settingsButton!.Click += (_, _) => status!.Text = "当前版本：本地仓库模式 · 所有数据仅在设备内处理。";
+        refreshSavesButton!.Click += async (_, _) => await RefreshRegisteredSavesAsync();
+        warehouseFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog();
+        settingsButton!.Click += (_, _) => ShowSettingsDialog();
         navHome!.Click += (_, _) => SwitchPage("warehouse", navHome);
         navEmerald!.Click += (_, _) => SwitchPage("emerald", navEmerald);
         navHeartGold!.Click += (_, _) => SwitchPage("heartgold", navHeartGold);
-        navSaves!.Click += (_, _) => SwitchPage("warehouse", navHome);
+        navSaves!.Click += (_, _) => SwitchPage(otherSave is null ? "warehouse" : "other", otherSave is null ? navHome : navSaves);
         navHistory!.Click += (_, _) => ScrollToSection(historySection, navHistory);
         RestoreImportedSaves();
         SwitchPage("warehouse", navHome);
@@ -229,11 +262,78 @@ public class MainActivity : Activity
     {
         if (status is null)
             return;
+        PickSave(AnySaveRequest);
+    }
+
+    void ShowSettingsDialog()
+    {
+        var saves = new[] { emeraldSave, heartGoldSave, otherSave }.Count(save => save is not null);
+        var message = $"版本：本地仓库模式\n存档：{saves} 个已登记\n仓库：{allWarehouse.Count} 条记录\n\n所有数据只保存在本机，不会上传网络。";
         var dialog = new AlertDialog.Builder(this);
-        dialog.SetTitle("导入存档");
-        dialog.SetItems(["绿宝石 / SAV", "心金或魂银 / SAV"], (_, args) => PickSave(args?.Which == 0 ? EmeraldRequest : HeartGoldRequest));
-        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetTitle("设置");
+        dialog.SetMessage(message);
+        dialog.SetNegativeButton("关闭", (_, _) => { });
+        dialog.SetNeutralButton("刷新存档", async (_, _) => await RefreshRegisteredSavesAsync());
+        dialog.SetPositiveButton("检查版本更新", async (_, _) => await CheckForUpdatesAsync());
         dialog.Show();
+    }
+
+    async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            status!.Text = "正在检查版本更新…";
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MonoHome", CurrentVersion));
+            using var response = await client.GetAsync(ReleaseApiUrl);
+            response.EnsureSuccessStatusCode();
+            using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var root = json.RootElement;
+            var tag = root.GetProperty("tag_name").GetString() ?? "";
+            var latest = ParseReleaseVersion(tag);
+            var releaseUrl = root.GetProperty("html_url").GetString() ?? "https://github.com/575571371liu/mono-poke-home/releases";
+            var apkUrl = root.TryGetProperty("assets", out var assets)
+                ? assets.EnumerateArray().Select(asset => asset.TryGetProperty("browser_download_url", out var url) ? url.GetString() : null).FirstOrDefault(url => !string.IsNullOrWhiteSpace(url))
+                : null;
+            if (latest.CompareTo(ParseReleaseVersion(CurrentVersion)) <= 0)
+            {
+                status.Text = $"当前已是最新版本（{CurrentVersion}）。";
+                return;
+            }
+
+            var name = root.TryGetProperty("name", out var releaseName) ? releaseName.GetString() : null;
+            var notes = root.TryGetProperty("body", out var body) ? body.GetString() : null;
+            var message = $"发现新版本 {tag}。\n{(string.IsNullOrWhiteSpace(name) ? "" : name + "\n")}{(string.IsNullOrWhiteSpace(notes) ? "" : notes)}";
+            var update = new AlertDialog.Builder(this);
+            update.SetTitle("发现新版本");
+            update.SetMessage(message);
+            update.SetNegativeButton("稍后", (_, _) => { });
+            update.SetPositiveButton("打开下载", (_, _) => OpenReleaseUrl(apkUrl ?? releaseUrl));
+            update.Show();
+            status.Text = $"发现新版本：{tag}。";
+        }
+        catch (Exception ex)
+        {
+            status!.Text = $"版本检查失败：{ex.Message}";
+        }
+    }
+
+    static Version ParseReleaseVersion(string value)
+    {
+        var normalized = value.Trim().TrimStart('v', 'V');
+        return Version.TryParse(normalized, out var version) ? version : new Version(0, 0);
+    }
+
+    void OpenReleaseUrl(string url)
+    {
+        try
+        {
+            StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(url)));
+        }
+        catch (Exception ex)
+        {
+            status!.Text = $"无法打开下载页面：{ex.Message}";
+        }
     }
 
     void ScrollToSection(View? section, Button? active)
@@ -254,8 +354,6 @@ public class MainActivity : Activity
         var mainOnly = archive ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
         if (mainDashboardHeader is not null)
             mainDashboardHeader.Visibility = mainOnly;
-        if (mainDashboardStats is not null)
-            mainDashboardStats.Visibility = mainOnly;
         if (mainDashboardRoute is not null)
             mainDashboardRoute.Visibility = mainOnly;
         if (mainPageTitle is not null)
@@ -271,11 +369,17 @@ public class MainActivity : Activity
         }
         if (archive)
         {
-            var requestCode = page == "emerald" ? EmeraldRequest : HeartGoldRequest;
+            var requestCode = page switch
+            {
+                "emerald" => EmeraldRequest,
+                "heartgold" => HeartGoldRequest,
+                _ => AnySaveRequest,
+            };
             SelectSourceSave(requestCode, false);
             UpdateSourceArchiveHeader();
         }
         mainScroll?.Post(() => mainScroll.SmoothScrollTo(0, 0));
+        UpdateButtons();
     }
 
     void UpdateSourceArchiveHeader()
@@ -283,7 +387,7 @@ public class MainActivity : Activity
         if (sourceArchiveIcon is not null)
         {
             sourceArchiveIcon.SetImageResource(activeSourceRequest == EmeraldRequest ? Resource.Drawable.a_384 : Resource.Drawable.a_250);
-            sourceArchiveIcon.ContentDescription = activeSourceRequest == EmeraldRequest ? "绿宝石代表宝可梦 烈空坐" : "心金代表宝可梦 凤王";
+            sourceArchiveIcon.ContentDescription = activeSourceRequest == EmeraldRequest ? "绿宝石代表宝可梦 烈空坐" : $"{ActiveSourceName()}存档";
         }
         if (sourceArchiveTitle is not null)
             sourceArchiveTitle.Text = ActiveSourceName();
@@ -299,6 +403,11 @@ public class MainActivity : Activity
             navEmerald.Visibility = emeraldSave is null ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
         if (navHeartGold is not null)
             navHeartGold.Visibility = heartGoldSave is null ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+        if (navSaves is not null)
+        {
+            navSaves.Visibility = otherSave is null ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
+            navSaves.Text = otherSave is null ? "▣  存档信息" : $"▣  {otherSave.Game}";
+        }
     }
 
     void PickSave(int requestCode)
@@ -383,11 +492,18 @@ public class MainActivity : Activity
                 throw new InvalidDataException("请选择绿宝石存档。");
             if (requestCode == HeartGoldRequest && info.Game is not ("HeartGold" or "SoulSilver"))
                 throw new InvalidDataException("请选择心金或魂银存档。");
+            var resolvedRequest = requestCode == AnySaveRequest
+                ? info.Game switch
+                {
+                    "Emerald" => EmeraldRequest,
+                    "HeartGold" or "SoulSilver" => HeartGoldRequest,
+                    _ => AnySaveRequest,
+                }
+                : requestCode;
             var slots = BoxReader.Read(bytes, name);
-            var label = requestCode == EmeraldRequest ? "绿宝石" : "心金";
             status.Text = "正在登记本地快照…";
-            RegisterSave(requestCode, bytes, slots, uri.ToString(), (int)grantedFlags);
-            status.Text = $"{label}：{info.Game} / Gen {info.Generation}\n可读取宝可梦：{slots.Count}\n已登记，本地处理。";
+            RegisterSave(resolvedRequest, bytes, slots, uri.ToString(), (int)grantedFlags, name);
+            status.Text = $"{info.Game} / Gen {info.Generation}\n可读取宝可梦：{slots.Count}\n已登记，本地处理。";
         }
         catch (Exception ex)
         {
@@ -399,7 +515,7 @@ public class MainActivity : Activity
         }
     }
 
-    async Task GenerateTransferAsync()
+    async Task GenerateTransferAsync(int destinationSlot)
     {
         if (heartGoldBytes is null || storedPokemon is null || status is null || selectedTransferTarget is null)
             return;
@@ -418,7 +534,7 @@ public class MainActivity : Activity
             var heartGoldPath = global::System.IO.Path.Combine(cachePath, "heartgold-input.sav");
             File.WriteAllBytes(heartGoldPath, heartGoldBytes);
             var current = storedPokemon;
-            var preparation = await Task.Run(() => TargetPreparationService.Prepare(current, heartGoldSave, heartGoldPath, global::System.IO.Path.Combine(cachePath, "prepared")));
+            var preparation = await Task.Run(() => TargetPreparationService.Prepare(current, heartGoldSave, heartGoldPath, global::System.IO.Path.Combine(cachePath, "prepared"), destinationSlot));
             if (!preparation.IsCurrentFor(current, heartGoldSave) || string.IsNullOrWhiteSpace(preparation.PreparedSavePath))
             {
                 storedPokemon = LocalRepository.SetLegality(current, "invalid");
@@ -436,12 +552,19 @@ public class MainActivity : Activity
             }
             heartGoldSave = SaveRegistry.UpdateSnapshot(heartGoldSave, write.WrittenBytes!);
             selectedTransferTarget = heartGoldSave;
+            selectedTransferSlot = destinationSlot;
             heartGoldBytes = write.WrittenBytes;
-            storedPokemon = LocalRepository.SetLegality(current, "valid");
-            RefreshWarehouse(current.Id);
+            heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+            heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
             TransferJournal.Append(TransfersPath, current.Id, emeraldSave?.Game ?? "Unknown", heartGoldSave.Game,
                 new(true, current.Species, "prepared", true, preparation.PreparedSavePath, write.Message, preparation.Changes), write.BackupPath);
-            status.Text = $"{ChineseSpeciesName(current.Species)} 已传送至 {heartGoldSave.Game} 存档。";
+            LocalRepository.Remove(current);
+            selectedWarehouseIds.Remove(current.Id);
+            storedPokemon = null;
+            selectedTransferTarget = null;
+            selectedTransferSlot = -1;
+            RefreshWarehouse();
+            status.Text = $"{ChineseSpeciesName(current.Species)} 已传送至 {heartGoldSave.Game} 存档，中央仓库记录已移除。";
         }
         catch (Exception ex)
         {
@@ -453,7 +576,7 @@ public class MainActivity : Activity
         }
     }
 
-    async Task GenerateBatchTransferAsync()
+    async Task GenerateBatchTransferAsync(int destinationSlot = -1)
     {
         var records = warehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
         if (records.Length == 0)
@@ -474,7 +597,7 @@ public class MainActivity : Activity
             var outputPath = global::System.IO.Path.Combine(cachePath, "heartgold-transfer.sav");
             File.WriteAllBytes(heartGoldPath, heartGoldBytes);
             var entities = records.Select(LocalRepository.LoadWorking).ToArray();
-            var batch = await Task.Run(() => EmeraldHgssTransfer.TransferStoredMany(entities, heartGoldPath, outputPath, TransferMode.Conversion));
+            var batch = await Task.Run(() => EmeraldHgssTransfer.TransferStoredMany(entities, heartGoldPath, outputPath, TransferMode.Conversion, destinationSlot));
             if (!batch.Succeeded)
             {
                 foreach (var record in records)
@@ -491,11 +614,18 @@ public class MainActivity : Activity
             }
             heartGoldSave = SaveRegistry.UpdateSnapshot(heartGoldSave, write.WrittenBytes!);
             heartGoldBytes = write.WrittenBytes;
+            heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+            heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
             foreach (var (record, report) in records.Zip(batch.Reports))
             {
-                LocalRepository.SetLegality(record, "valid");
                 TransferJournal.Append(TransfersPath, record.Id, emeraldSave?.Game ?? "Unknown", heartGoldSave.Game, report, write.BackupPath);
+                LocalRepository.Remove(record);
+                selectedWarehouseIds.Remove(record.Id);
             }
+            storedPokemon = null;
+            selectedTransferTarget = null;
+            selectedTransferSlot = -1;
+            RefreshWarehouse();
             status.Text = $"{records.Length} 只宝可梦已传送至 {heartGoldSave.Game} 存档。";
         }
         catch (Exception ex)
@@ -518,14 +648,14 @@ public class MainActivity : Activity
         if (heartGoldSave is not null)
         {
             choices.Add($"{ChineseGameName(heartGoldSave.Game)} · Gen {heartGoldSave.Generation} · {heartGoldExternalState}");
-            actions.Add(async () =>
+            actions.Add(() =>
             {
                 if (heartGoldExternalState != "已同步")
                 {
                     status.Text = "目标存档需重新授权或已被外部修改，未开始下载。";
                     return;
                 }
-                await GenerateBatchTransferAsync();
+                ShowBatchTransferPlacementDialog(heartGoldSave);
             });
         }
         if (emeraldSave is not null)
@@ -563,8 +693,9 @@ public class MainActivity : Activity
                 actions.Add(() =>
                 {
                     selectedTransferTarget = heartGoldSave;
-                    status.Text = $"已选择目标：{ChineseGameName(selectedTransferTarget.Game)}。再次点击传送。";
+                    selectedTransferSlot = -1;
                     UpdateButtons();
+                    ShowTransferPlacementDialog(selectedTransferTarget);
                 });
             }
             else
@@ -591,11 +722,272 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
-    void RegisterSave(int requestCode, byte[] bytes, IReadOnlyList<PokemonSlot> slots, string? sourceUri, int sourceFlags = 0)
+    void ShowTransferPlacementDialog(RegisteredSave target)
+    {
+        if (storedPokemon is null || target.Game is not "HeartGold" and not "SoulSilver")
+            return;
+        if (heartGoldPages.Count <= 1)
+        {
+            status!.Text = "目标存档没有可用盒子。";
+            return;
+        }
+
+        var pages = heartGoldPages.Skip(1).ToArray();
+        var dialog = new Dialog(this);
+        var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        panel.SetPadding(Dp(12), Dp(12), Dp(12), Dp(10));
+        var panelBackground = new GradientDrawable();
+        panelBackground.SetColor(Color.ParseColor("#0F201C"));
+        panelBackground.SetCornerRadius(Dp(16));
+        panelBackground.SetStroke(Dp(1), Color.ParseColor("#315249"));
+        panel.Background = panelBackground;
+
+        var title = new TextView(this) { Text = $"选择 {ChineseGameName(target.Game)} 放置位置", TextSize = 18 };
+        title.SetTextColor(Color.ParseColor("#E9F4EF"));
+        title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+        panel.AddView(title);
+        var hint = new TextView(this) { Text = $"来源：{ChineseSpeciesName(storedPokemon.Species)} · 点击目标盒子中的具体槽位", TextSize = 11 };
+        hint.SetTextColor(Color.ParseColor("#91AAA1"));
+        panel.AddView(hint, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(4) });
+
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        var previous = new Button(this) { Text = "‹" };
+        var next = new Button(this) { Text = "›" };
+        previous.SetAllCaps(false);
+        next.SetAllCaps(false);
+        var pageTitle = new TextView(this) { Gravity = GravityFlags.Center, TextSize = 11 };
+        pageTitle.SetTextColor(Color.ParseColor("#E9F4EF"));
+        header.AddView(previous, new LinearLayout.LayoutParams(Dp(42), Dp(42)));
+        header.AddView(pageTitle, new LinearLayout.LayoutParams(0, Dp(42), 1));
+        header.AddView(next, new LinearLayout.LayoutParams(Dp(42), Dp(42)));
+        panel.AddView(header, new LinearLayout.LayoutParams(-1, Dp(42)) { TopMargin = Dp(10) });
+
+        var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
+        panel.AddView(grid, new LinearLayout.LayoutParams(-1, 0, 1) { TopMargin = Dp(8) });
+        var close = new Button(this) { Text = "取消" };
+        close.SetAllCaps(false);
+        close.SetTextColor(Color.ParseColor("#8DE4D1"));
+        close.Background = CreateSlotBackground(false, false, true);
+        close.Click += (_, _) => dialog.Dismiss();
+        panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(8) });
+
+        var pageIndex = Math.Clamp(selectedTransferSlot >= 0 ? selectedTransferSlot / 30 : 0, 0, pages.Length - 1);
+        void RenderPage()
+        {
+            var page = pages[pageIndex];
+            pageTitle.Text = $"{page.Name}\n点击槽位确认";
+            previous.Enabled = pageIndex > 0;
+            next.Enabled = pageIndex < pages.Length - 1;
+            grid.RemoveAllViews();
+            var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - Dp(70)) / 5);
+            foreach (var slot in page.Slots)
+            {
+                View tile;
+                if (slot.Pokemon is null)
+                {
+                    var empty = new TextView(this) { Text = (slot.Index + 1).ToString("00"), Gravity = GravityFlags.Center, TextSize = 10, ContentDescription = $"空槽位 {slot.Index + 1}" };
+                    empty.SetTextColor(Color.Rgb(68, 105, 93));
+                    empty.Background = CreateSlotBackground(false, false, true);
+                    empty.Click += (_, _) => ConfirmTransferPlacement(dialog, target, pageIndex * page.Capacity + slot.Index, null);
+                    tile = empty;
+                }
+                else
+                {
+                    var occupied = slot.Pokemon;
+                    var image = new ImageButton(this) { ContentDescription = $"覆盖 {ChineseSpeciesName(occupied.Species)} · 槽位 {slot.Index + 1}" };
+                    image.SetScaleType(ImageView.ScaleType.CenterInside);
+                    image.SetPadding(Dp(5), Dp(5), Dp(5), Dp(5));
+                    image.Background = CreateSlotBackground(true, false, false);
+                    var icon = Resources.GetIdentifier($"a_{occupied.Species}", "drawable", PackageName);
+                    if (icon != 0)
+                        image.SetImageResource(icon);
+                    image.Click += (_, _) => ConfirmTransferPlacement(dialog, target, pageIndex * page.Capacity + slot.Index, occupied);
+                    tile = image;
+                }
+                var parameters = new GridLayout.LayoutParams { Width = width, Height = width };
+                parameters.SetMargins(3, 3, 3, 3);
+                grid.AddView(tile, parameters);
+            }
+        }
+        previous.Click += (_, _) => { pageIndex--; RenderPage(); };
+        next.Click += (_, _) => { pageIndex++; RenderPage(); };
+        RenderPage();
+        dialog.SetContentView(panel);
+        dialog.Show();
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(0.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+        }
+    }
+
+    void ConfirmTransferPlacement(Dialog placement, RegisteredSave target, int destinationSlot, PokemonSlot? occupied)
+    {
+        var location = $"仓库 {destinationSlot / 30 + 1} · 槽位 {destinationSlot % 30 + 1}";
+        var message = occupied is null
+            ? $"将 {ChineseSpeciesName(storedPokemon!.Species)} 写入 {location}。"
+            : $"{location} 当前是 {ChineseSpeciesName(occupied.Species)}，确认覆盖并传送吗？";
+        var confirm = new AlertDialog.Builder(this);
+        confirm.SetTitle("确认传送");
+        confirm.SetMessage(message);
+        confirm.SetNegativeButton("取消", (_, _) => { });
+        confirm.SetPositiveButton("确认传送", async (_, _) =>
+        {
+            selectedTransferTarget = target;
+            selectedTransferSlot = destinationSlot;
+            placement.Dismiss();
+            await GenerateTransferAsync(destinationSlot);
+        });
+        confirm.Show();
+    }
+
+    void ShowBatchTransferPlacementDialog(RegisteredSave target)
+    {
+        var records = warehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
+        if (records.Length == 0 || target.Game is not ("HeartGold" or "SoulSilver"))
+            return;
+        if (heartGoldPages.Count <= 1)
+        {
+            status!.Text = "目标存档没有可用盒子。";
+            return;
+        }
+
+        var pages = heartGoldPages.Skip(1).ToArray();
+        var allSlots = pages.SelectMany(page => page.Slots).ToArray();
+        var dialog = new Dialog(this);
+        var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        panel.SetPadding(Dp(12), Dp(12), Dp(12), Dp(10));
+        var panelBackground = new GradientDrawable();
+        panelBackground.SetColor(Color.ParseColor("#0F201C"));
+        panelBackground.SetCornerRadius(Dp(16));
+        panelBackground.SetStroke(Dp(1), Color.ParseColor("#315249"));
+        panel.Background = panelBackground;
+
+        var title = new TextView(this) { Text = $"选择 {ChineseGameName(target.Game)} 批量放置位置", TextSize = 18 };
+        title.SetTextColor(Color.ParseColor("#E9F4EF"));
+        title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+        panel.AddView(title);
+        var hint = new TextView(this)
+        {
+            Text = $"已选择 {records.Length} 只 · 点击起始槽位，按顺序放入后续槽位",
+            TextSize = 11,
+        };
+        hint.SetTextColor(Color.ParseColor("#91AAA1"));
+        panel.AddView(hint, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(4) });
+
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        var previous = new Button(this) { Text = "‹" };
+        var next = new Button(this) { Text = "›" };
+        previous.SetAllCaps(false);
+        next.SetAllCaps(false);
+        var pageTitle = new TextView(this) { Gravity = GravityFlags.Center, TextSize = 11 };
+        pageTitle.SetTextColor(Color.ParseColor("#E9F4EF"));
+        header.AddView(previous, new LinearLayout.LayoutParams(Dp(42), Dp(42)));
+        header.AddView(pageTitle, new LinearLayout.LayoutParams(0, Dp(42), 1));
+        header.AddView(next, new LinearLayout.LayoutParams(Dp(42), Dp(42)));
+        panel.AddView(header, new LinearLayout.LayoutParams(-1, Dp(42)) { TopMargin = Dp(10) });
+
+        var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
+        panel.AddView(grid, new LinearLayout.LayoutParams(-1, 0, 1) { TopMargin = Dp(8) });
+        var close = new Button(this) { Text = "取消" };
+        close.SetAllCaps(false);
+        close.SetTextColor(Color.ParseColor("#8DE4D1"));
+        close.Background = CreateSlotBackground(false, false, true);
+        close.Click += (_, _) => dialog.Dismiss();
+        panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(8) });
+
+        var pageIndex = 0;
+        void RenderPage()
+        {
+            var page = pages[pageIndex];
+            pageTitle.Text = $"{page.Name}\n点击起始槽位";
+            previous.Enabled = pageIndex > 0;
+            next.Enabled = pageIndex < pages.Length - 1;
+            grid.RemoveAllViews();
+            var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - Dp(70)) / 5);
+            foreach (var slot in page.Slots)
+            {
+                var destinationSlot = pageIndex * page.Capacity + slot.Index;
+                View tile;
+                if (slot.Pokemon is null)
+                {
+                    var empty = new TextView(this)
+                    {
+                        Text = (slot.Index + 1).ToString("00"),
+                        Gravity = GravityFlags.Center,
+                        TextSize = 10,
+                        ContentDescription = $"批量起始槽位 {slot.Index + 1}",
+                    };
+                    empty.SetTextColor(Color.Rgb(68, 105, 93));
+                    empty.Background = CreateSlotBackground(false, false, true);
+                    empty.Click += (_, _) => ConfirmBatchTransferPlacement(dialog, target, destinationSlot, records.Length, allSlots);
+                    tile = empty;
+                }
+                else
+                {
+                    var occupied = slot.Pokemon;
+                    var image = new ImageButton(this) { ContentDescription = $"从此处批量放置 · 槽位 {slot.Index + 1}" };
+                    image.SetScaleType(ImageView.ScaleType.CenterInside);
+                    image.SetPadding(Dp(5), Dp(5), Dp(5), Dp(5));
+                    image.Background = CreateSlotBackground(true, false, false);
+                    var icon = Resources.GetIdentifier($"a_{occupied.Species}", "drawable", PackageName);
+                    if (icon != 0)
+                        image.SetImageResource(icon);
+                    image.Click += (_, _) => ConfirmBatchTransferPlacement(dialog, target, destinationSlot, records.Length, allSlots);
+                    tile = image;
+                }
+                var parameters = new GridLayout.LayoutParams { Width = width, Height = width };
+                parameters.SetMargins(3, 3, 3, 3);
+                grid.AddView(tile, parameters);
+            }
+        }
+        previous.Click += (_, _) => { pageIndex--; RenderPage(); };
+        next.Click += (_, _) => { pageIndex++; RenderPage(); };
+        RenderPage();
+        dialog.SetContentView(panel);
+        dialog.Show();
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(0.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+        }
+    }
+
+    void ConfirmBatchTransferPlacement(Dialog placement, RegisteredSave target, int destinationSlot, int count, IReadOnlyList<StorageSlot> allSlots)
+    {
+        if (destinationSlot + count > allSlots.Count)
+        {
+            status!.Text = $"从此位置开始不足 {count} 个连续槽位，请换一个起点。";
+            return;
+        }
+        var occupied = allSlots.Skip(destinationSlot).Take(count).Count(slot => slot.Pokemon is not null);
+        var location = $"仓库 {destinationSlot / 30 + 1} · 槽位 {destinationSlot % 30 + 1}";
+        var message = occupied == 0
+            ? $"将 {count} 只宝可梦从 {location} 开始依次写入。"
+            : $"从 {location} 开始的 {count} 个槽位中有 {occupied} 个已有宝可梦，确认覆盖并传送吗？";
+        var confirm = new AlertDialog.Builder(this);
+        confirm.SetTitle("确认批量传送");
+        confirm.SetMessage(message);
+        confirm.SetNegativeButton("取消", (_, _) => { });
+        confirm.SetPositiveButton("确认传送", async (_, _) =>
+        {
+            selectedTransferTarget = target;
+            selectedTransferSlot = destinationSlot;
+            placement.Dismiss();
+            await GenerateBatchTransferAsync(destinationSlot);
+        });
+        confirm.Show();
+    }
+
+    void RegisterSave(int requestCode, byte[] bytes, IReadOnlyList<PokemonSlot> slots, string? sourceUri, int sourceFlags = 0, string? displayName = null)
     {
         if (requestCode == EmeraldRequest)
         {
-            emeraldSave = SaveRegistry.Register(bytes, "emerald.srm", SavesPath, sourceUri, sourceFlags);
+            emeraldSave = SaveRegistry.Register(bytes, displayName ?? "emerald.srm", SavesPath, sourceUri, sourceFlags);
             emeraldExternalState = "已同步";
             GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(EmeraldSaveKey, emeraldSave.Id)!.Apply();
             emeraldBytes = File.ReadAllBytes(emeraldSave.SnapshotPath);
@@ -605,15 +997,29 @@ public class MainActivity : Activity
         }
         else
         {
-            heartGoldSave = SaveRegistry.Register(bytes, "heartgold.sav", SavesPath, sourceUri, sourceFlags);
-            selectedTransferTarget = null;
-            heartGoldExternalState = "已同步";
-            GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(HeartGoldSaveKey, heartGoldSave.Id)!.Apply();
-            heartGoldBytes = File.ReadAllBytes(heartGoldSave.SnapshotPath);
-            heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
-            heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
-            if (emeraldSave is null)
-                SelectSourceSave(HeartGoldRequest, false);
+            if (requestCode == HeartGoldRequest)
+            {
+                heartGoldSave = SaveRegistry.Register(bytes, displayName ?? "heartgold.sav", SavesPath, sourceUri, sourceFlags);
+                selectedTransferTarget = null;
+                heartGoldExternalState = "已同步";
+                GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(HeartGoldSaveKey, heartGoldSave.Id)!.Apply();
+                heartGoldBytes = File.ReadAllBytes(heartGoldSave.SnapshotPath);
+                heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+                heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
+                if (emeraldSave is null)
+                    SelectSourceSave(HeartGoldRequest, false);
+                UpdateButtons();
+                return;
+            }
+
+            otherSave = SaveRegistry.Register(bytes, displayName ?? "pokemon-save", SavesPath, sourceUri, sourceFlags);
+            otherExternalState = "已同步";
+            GetSharedPreferences("saves", FileCreationMode.Private)!.Edit()!.PutString(OtherSaveKey, otherSave.Id)!.Apply();
+            otherBytes = File.ReadAllBytes(otherSave.SnapshotPath);
+            otherSlots = BoxReader.Read(otherBytes, otherSave.DisplayName).ToList();
+            otherPages = BoxReader.ReadPages(otherBytes, otherSave.DisplayName).ToList();
+            SelectSourceSave(AnySaveRequest, false);
+            SwitchPage("other", navSaves);
         }
         UpdateButtons();
     }
@@ -622,6 +1028,7 @@ public class MainActivity : Activity
     {
         Restore(EmeraldRequest, EmeraldSaveKey);
         Restore(HeartGoldRequest, HeartGoldSaveKey);
+        Restore(AnySaveRequest, OtherSaveKey);
         RefreshWarehouse();
         UpdateButtons();
     }
@@ -645,7 +1052,7 @@ public class MainActivity : Activity
                 if (heartGoldSave is null || activeSourceRequest == EmeraldRequest)
                     SelectSourceSave(EmeraldRequest, false);
             }
-            else
+            else if (requestCode == HeartGoldRequest)
             {
                 heartGoldSave = saved;
                 selectedTransferTarget = null;
@@ -655,6 +1062,16 @@ public class MainActivity : Activity
                 heartGoldPages = BoxReader.ReadPages(bytes, saved.DisplayName).ToList();
                 if (emeraldSave is null)
                     SelectSourceSave(HeartGoldRequest, false);
+            }
+            else
+            {
+                otherSave = saved;
+                otherBytes = bytes;
+                otherExternalState = CheckSourceUri(saved);
+                otherSlots = BoxReader.Read(bytes, saved.DisplayName).ToList();
+                otherPages = BoxReader.ReadPages(bytes, saved.DisplayName).ToList();
+                if (emeraldSave is null && heartGoldSave is null)
+                    SelectSourceSave(AnySaveRequest, false);
             }
         }
         catch (Exception ex)
@@ -717,14 +1134,35 @@ public class MainActivity : Activity
             status.Text = $"已切换来源：{ActiveSourceName()}。下方仓库已同步。";
     }
 
-    RegisteredSave? ActiveSourceSave(int? requestCode = null) => (requestCode ?? activeSourceRequest) == EmeraldRequest ? emeraldSave : heartGoldSave;
-    List<StoragePage> ActiveSourcePages() => activeSourceRequest == EmeraldRequest ? emeraldPages : heartGoldPages;
-    string ActiveSourceState() => activeSourceRequest == EmeraldRequest ? emeraldExternalState : heartGoldExternalState;
-    string ActiveSourceName() => activeSourceRequest == EmeraldRequest ? "绿宝石" : "心金 / 魂银";
+    RegisteredSave? ActiveSourceSave(int? requestCode = null) => (requestCode ?? activeSourceRequest) switch
+    {
+        EmeraldRequest => emeraldSave,
+        HeartGoldRequest => heartGoldSave,
+        _ => otherSave,
+    };
+    List<StoragePage> ActiveSourcePages() => activeSourceRequest switch
+    {
+        EmeraldRequest => emeraldPages,
+        HeartGoldRequest => heartGoldPages,
+        _ => otherPages,
+    };
+    string ActiveSourceState() => activeSourceRequest switch
+    {
+        EmeraldRequest => emeraldExternalState,
+        HeartGoldRequest => heartGoldExternalState,
+        _ => otherExternalState,
+    };
+    string ActiveSourceName() => activeSourceRequest switch
+    {
+        EmeraldRequest => "绿宝石",
+        HeartGoldRequest => "心金 / 魂银",
+        _ => otherSave?.Game ?? "其他存档",
+    };
 
     void CycleSourceBox(int delta)
     {
         var pages = ActiveSourcePages();
+        sourcePageIndex = Math.Clamp(sourcePageIndex, 0, Math.Max(0, pages.Count - 1));
         if (pages.Count == 0)
             return;
         sourcePageIndex = (sourcePageIndex + delta + pages.Count) % pages.Count;
@@ -856,11 +1294,16 @@ public class MainActivity : Activity
         }
         if (transferButton is not null)
         {
-            var hasTarget = heartGoldSave is not null || emeraldSave is not null;
-            transferButton.Text = selectedTransferTarget is null
-                ? "选择传送存档"
-                : $"传送至 {ChineseGameName(selectedTransferTarget.Game)} 存档";
-            transferButton.Enabled = hasTarget && storedPokemon is not null;
+            var centralPage = centralWarehouseContent?.Visibility == global::Android.Views.ViewStates.Visible;
+            transferButton.Visibility = centralPage ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+            transferButton.Text = selectedWarehouseIds.Count > 1
+                ? $"传送已选 {selectedWarehouseIds.Count} 只"
+                : storedPokemon is null
+                ? "先选择中央仓库宝可梦"
+                : selectedTransferTarget is null
+                    ? "选择目标存档"
+                    : "选择目标盒子位置";
+            transferButton.Enabled = centralPage && (storedPokemon is not null || selectedWarehouseIds.Count > 1) && heartGoldSave is not null && heartGoldExternalState == "已同步";
         }
         if (saveNicknameButton is not null)
             saveNicknameButton.Enabled = storedPokemon is not null;
@@ -883,14 +1326,16 @@ public class MainActivity : Activity
                 targetPicker.SetSelection(transferMode == TransferMode.Fidelity ? 1 : 0);
         }
         if (warehouseState is not null)
-            warehouseState.Text = storedPokemon is null
+        {
+            warehouseState.Text = allWarehouse.Count == 0
                 ? "本地仓库为空"
-                : $"仓库记录 · {ChineseSpeciesName(storedPokemon.Species)} · {LegalStatusText(storedPokemon.LegalityStatus)}";
-        if (warehouseCount is not null)
-            warehouseCount.Text = warehouse.Count.ToString("00");
-        if (saveCount is not null)
-            saveCount.Text = ((emeraldSave is null ? 0 : 1) + (heartGoldSave is null ? 0 : 1)).ToString("00");
-        selectedWarehouseIds.RemoveWhere(id => warehouse.All(record => record.Id != id));
+                : warehouse.Count != allWarehouse.Count
+                    ? $"筛选结果 · {warehouse.Count} / {allWarehouse.Count} 条记录"
+                    : storedPokemon is null
+                        ? $"仓库记录 · {allWarehouse.Count} 条"
+                        : $"仓库记录 · {ChineseSpeciesName(storedPokemon.Species)} · {LegalStatusText(storedPokemon.LegalityStatus)}";
+        }
+        selectedWarehouseIds.RemoveWhere(id => allWarehouse.All(record => record.Id != id));
         if (warehouseSelectedCount is not null)
             warehouseSelectedCount.Text = $"已选择 {selectedWarehouseIds.Count} 只";
         if (warehouseActionbar is not null)
@@ -903,14 +1348,344 @@ public class MainActivity : Activity
 
     void RefreshWarehouse(string? selectId = null)
     {
-        warehouse = LocalRepository.List(WarehousePath).ToList();
+        allWarehouse = LocalRepository.List(WarehousePath).ToList();
+        ApplyWarehouseFilter(selectId);
+    }
+
+    void ApplyWarehouseFilter(string? selectId = null)
+    {
+        warehouse = allWarehouse.Where(WarehouseRecordMatches).ToList();
+        RenderFilteredWarehouse(selectId);
+    }
+
+    async Task ApplyWarehouseFilterAsync(string? selectId = null)
+    {
+        if (warehouseFilterButton is not null)
+        {
+            warehouseFilterButton.Enabled = false;
+            warehouseFilterButton.Text = "筛选中…";
+        }
+        var filtered = await Task.Run(() => allWarehouse.Where(WarehouseRecordMatches).ToList());
+        warehouse = filtered;
+        RenderFilteredWarehouse(selectId);
+        if (warehouseFilterButton is not null)
+            warehouseFilterButton.Enabled = true;
+    }
+
+    void RenderFilteredWarehouse(string? selectId)
+    {
         warehousePicker!.Adapter = new ArrayAdapter<string>(this, global::Android.Resource.Layout.SimpleSpinnerDropDownItem,
             warehouse.Select(record => $"{ChineseSpeciesName(record.Species)} · {LegalStatusText(record.LegalityStatus)} · {record.UpdatedAt.LocalDateTime:g}").ToArray());
         var index = selectId is null ? 0 : warehouse.FindIndex(record => record.Id == selectId);
+        if (index < 0 && warehouse.Count > 0)
+            index = 0;
         if (index >= 0)
             warehousePicker.SetSelection(index);
         storedPokemon = index >= 0 && index < warehouse.Count ? warehouse[index] : null;
+        warehousePageIndex = 0;
+        UpdateWarehouseFilterButton();
         UpdateButtons();
+    }
+
+    bool WarehouseRecordMatches(StoredPokemon record)
+    {
+        if (filterMinLevel is null && filterMaxLevel is null && filterType < 0 && filterEggGroup < 0 && filterGender < 0 && filterShiny < 0 && filterEgg < 0)
+            return true;
+        try
+        {
+            var pokemon = LocalRepository.LoadWorking(record);
+            if (filterMinLevel is not null && pokemon.CurrentLevel < filterMinLevel)
+                return false;
+            if (filterMaxLevel is not null && pokemon.CurrentLevel > filterMaxLevel)
+                return false;
+            if (filterType >= 0 && pokemon.PersonalInfo.Type1 != filterType && pokemon.PersonalInfo.Type2 != filterType)
+                return false;
+            if (filterEggGroup >= 0 && pokemon.PersonalInfo.EggGroup1 != filterEggGroup && pokemon.PersonalInfo.EggGroup2 != filterEggGroup)
+                return false;
+            if (filterGender >= 0 && (filterGender == 2 ? pokemon.Gender is 0 or 1 : pokemon.Gender != filterGender))
+                return false;
+            if (filterShiny >= 0 && pokemon.IsShiny != (filterShiny == 1))
+                return false;
+            if (filterEgg >= 0 && pokemon.IsEgg != (filterEgg == 1))
+                return false;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    void UpdateWarehouseFilterButton()
+    {
+        if (warehouseFilterButton is null)
+            return;
+        var count = (filterMinLevel is not null ? 1 : 0) + (filterMaxLevel is not null ? 1 : 0) +
+            (filterType >= 0 ? 1 : 0) + (filterEggGroup >= 0 ? 1 : 0) + (filterGender >= 0 ? 1 : 0) +
+            (filterShiny >= 0 ? 1 : 0) + (filterEgg >= 0 ? 1 : 0);
+        warehouseFilterButton.Text = count == 0 ? "全部 ⌄" : $"筛选 · {count} ⌄";
+        warehouseFilterButton.SetTextColor(Color.ParseColor(count == 0 ? "#91AAA1" : "#D6FF63"));
+    }
+
+    void ShowWarehouseFilterDialog()
+    {
+        var strings = GameInfo.GetStrings("zh-Hans");
+        var typeValues = Enumerable.Range(0, Math.Min(18, strings.Types.Count)).ToArray();
+        var typeOptions = new[] { "全部" }.Concat(typeValues.Select(value => StringAt(strings.Types, value, $"属性 {value}"))).ToArray();
+        var eggValues = Enum.GetValues<EggGroup>().Where(group => group != EggGroup.None).ToArray();
+        var eggOptions = new[] { "全部" }.Concat(eggValues.Select(group => EggGroupText((int)group))).ToArray();
+        var root = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        root.SetPadding(Dp(18), Dp(2), Dp(18), 0);
+
+        var initialLower = filterMinLevel ?? 1;
+        var initialUpper = filterMaxLevel ?? 100;
+        var levelLabel = new TextView(this) { Text = $"等级范围 · {initialLower} - {initialUpper}", TextSize = 10 };
+        levelLabel.SetTextColor(Color.ParseColor("#91AAA1"));
+        levelLabel.SetIncludeFontPadding(false);
+        root.AddView(levelLabel);
+        var levelRange = new LevelRangeView(this,
+            initialLower,
+            initialUpper);
+        levelRange.RangeChanged += (_, _) =>
+            levelLabel.Text = $"等级范围 · {levelRange.LowerValue} - {levelRange.UpperValue}";
+        root.AddView(levelRange, new LinearLayout.LayoutParams(-1, Dp(42)));
+
+        ArrayAdapter<string> SpinnerAdapter(string[] values)
+        {
+            return new CompactSpinnerAdapter(this, values);
+        }
+        var typeSpinner = new Spinner(this);
+        typeSpinner.Adapter = SpinnerAdapter(typeOptions);
+        typeSpinner.SetSelection(filterType < 0 ? 0 : Array.IndexOf(typeValues, filterType) + 1);
+        var eggSpinner = new Spinner(this);
+        eggSpinner.Adapter = SpinnerAdapter(eggOptions);
+        eggSpinner.SetSelection(filterEggGroup < 0 ? 0 : Array.IndexOf(eggValues, (EggGroup)filterEggGroup) + 1);
+        var genderSpinner = new Spinner(this);
+        genderSpinner.Adapter = SpinnerAdapter(["全部", "雄", "雌", "无性别"]);
+        genderSpinner.SetSelection(filterGender < 0 ? 0 : filterGender + 1);
+        var shinySpinner = new Spinner(this);
+        shinySpinner.Adapter = SpinnerAdapter(["闪光：全部", "普通", "闪光"]);
+        shinySpinner.SetSelection(filterShiny < 0 ? 0 : filterShiny + 1);
+        var eggStateSpinner = new Spinner(this);
+        eggStateSpinner.Adapter = SpinnerAdapter(["孵化状态：全部", "已孵化", "蛋"]);
+        eggStateSpinner.SetSelection(filterEgg < 0 ? 0 : filterEgg + 1);
+        GradientDrawable Panel(string fill = "#132A25", string stroke = "#315249", float radius = 8)
+        {
+            var background = new GradientDrawable();
+            background.SetColor(Color.ParseColor(fill));
+            background.SetCornerRadius(Dp(radius));
+            background.SetStroke(Dp(1), Color.ParseColor(stroke));
+            return background;
+        }
+        foreach (var spinner in new[] { typeSpinner, eggSpinner, genderSpinner, shinySpinner, eggStateSpinner })
+        {
+            spinner.Background = Panel();
+            spinner.SetPadding(Dp(10), 0, Dp(10), 0);
+        }
+        foreach (var pair in new[] { ("属性", typeSpinner), ("蛋组", eggSpinner), ("性别", genderSpinner), ("闪光", shinySpinner), ("孵化状态", eggStateSpinner) })
+        {
+            var label = new TextView(this) { Text = pair.Item1, TextSize = 10 };
+            label.SetTextColor(Color.ParseColor("#91AAA1"));
+            label.SetIncludeFontPadding(false);
+            root.AddView(label, new LinearLayout.LayoutParams(-1, Dp(22)) { TopMargin = Dp(5) });
+            root.AddView(pair.Item2, new LinearLayout.LayoutParams(-1, Dp(44)));
+        }
+
+        var dialog = new Dialog(this);
+        var shell = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        shell.SetPadding(Dp(16), Dp(14), Dp(16), Dp(10));
+        shell.Background = Panel("#0F201C", "#315249", 16);
+        var title = new TextView(this) { Text = "筛选仓库", TextSize = 17 };
+        title.SetTextColor(Color.ParseColor("#E9F4EF"));
+        title.SetIncludeFontPadding(false);
+        title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+        shell.AddView(title, new LinearLayout.LayoutParams(-1, Dp(38)));
+        var scroll = new ScrollView(this) { FillViewport = true, VerticalScrollBarEnabled = false };
+        scroll.AddView(root);
+        shell.AddView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        var actions = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        actions.SetGravity(GravityFlags.CenterVertical);
+        Button Action(string text, string fill, string textColor)
+        {
+            var button = new Button(this) { Text = text };
+            button.SetAllCaps(false);
+            button.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 12);
+            button.SetTextColor(Color.ParseColor(textColor));
+            button.Background = Panel(fill, fill == "#D6FF63" ? "#D6FF63" : "#315249", 8);
+            return button;
+        }
+        var clear = Action("清除", "#132A25", "#D6FF63");
+        var cancel = Action("取消", "#132A25", "#8DE4D1");
+        var apply = Action("应用", "#D6FF63", "#0B1414");
+        actions.AddView(clear, new LinearLayout.LayoutParams(0, Dp(44), 1) { RightMargin = Dp(6) });
+        actions.AddView(cancel, new LinearLayout.LayoutParams(0, Dp(44), 1) { RightMargin = Dp(6) });
+        actions.AddView(apply, new LinearLayout.LayoutParams(0, Dp(44), 1));
+        shell.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(50)) { TopMargin = Dp(8) });
+        clear.Click += (_, _) =>
+        {
+            filterMinLevel = null;
+            filterMaxLevel = null;
+            filterType = filterEggGroup = filterGender = filterShiny = filterEgg = -1;
+            dialog.Dismiss();
+            _ = ApplyWarehouseFilterAsync();
+        };
+        cancel.Click += (_, _) => dialog.Dismiss();
+        apply.Click += (_, _) =>
+        {
+            filterMinLevel = levelRange.LowerValue == 1 ? null : levelRange.LowerValue;
+            filterMaxLevel = levelRange.UpperValue == 100 ? null : levelRange.UpperValue;
+            filterType = typeSpinner.SelectedItemPosition == 0 ? -1 : typeValues[typeSpinner.SelectedItemPosition - 1];
+            filterEggGroup = eggSpinner.SelectedItemPosition == 0 ? -1 : (int)eggValues[eggSpinner.SelectedItemPosition - 1];
+            filterGender = genderSpinner.SelectedItemPosition - 1;
+            filterShiny = shinySpinner.SelectedItemPosition - 1;
+            filterEgg = eggStateSpinner.SelectedItemPosition - 1;
+            dialog.Dismiss();
+            _ = ApplyWarehouseFilterAsync();
+        };
+        dialog.SetContentView(shell);
+        dialog.Show();
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(0.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.92f), (int)(Resources.DisplayMetrics.HeightPixels * 0.78f));
+        }
+    }
+
+    static int? ParseFilterLevel(string? value)
+    {
+        return int.TryParse(value, out var level) ? Math.Clamp(level, 1, 100) : null;
+    }
+
+    static string EggGroupText(int value) => (EggGroup)value switch
+    {
+        EggGroup.Monster => "怪兽",
+        EggGroup.Water1 => "水中1",
+        EggGroup.Bug => "虫",
+        EggGroup.Flying => "飞行",
+        EggGroup.Field => "陆上",
+        EggGroup.Fairy => "妖精",
+        EggGroup.Grass => "植物",
+        EggGroup.HumanLike => "人形",
+        EggGroup.Water3 => "水中3",
+        EggGroup.Mineral => "矿物",
+        EggGroup.Amorphous => "不定形",
+        EggGroup.Water2 => "水中2",
+        EggGroup.Ditto => "百变怪",
+        EggGroup.Dragon => "龙",
+        EggGroup.Undiscovered => "未发现蛋组",
+        _ => "未知蛋组",
+    };
+
+    async Task RefreshRegisteredSavesAsync()
+    {
+        if (status is null)
+            return;
+        SetBusy(true);
+        try
+        {
+            status.Text = "正在刷新已登记存档…";
+            var refreshed = new List<string>();
+            if (emeraldSave is not null)
+            {
+                await RefreshRegisteredSaveAsync(EmeraldRequest);
+                refreshed.Add($"绿宝石：{emeraldExternalState}");
+            }
+            if (heartGoldSave is not null)
+            {
+                await RefreshRegisteredSaveAsync(HeartGoldRequest);
+                refreshed.Add($"心金 / 魂银：{heartGoldExternalState}");
+            }
+            if (otherSave is not null)
+            {
+                await RefreshRegisteredSaveAsync(AnySaveRequest);
+                refreshed.Add($"{otherSave.Game}：{otherExternalState}");
+            }
+            selectedSourceSlots.Clear();
+            UpdateArchiveTabs();
+            UpdateSourceArchiveHeader();
+            RenderSourceBoard();
+            UpdateButtons();
+            status.Text = refreshed.Count == 0 ? "尚未导入可刷新的存档。" : string.Join("\n", refreshed);
+        }
+        catch (Exception ex)
+        {
+            status.Text = $"刷新失败：{ex.Message}";
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    async Task RefreshRegisteredSaveAsync(int requestCode)
+    {
+        var current = requestCode switch
+        {
+            EmeraldRequest => emeraldSave,
+            HeartGoldRequest => heartGoldSave,
+            _ => otherSave,
+        };
+        if (current is null || string.IsNullOrWhiteSpace(current.SourceUri))
+        {
+            if (requestCode == EmeraldRequest)
+                emeraldExternalState = "仅本地快照";
+            else
+                heartGoldExternalState = "仅本地快照";
+            return;
+        }
+
+        try
+        {
+            var uri = global::Android.Net.Uri.Parse(current.SourceUri) ?? throw new IOException("存档地址无效。");
+            using var stream = ContentResolver?.OpenInputStream(uri) ?? throw new IOException("无法读取已登记存档。");
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            var bytes = memory.ToArray();
+            var inspection = SaveInspector.Inspect(bytes, current.DisplayName);
+            if (!string.Equals(inspection.Game, current.Game, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("当前文件已不是原登记的游戏存档。");
+
+            var updated = Convert.ToHexString(SHA256.HashData(bytes)) == current.Hash
+                ? current
+                : SaveRegistry.UpdateSnapshot(current, bytes);
+            if (requestCode == EmeraldRequest)
+            {
+                emeraldSave = updated;
+                emeraldBytes = bytes;
+                emeraldSlots = BoxReader.Read(bytes, updated.DisplayName).ToList();
+                emeraldPages = BoxReader.ReadPages(bytes, updated.DisplayName).ToList();
+                emeraldExternalState = "已同步";
+            }
+            else if (requestCode == HeartGoldRequest)
+            {
+                heartGoldSave = updated;
+                heartGoldBytes = bytes;
+                heartGoldSlots = BoxReader.Read(bytes, updated.DisplayName).ToList();
+                heartGoldPages = BoxReader.ReadPages(bytes, updated.DisplayName).ToList();
+                heartGoldExternalState = "已同步";
+                if (selectedTransferTarget?.Id == updated.Id)
+                    selectedTransferTarget = updated;
+            }
+            else
+            {
+                otherSave = updated;
+                otherBytes = bytes;
+                otherSlots = BoxReader.Read(bytes, updated.DisplayName).ToList();
+                otherPages = BoxReader.ReadPages(bytes, updated.DisplayName).ToList();
+                otherExternalState = "已同步";
+            }
+        }
+        catch (Exception ex)
+        {
+            if (requestCode == EmeraldRequest)
+                emeraldExternalState = ex.Message.Contains("授权", StringComparison.Ordinal) ? "需要重新授权" : "刷新失败";
+            else if (requestCode == HeartGoldRequest)
+                heartGoldExternalState = ex.Message.Contains("授权", StringComparison.Ordinal) ? "需要重新授权" : "刷新失败";
+            else
+                otherExternalState = ex.Message.Contains("授权", StringComparison.Ordinal) ? "需要重新授权" : "刷新失败";
+        }
     }
 
     void RenderWarehouseGrid()
@@ -966,10 +1741,12 @@ public class MainActivity : Activity
             else
             {
                 var record = warehouse[recordIndex];
-                var selected = selectedWarehouseIds.Contains(record.Id);
+                var selected = selectedWarehouseIds.Contains(record.Id) || storedPokemon?.Id == record.Id;
                 var image = new ImageButton(this)
                 {
-                    ContentDescription = $"查看 {ChineseSpeciesName(record.Species)} 详情",
+                    ContentDescription = storedPokemon?.Id == record.Id
+                        ? $"已选传送对象：{ChineseSpeciesName(record.Species)}"
+                        : $"查看 {ChineseSpeciesName(record.Species)} 详情",
                 };
                 image.SetScaleType(ImageView.ScaleType.CenterInside);
                 image.SetPadding(5, 5, 5, 5);
@@ -979,8 +1756,7 @@ public class MainActivity : Activity
                     image.SetImageResource(icon);
                 image.Click += (_, _) =>
                 {
-                    storedPokemon = record;
-                    selectedTransferTarget = null;
+                    SelectWarehouseForTransfer(record);
                     ShowWarehouseDetail(record);
                 };
                 image.LongClick += (_, _) => ShowWarehouseActions(record);
@@ -1016,16 +1792,25 @@ public class MainActivity : Activity
         ShowPokemonDetailDialog(
             pokemon,
             $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}",
-            selected ? "移出本次下载" : "加入本次下载",
+            selected ? "取消选择" : "选择传送对象",
             () =>
             {
-                storedPokemon = record;
-                selectedTransferTarget = null;
+                SelectWarehouseForTransfer(record);
                 if (!selectedWarehouseIds.Add(record.Id))
                     selectedWarehouseIds.Remove(record.Id);
+                RenderWarehouseGrid();
                 UpdateButtons();
             },
             record);
+    }
+
+    void SelectWarehouseForTransfer(StoredPokemon record)
+    {
+        storedPokemon = record;
+        selectedTransferTarget = null;
+        selectedTransferSlot = -1;
+        RenderWarehouseGrid();
+        UpdateButtons();
     }
 
     void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction, StoredPokemon? warehouseRecord = null)
@@ -1112,27 +1897,9 @@ public class MainActivity : Activity
 
         var trainingLines = new List<string> { $"性格    {nature}", $"特性    {ability}" };
         var training = Card("训练信息", trainingLines.ToArray());
-        if (training.GetChildAt(2) is TextView abilityLine)
-        {
-            TextView? effectLine = null;
-            abilityLine.Clickable = true;
-            abilityLine.Focusable = true;
-            abilityLine.ContentDescription = $"查看特性 {ability} 的效果";
-            abilityLine.SetTextColor(Color.ParseColor("#8DE4D1"));
-            abilityLine.Click += (_, _) =>
-            {
-                if (effectLine is not null)
-                {
-                    training.RemoveView(effectLine);
-                    effectLine = null;
-                    return;
-                }
-                var expanded = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 10, "#8DE4D1");
-                expanded.SetPadding(0, Dp(2), 0, 0);
-                effectLine = expanded;
-                training.AddView(expanded, 3, new LinearLayout.LayoutParams(-1, -2));
-            };
-        }
+        var effectLine = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 10, "#8DE4D1");
+        effectLine.SetPadding(0, Dp(2), 0, 0);
+        training.AddView(effectLine);
         var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}");
         var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         cards.SetPadding(0, Dp(8), 0, 0);
@@ -1151,12 +1918,26 @@ public class MainActivity : Activity
             var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
             row.SetGravity(GravityFlags.CenterVertical);
             row.SetPadding(0, Dp(3), 0, 0);
-            row.AddView(Text($"{index + 1:D2}", 10, "#628078"), new LinearLayout.LayoutParams(Dp(28), -2));
             var name = move == 0 ? "—" : StringAt(strings.Move, move, $"招式 #{move}");
             var typeId = move == 0 ? (byte)0 : MoveInfo.GetType(move, pokemon.Context);
             var typeName = move == 0 ? string.Empty : StringAt(strings.Types, typeId, "未知属性");
+            row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
+            var moveData = move == 0 ? null : GetMoveEffectData(move);
+            var category = move == 0 ? "—" : MoveCategoryText(move, typeId, pokemon.Context, moveData);
+            var categoryKey = category == "物理" ? "physical" : category == "特殊" ? "special" : "status";
+            var categoryIcon = new ImageView(this);
+            var categoryIconId = Resources.GetIdentifier($"move_category_{categoryKey}", "drawable", PackageName);
+            if (categoryIconId != 0)
+                categoryIcon.SetImageResource(categoryIconId);
+            categoryIcon.SetScaleType(ImageView.ScaleType.CenterInside);
+            categoryIcon.ContentDescription = category == "物理" ? "物理" : category == "特殊" ? "特殊" : "变化";
+            row.AddView(categoryIcon, new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
             row.AddView(Text(name, 11, move == 0 ? "#628078" : "#E9F4EF"), new LinearLayout.LayoutParams(0, -2, 1));
-            row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(5) });
+            var power = move == 0 || moveData?.Power is not > 0 ? "—" : moveData.Power.Value.ToString();
+            row.AddView(Text(power, 10, "#DCEBE6"), new LinearLayout.LayoutParams(Dp(32), -2) { RightMargin = Dp(4) });
+            var currentPp = move == 0 ? 0 : MoveCurrentPp(pokemon, index);
+            var maxPp = move == 0 ? 0 : moveData?.PP is > 0 ? moveData.PP.Value : MoveInfo.GetPP(pokemon.Context, (ushort)move);
+            row.AddView(Text(move == 0 ? "—" : $"{currentPp}/{maxPp}", 10, "#91AAA1"), new LinearLayout.LayoutParams(Dp(48), -2));
             if (warehouseRecord is not null)
             {
                 var moveSlot = index;
@@ -1226,26 +2007,33 @@ public class MainActivity : Activity
             repair.SetAllCaps(false);
             repair.SetTextColor(Color.ParseColor("#D6FF63"));
             repair.Background = Panel("#132A25", "#D6FF63", 8);
-            repair.Click += (_, _) =>
+            repair.Click += async (_, _) =>
             {
+                repair.Enabled = false;
+                repair.Text = "修复中…";
                 try
                 {
-                    var repaired = LocalRepository.RepairBackground(pokemon);
-                    if (!new LegalityAnalysis(repaired).Valid)
+                    var outcome = await Task.Run(() => LocalRepository.RepairWithStrategy(pokemon));
+                    if (!outcome.Valid)
                     {
-                        Toast.MakeText(this, "背景信息已尝试修复，但当前招式或用户字段仍不合法。", ToastLength.Long)!.Show();
+                        ShowRepairOutcome(outcome);
                         return;
                     }
-                    var updated = LocalRepository.SaveWorking(warehouseRecord, repaired);
+                    var updated = LocalRepository.SaveWorking(warehouseRecord, outcome.Pokemon);
                     dialog.Dismiss();
                     storedPokemon = updated;
                     RefreshWarehouse(updated.Id);
                     ShowWarehouseDetail(updated);
-                    Toast.MakeText(this, "已自动修复并保存为合法工作副本。", ToastLength.Short)!.Show();
+                    ShowRepairOutcome(outcome);
                 }
                 catch (Exception ex)
                 {
-                    Toast.MakeText(this, $"自动修复失败：{ex.Message}", ToastLength.Long)!.Show();
+                    ShowRepairOutcome(new RepairOutcome(pokemon, false, "未完成", [], $"修复过程无法完成：{ex.Message}"));
+                }
+                finally
+                {
+                    repair.Enabled = true;
+                    repair.Text = "自动修复";
                 }
             };
             actions.AddView(repair, new LinearLayout.LayoutParams(0, Dp(44), 0.31f) { LeftMargin = Dp(6) });
@@ -1271,12 +2059,123 @@ public class MainActivity : Activity
         }
     }
 
-    static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
-    static string? AbilityEffectText(string ability) => ability switch
+    void ShowRepairOutcome(RepairOutcome outcome)
     {
-        "污泥浆" => "吸取体力类招式会使对手受到伤害。",
-        _ => null,
+        var message = outcome.Valid
+            ? $"已生成并保存合法工作副本。\n模板：{outcome.Template}\n处理：{string.Join("、", outcome.Changes)}"
+            : $"未生成可写入的副本。\n模板：{outcome.Template}\n已尝试：{(outcome.Changes.Count == 0 ? "未找到可用模板" : string.Join("、", outcome.Changes))}\n应对：{outcome.FailureReason}";
+        var dialog = new Dialog(this);
+        var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        panel.SetPadding(Dp(18), Dp(16), Dp(18), Dp(12));
+        var panelBackground = new GradientDrawable();
+        panelBackground.SetColor(Color.ParseColor("#0F201C"));
+        panelBackground.SetCornerRadius(Dp(16));
+        panelBackground.SetStroke(Dp(1), Color.ParseColor(outcome.Valid ? "#D6FF63" : "#B86A55"));
+        panel.Background = panelBackground;
+        var title = new TextView(this) { Text = outcome.Valid ? "自动修复完成" : "自动修复未完成", TextSize = 19 };
+        title.SetTextColor(Color.ParseColor(outcome.Valid ? "#D6FF63" : "#FF9E78"));
+        title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
+        title.SetIncludeFontPadding(false);
+        panel.AddView(title, new LinearLayout.LayoutParams(-1, Dp(34)));
+        var body = new TextView(this) { Text = message, TextSize = 13 };
+        body.SetTextColor(Color.ParseColor("#E9F4EF"));
+        body.SetLineSpacing(Dp(2), 1f);
+        panel.AddView(body, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8) });
+        var close = new Button(this) { Text = "知道了" };
+        close.SetAllCaps(false);
+        close.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 14);
+        close.SetTextColor(Color.ParseColor("#0B1414"));
+        var closeBackground = new GradientDrawable();
+        closeBackground.SetColor(Color.ParseColor("#D6FF63"));
+        closeBackground.SetCornerRadius(Dp(8));
+        close.Background = closeBackground;
+        close.Click += (_, _) => dialog.Dismiss();
+        panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(14) });
+        dialog.SetContentView(panel);
+        dialog.Show();
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(0.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.86f), WindowManagerLayoutParams.WrapContent);
+        }
+    }
+
+    static string StringAt(IReadOnlyList<string> values, int index, string fallback) => (uint)index < values.Count && !string.IsNullOrWhiteSpace(values[index]) ? values[index] : fallback;
+    string? AbilityEffectText(string ability)
+    {
+        if (abilityEffects is null)
+        {
+            try
+            {
+                using var stream = Resources.OpenRawResource(Resource.Raw.ability_effects_zh);
+                using var reader = new StreamReader(stream);
+                var entries = JsonSerializer.Deserialize<List<AbilityEffectEntry>>(reader.ReadToEnd()) ?? [];
+                abilityEffects = entries
+                    .Where(entry => !string.IsNullOrWhiteSpace(entry.Name) && !string.IsNullOrWhiteSpace(entry.Description))
+                    .GroupBy(entry => entry.Name, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First().Description, StringComparer.Ordinal);
+            }
+            catch
+            {
+                abilityEffects = new Dictionary<string, string>();
+            }
+        }
+        return abilityEffects.TryGetValue(ability, out var effect) ? effect : null;
+    }
+
+    sealed record AbilityEffectEntry(
+        [property: JsonPropertyName("name_zh")] string Name,
+        [property: JsonPropertyName("description")] string Description);
+
+    MoveEffectData? GetMoveEffectData(int move)
+    {
+        if (moveEffects is null)
+        {
+            try
+            {
+                using var stream = Resources.OpenRawResource(Resource.Raw.move_data_zh);
+                using var reader = new StreamReader(stream);
+                var entries = JsonSerializer.Deserialize<List<MoveEffectData>>(reader.ReadToEnd()) ?? [];
+                moveEffects = entries.GroupBy(entry => entry.Id).ToDictionary(group => group.Key, group => group.First());
+            }
+            catch
+            {
+                moveEffects = new Dictionary<int, MoveEffectData>();
+            }
+        }
+        return moveEffects.TryGetValue(move, out var data) ? data : null;
+    }
+
+    static string MoveCategoryText(int move, byte typeId, EntityContext context, MoveEffectData? data)
+    {
+        if (context is EntityContext.Gen1 or EntityContext.Gen2 or EntityContext.Gen3)
+            return typeId is 0 or 1 or 2 or 3 or 4 or 5 or 7 or 8 or 9 ? "物理" : "特殊";
+        return data?.Category switch
+        {
+            "物理" => "物理",
+            "特殊" => "特殊",
+            _ => "变化",
+        };
+    }
+
+    static int MoveCurrentPp(PKM pokemon, int index) => index switch
+    {
+        0 => pokemon.Move1_PP,
+        1 => pokemon.Move2_PP,
+        2 => pokemon.Move3_PP,
+        3 => pokemon.Move4_PP,
+        _ => 0,
     };
+
+    sealed record MoveEffectData(
+        [property: JsonPropertyName("id")] int Id,
+        [property: JsonPropertyName("name_zh")] string Name,
+        [property: JsonPropertyName("type")] string Type,
+        [property: JsonPropertyName("category")] string Category,
+        [property: JsonPropertyName("power")] int? Power,
+        [property: JsonPropertyName("pp")] int? PP);
 
     static ushort[] LearnableMoves(PKM pokemon, int slot)
     {
@@ -1552,6 +2451,8 @@ public class MainActivity : Activity
 
     void SetBusy(bool value)
     {
+        if (refreshSavesButton is not null)
+            refreshSavesButton.Enabled = !value;
         if (progress is not null)
             progress.Visibility = value ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
         if (transferVisual is null || transferPacket is null || transferCaption is null)
@@ -1567,6 +2468,7 @@ public class MainActivity : Activity
         transferVisual.Visibility = global::Android.Views.ViewStates.Visible;
         transferCaption.Visibility = global::Android.Views.ViewStates.Visible;
         transferCaption.Text = "正在建立安全传输通道…";
+        mainScroll?.Post(() => mainScroll.SmoothScrollTo(0, Math.Max(0, transferVisual.Top - Dp(18))));
         transferVisual.Post(() =>
         {
             transferAnimator?.Cancel();
@@ -1792,6 +2694,110 @@ public class MainActivity : Activity
             1 => true,
             _ => throw new FormatException("布尔字段只能填写 0 或 1。"),
         };
+    }
+}
+
+sealed class LevelRangeView : View
+{
+    const int Minimum = 1;
+    const int Maximum = 100;
+    readonly Paint trackPaint = new() { AntiAlias = true };
+    readonly Paint selectedPaint = new() { AntiAlias = true };
+    readonly Paint handlePaint = new() { AntiAlias = true };
+    bool trackingLower;
+    float density;
+    public int LowerValue { get; private set; }
+    public int UpperValue { get; private set; }
+    public event EventHandler? RangeChanged;
+
+    public LevelRangeView(Context context, int lower, int upper) : base(context)
+    {
+        density = Resources?.DisplayMetrics?.Density ?? 1;
+        LowerValue = Math.Clamp(lower, Minimum, Maximum);
+        UpperValue = Math.Clamp(upper, LowerValue, Maximum);
+        trackPaint.Color = Color.ParseColor("#315249");
+        selectedPaint.Color = Color.ParseColor("#D6FF63");
+        handlePaint.Color = Color.ParseColor("#E9F4EF");
+        SetWillNotDraw(false);
+    }
+
+    float Px(float value) => value * density;
+    float Position(int value) => Px(14) + (Width - Px(28)) * (value - Minimum) / (Maximum - Minimum);
+
+    protected override void OnDraw(Canvas canvas)
+    {
+        base.OnDraw(canvas);
+        var y = Height / 2f;
+        var left = Px(14);
+        var right = Width - Px(14);
+        var track = Px(4);
+        canvas.DrawRoundRect(new RectF(left, y - track, right, y + track), track, track, trackPaint);
+        var selectedLeft = Position(LowerValue);
+        var selectedRight = Position(UpperValue);
+        canvas.DrawRoundRect(new RectF(selectedLeft, y - Px(5), selectedRight, y + Px(5)), Px(5), Px(5), selectedPaint);
+        canvas.DrawCircle(selectedLeft, y, Px(9), handlePaint);
+        canvas.DrawCircle(selectedRight, y, Px(9), handlePaint);
+    }
+
+    public override bool OnTouchEvent(MotionEvent? e)
+    {
+        if (e is null)
+            return false;
+        var x = e.GetX();
+        switch (e.ActionMasked)
+        {
+            case MotionEventActions.Down:
+                trackingLower = Math.Abs(x - Position(LowerValue)) <= Math.Abs(x - Position(UpperValue));
+                Parent?.RequestDisallowInterceptTouchEvent(true);
+                UpdateValue(x);
+                return true;
+            case MotionEventActions.Move:
+                UpdateValue(x);
+                return true;
+            case MotionEventActions.Up:
+            case MotionEventActions.Cancel:
+                Parent?.RequestDisallowInterceptTouchEvent(false);
+                UpdateValue(x);
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    void UpdateValue(float x)
+    {
+        var ratio = Math.Clamp((x - Px(14)) / Math.Max(1, Width - Px(28)), 0, 1);
+        var value = Minimum + (int)Math.Round(ratio * (Maximum - Minimum));
+        if (trackingLower)
+            LowerValue = Math.Min(value, UpperValue);
+        else
+            UpperValue = Math.Max(value, LowerValue);
+        Invalidate();
+        RangeChanged?.Invoke(this, EventArgs.Empty);
+    }
+}
+
+sealed class CompactSpinnerAdapter : ArrayAdapter<string>
+{
+    public CompactSpinnerAdapter(Context context, string[] values)
+        : base(context, global::Android.Resource.Layout.SimpleSpinnerItem, values)
+    {
+        SetDropDownViewResource(global::Android.Resource.Layout.SimpleSpinnerDropDownItem);
+    }
+
+    public override View GetView(int position, View? convertView, ViewGroup? parent) => Style(base.GetView(position, convertView, parent));
+
+    public override View GetDropDownView(int position, View? convertView, ViewGroup? parent) => Style(base.GetDropDownView(position, convertView, parent));
+
+    static View Style(View view)
+    {
+        if (view is TextView text)
+        {
+            text.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 12);
+            text.SetTextColor(Color.ParseColor("#E9F4EF"));
+            text.SetIncludeFontPadding(false);
+        }
+        return view;
     }
 }
 

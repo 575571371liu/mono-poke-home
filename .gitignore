@@ -9,4 +9,5 @@ fixtures/private/
 /*.png
 /*.xml
 apk-inspect/
+artifacts/
 .superpowers/

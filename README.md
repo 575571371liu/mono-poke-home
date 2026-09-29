@@ -1,56 +1,99 @@
 # MONO / HOME
 
-一个面向 Android 模拟器存档的本地宝可梦传送中心。项目基于 PKHeX.Core 解析存档、生成目标世代合法实体并进行本地校验；不使用账号、云同步、广告或遥测。
+MONO / HOME 是一个运行在 Android 上的本地宝可梦存档管理与传送工具。它使用 PKHeX.Core 读取和校验存档，数据保存在设备本地，不需要账号、云同步、广告或遥测。
 
-## 当前能力
+## 1.1.0 功能
 
-- 导入并持续登记绿宝石、心金或魂银存档。
-- 从绿宝石存档上传宝可梦到本地仓库。
-- 仓库使用简体中文种类名与 National Dex 图标，保留闪光、携带道具、状态、宝可病毒、蛋、形态和丝带摘要。
-- Emerald → HeartGold / SoulSilver：生成目标规则下通过合法性检查的实体。
-- 目标文件拥有持久读写权限时，先创建应用私有恢复点，再写入、回读并校验目标存档。
-- 支持批量传送、仓库长按查看个体档案、进入本地图鉴与创建新的合法编辑副本。
+### 存档与仓库
+
+- 通过 Android 文件选择器导入存档，并自动识别支持的游戏格式。
+- 为每个已导入存档保留本地快照，可手动刷新以重新读取游戏中最新的仓库数据。
+- 中央仓库保存独立副本；查看详情时显示合法性、形态、闪光、性别、蛋、携带道具、状态、丝带与特性效果。
+- 仓库支持按等级、属性、蛋组、性别、闪光和孵化状态筛选；等级使用 1–100 双端滑块。
+- 招式详情按“属性图标、物理/特殊/变化图标、名称、威力、PP”排列，并按来源世代计算属性与分类。
+
+### 传送与恢复
+
+- 在来源存档页面选择要上传的宝可梦，再进入中央仓库管理副本。
+- 传送时先选择对象，再选择目标存档和具体仓位；目标仓库出现后才确认写入。
+- 支持多选和批量传送，批量对象按连续仓位写入，并显示传送过程动画与结果。
+- 写入目标存档前自动创建应用私有恢复点，写入后回读并校验；失败时保留来源和恢复点。
+- 自动修复按背景模板、来源关系、招式与合法性逐步尝试，只有通过校验的结果才会写入。
+
+### 设置与更新
+
+- 设置页显示已登记存档、仓库数量和当前版本。
+- 支持手动刷新已登记存档。
+- 支持检查 GitHub Releases，并引导下载最新 APK。
 
 ## 支持范围
 
-当前正式路线仅为 Emerald → HeartGold / SoulSilver。其余世代和游戏不会在界面中伪装成可传送，详细矩阵见 [docs/support-matrix.md](docs/support-matrix.md)。
+导入和浏览使用 PKHeX.Core 的存档识别能力；正式传送路线目前是 Emerald → HeartGold / SoulSilver。其他世代可以导入、查看或管理时，不会被界面伪装成已支持的传送路线。
+
+| 源存档 | 目标存档 | 状态 |
+|---|---|---|
+| Pokémon Emerald | Pokémon HeartGold | released |
+| Pokémon Emerald | Pokémon SoulSilver | released |
+| 其他 Gen I–IX 组合 | 任意 | unsupported transfer |
+
+完整矩阵见 [docs/support-matrix.md](docs/support-matrix.md)。
 
 ## 构建
 
-需要 .NET 10 Android SDK、JDK 21 与 Android SDK。
+开发环境需要：
+
+- .NET 10 SDK（Android workload）
+- JDK 21
+- Android SDK Platform 30 或更高、Platform-Tools、Emulator
+
+构建 Release APK：
 
 ```powershell
-dotnet build src/MonoHome.Android/MonoHome.Android.csproj -c Release -t:Rebuild
+dotnet build src/MonoHome.Android/MonoHome.Android.csproj -c Release --no-restore
 ```
 
-APK 输出为：
+APK 输出：
 
 ```text
 src/MonoHome.Android/bin/Release/net10.0-android/io.github.monohome-Signed.apk
 ```
 
+安装到已启动的模拟器：
+
+```powershell
+adb install -r src/MonoHome.Android/bin/Release/net10.0-android/io.github.monohome-Signed.apk
+adb shell am force-stop io.github.monohome
+adb shell monkey -p io.github.monohome 1
+```
+
+如果使用 Android CLI，可准备并启动项目内的 AVD：
+
+```powershell
+android emulator list
+android emulator start mono-home-api30
+```
+
 ## 验证
 
-私有 fixture 不提交到仓库。配置本地 fixture 后运行：
+配置本地私有 fixture 后运行：
 
 ```powershell
 dotnet run --project src/MonoHome.Verifier/MonoHome.Verifier.csproj -c Release
 ```
 
-验证器覆盖真实绿宝石/心金存档识别、逐只转换、保真路线、批量写入、仓库副本、目标适配与合法性回读。
+验证器覆盖存档识别、逐只转换、保真路线、批量写入、仓库副本、目标适配、合法性回读与恢复策略。私有 `.sav`、`.srm`、`.dsv` 文件不提交到仓库。
 
-## 存储与安全
+## 数据与安全
 
-来源存档和仓库原件不被传送或编辑流程改写。目标存档必须由 Android Storage Access Framework 授予可验证的读写权限；没有权限、文件外部变更或回读不一致时，传送会停止并要求重新授权。
-
-应用在写入前保存应用私有恢复点。Android 对 `Android/data` 等目录有访问限制；模拟器应将存档放在用户可授权的目录后再导入。
+来源存档和中央仓库原件不会被传送流程直接改写。目标存档必须由 Android Storage Access Framework 授予可验证的读写权限；权限失效、文件被外部修改或回读校验失败时，流程会停止并提示重新授权。所有恢复点保存在应用私有目录。
 
 ## 文档
 
-- [迭代设计](docs/superpowers/specs/2026-09-27-transfer-center-iteration-design.md)
-- [实施计划](docs/superpowers/plans/2026-09-27-transfer-center-iteration.md)
 - [支持矩阵](docs/support-matrix.md)
+- [传送中心设计](docs/superpowers/specs/2026-09-27-transfer-center-iteration-design.md)
+- [通用存档中心设计](docs/superpowers/specs/2026-09-27-universal-save-hub-design.md)
+- [Android 原型实施计划](docs/superpowers/plans/2026-09-28-android-prototype-warehouse.md)
 
 ## 许可证与第三方
 
-许可证见 [LICENSE](LICENSE)。PKHeX 相关第三方声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。本项目为非官方兴趣项目，与 Nintendo、The Pokémon Company 或 Pokémon HOME 无关联。
+项目许可证见 [LICENSE](LICENSE)。PKHeX.Core 声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。本项目是非官方兴趣项目，与 Nintendo、The Pokémon Company 或 Pokémon HOME 无关联。

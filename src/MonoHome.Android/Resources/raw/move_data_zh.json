@@ -1,0 +1,7362 @@
+[
+  {
+    "id": 1,
+    "name_zh": "拍击",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 35
+  },
+  {
+    "id": 2,
+    "name_zh": "空手劈",
+    "type": "格斗",
+    "category": "物理",
+    "power": 50,
+    "pp": 25
+  },
+  {
+    "id": 3,
+    "name_zh": "连环巴掌",
+    "type": "一般",
+    "category": "物理",
+    "power": 15,
+    "pp": 10
+  },
+  {
+    "id": 4,
+    "name_zh": "连续拳",
+    "type": "一般",
+    "category": "物理",
+    "power": 18,
+    "pp": 15
+  },
+  {
+    "id": 5,
+    "name_zh": "百万吨重拳",
+    "type": "一般",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 6,
+    "name_zh": "聚宝功",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 7,
+    "name_zh": "火焰拳",
+    "type": "火",
+    "category": "物理",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 8,
+    "name_zh": "冰冻拳",
+    "type": "冰",
+    "category": "物理",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 9,
+    "name_zh": "雷电拳",
+    "type": "电",
+    "category": "物理",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 10,
+    "name_zh": "抓",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 35
+  },
+  {
+    "id": 11,
+    "name_zh": "夹住",
+    "type": "一般",
+    "category": "物理",
+    "power": 55,
+    "pp": 30
+  },
+  {
+    "id": 12,
+    "name_zh": "极落钳",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 13,
+    "name_zh": "旋风刀",
+    "type": "一般",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 14,
+    "name_zh": "剑舞",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 15,
+    "name_zh": "居合劈",
+    "type": "一般",
+    "category": "物理",
+    "power": 50,
+    "pp": 30
+  },
+  {
+    "id": 16,
+    "name_zh": "起风",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 40,
+    "pp": 35
+  },
+  {
+    "id": 17,
+    "name_zh": "翅膀攻击",
+    "type": "飞行",
+    "category": "物理",
+    "power": 60,
+    "pp": 35
+  },
+  {
+    "id": 18,
+    "name_zh": "吹飞",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 19,
+    "name_zh": "飞翔",
+    "type": "飞行",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 20,
+    "name_zh": "绑紧",
+    "type": "一般",
+    "category": "物理",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 21,
+    "name_zh": "摔打",
+    "type": "一般",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 22,
+    "name_zh": "藤鞭",
+    "type": "草",
+    "category": "物理",
+    "power": 45,
+    "pp": 25
+  },
+  {
+    "id": 23,
+    "name_zh": "踩踏",
+    "type": "一般",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 24,
+    "name_zh": "二连踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 30,
+    "pp": 30
+  },
+  {
+    "id": 25,
+    "name_zh": "百万吨重踢",
+    "type": "一般",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 26,
+    "name_zh": "飞踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 27,
+    "name_zh": "回旋踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 28,
+    "name_zh": "泼沙",
+    "type": "地面",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 29,
+    "name_zh": "头锤",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 15
+  },
+  {
+    "id": 30,
+    "name_zh": "角撞",
+    "type": "一般",
+    "category": "物理",
+    "power": 65,
+    "pp": 25
+  },
+  {
+    "id": 31,
+    "name_zh": "乱击",
+    "type": "一般",
+    "category": "物理",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 32,
+    "name_zh": "角钻",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 33,
+    "name_zh": "撞击",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 35
+  },
+  {
+    "id": 34,
+    "name_zh": "泰山压顶",
+    "type": "一般",
+    "category": "物理",
+    "power": 85,
+    "pp": 15
+  },
+  {
+    "id": 35,
+    "name_zh": "紧束",
+    "type": "一般",
+    "category": "物理",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 36,
+    "name_zh": "猛撞",
+    "type": "一般",
+    "category": "物理",
+    "power": 90,
+    "pp": 20
+  },
+  {
+    "id": 37,
+    "name_zh": "大闹一番",
+    "type": "一般",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 38,
+    "name_zh": "舍身冲撞",
+    "type": "一般",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 39,
+    "name_zh": "摇尾巴",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 40,
+    "name_zh": "毒针",
+    "type": "毒",
+    "category": "物理",
+    "power": 15,
+    "pp": 35
+  },
+  {
+    "id": 41,
+    "name_zh": "双针",
+    "type": "虫",
+    "category": "物理",
+    "power": 25,
+    "pp": 20
+  },
+  {
+    "id": 42,
+    "name_zh": "飞弹针",
+    "type": "虫",
+    "category": "物理",
+    "power": 25,
+    "pp": 20
+  },
+  {
+    "id": 43,
+    "name_zh": "瞪眼",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 44,
+    "name_zh": "咬住",
+    "type": "恶",
+    "category": "物理",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 45,
+    "name_zh": "叫声",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 46,
+    "name_zh": "吼叫",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 47,
+    "name_zh": "唱歌",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 48,
+    "name_zh": "超音波",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 49,
+    "name_zh": "音爆",
+    "type": "一般",
+    "category": "特殊",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 50,
+    "name_zh": "定身法",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 51,
+    "name_zh": "溶解液",
+    "type": "毒",
+    "category": "特殊",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 52,
+    "name_zh": "火花",
+    "type": "火",
+    "category": "特殊",
+    "power": 40,
+    "pp": 25
+  },
+  {
+    "id": 53,
+    "name_zh": "喷射火焰",
+    "type": "火",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 54,
+    "name_zh": "白雾",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 55,
+    "name_zh": "水枪",
+    "type": "水",
+    "category": "特殊",
+    "power": 40,
+    "pp": 25
+  },
+  {
+    "id": 56,
+    "name_zh": "水炮",
+    "type": "水",
+    "category": "特殊",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 57,
+    "name_zh": "冲浪",
+    "type": "水",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 58,
+    "name_zh": "冰冻光束",
+    "type": "冰",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 59,
+    "name_zh": "暴风雪",
+    "type": "冰",
+    "category": "特殊",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 60,
+    "name_zh": "幻象光线",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 61,
+    "name_zh": "泡沫光线",
+    "type": "水",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 62,
+    "name_zh": "极光束",
+    "type": "冰",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 63,
+    "name_zh": "破坏光线",
+    "type": "一般",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 64,
+    "name_zh": "啄",
+    "type": "飞行",
+    "category": "物理",
+    "power": 35,
+    "pp": 35
+  },
+  {
+    "id": 65,
+    "name_zh": "啄钻",
+    "type": "飞行",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 66,
+    "name_zh": "深渊翻滚",
+    "type": "格斗",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 67,
+    "name_zh": "踢倒",
+    "type": "格斗",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 68,
+    "name_zh": "双倍奉还",
+    "type": "格斗",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 69,
+    "name_zh": "地球上投",
+    "type": "格斗",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 70,
+    "name_zh": "怪力",
+    "type": "一般",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 71,
+    "name_zh": "吸取",
+    "type": "草",
+    "category": "特殊",
+    "power": 20,
+    "pp": 25
+  },
+  {
+    "id": 72,
+    "name_zh": "超级吸取",
+    "type": "草",
+    "category": "特殊",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 73,
+    "name_zh": "寄生种子",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 74,
+    "name_zh": "生长",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 75,
+    "name_zh": "飞叶快刀",
+    "type": "草",
+    "category": "物理",
+    "power": 55,
+    "pp": 25
+  },
+  {
+    "id": 76,
+    "name_zh": "日光束",
+    "type": "草",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 77,
+    "name_zh": "毒粉",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 35
+  },
+  {
+    "id": 78,
+    "name_zh": "麻痹粉",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 79,
+    "name_zh": "催眠粉",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 80,
+    "name_zh": "花瓣舞",
+    "type": "草",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 81,
+    "name_zh": "吐丝",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 82,
+    "name_zh": "龙之怒",
+    "type": "龙",
+    "category": "特殊",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 83,
+    "name_zh": "火焰旋涡",
+    "type": "火",
+    "category": "特殊",
+    "power": 35,
+    "pp": 15
+  },
+  {
+    "id": 84,
+    "name_zh": "电击",
+    "type": "电",
+    "category": "特殊",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 85,
+    "name_zh": "十万伏特",
+    "type": "电",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 86,
+    "name_zh": "电磁波",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 87,
+    "name_zh": "打雷",
+    "type": "电",
+    "category": "特殊",
+    "power": 110,
+    "pp": 10
+  },
+  {
+    "id": 88,
+    "name_zh": "落石",
+    "type": "岩石",
+    "category": "物理",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 89,
+    "name_zh": "地震",
+    "type": "地面",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 90,
+    "name_zh": "地裂",
+    "type": "地面",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 91,
+    "name_zh": "挖洞",
+    "type": "地面",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 92,
+    "name_zh": "剧毒",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 93,
+    "name_zh": "念力",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 50,
+    "pp": 25
+  },
+  {
+    "id": 94,
+    "name_zh": "精神强念",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 95,
+    "name_zh": "催眠术",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 96,
+    "name_zh": "瑜伽姿势",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 97,
+    "name_zh": "高速移动",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 98,
+    "name_zh": "电光一闪",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 99,
+    "name_zh": "愤怒",
+    "type": "一般",
+    "category": "物理",
+    "power": 20,
+    "pp": 20
+  },
+  {
+    "id": 100,
+    "name_zh": "瞬间移动",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 101,
+    "name_zh": "黑夜魔影",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 102,
+    "name_zh": "模仿",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 103,
+    "name_zh": "刺耳声",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 104,
+    "name_zh": "影子分身",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 105,
+    "name_zh": "自我再生",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 106,
+    "name_zh": "变硬",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 107,
+    "name_zh": "变小",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 108,
+    "name_zh": "烟幕",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 109,
+    "name_zh": "奇异之光",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 110,
+    "name_zh": "缩入壳中",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 111,
+    "name_zh": "变圆",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 112,
+    "name_zh": "屏障",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 113,
+    "name_zh": "光墙",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 114,
+    "name_zh": "黑雾",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 115,
+    "name_zh": "反射壁",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 116,
+    "name_zh": "聚气",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 117,
+    "name_zh": "忍耐",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 118,
+    "name_zh": "挥指",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 119,
+    "name_zh": "鹦鹉学舌",
+    "type": "飞行",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 120,
+    "name_zh": "玉石俱碎",
+    "type": "一般",
+    "category": "物理",
+    "power": 200,
+    "pp": 5
+  },
+  {
+    "id": 121,
+    "name_zh": "炸蛋",
+    "type": "一般",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 122,
+    "name_zh": "舌舔",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 30,
+    "pp": 30
+  },
+  {
+    "id": 123,
+    "name_zh": "浊雾",
+    "type": "毒",
+    "category": "特殊",
+    "power": 30,
+    "pp": 20
+  },
+  {
+    "id": 124,
+    "name_zh": "污泥攻击",
+    "type": "毒",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 125,
+    "name_zh": "骨棒",
+    "type": "地面",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 126,
+    "name_zh": "大字爆炎",
+    "type": "火",
+    "category": "特殊",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 127,
+    "name_zh": "攀瀑",
+    "type": "水",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 128,
+    "name_zh": "贝壳夹击",
+    "type": "水",
+    "category": "物理",
+    "power": 35,
+    "pp": 15
+  },
+  {
+    "id": 129,
+    "name_zh": "高速星星",
+    "type": "一般",
+    "category": "特殊",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 130,
+    "name_zh": "火箭头锤",
+    "type": "一般",
+    "category": "物理",
+    "power": 130,
+    "pp": 10
+  },
+  {
+    "id": 131,
+    "name_zh": "尖刺加农炮",
+    "type": "一般",
+    "category": "物理",
+    "power": 20,
+    "pp": 15
+  },
+  {
+    "id": 132,
+    "name_zh": "缠绕",
+    "type": "一般",
+    "category": "物理",
+    "power": 10,
+    "pp": 35
+  },
+  {
+    "id": 133,
+    "name_zh": "瞬间失忆",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 134,
+    "name_zh": "折弯汤匙",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 135,
+    "name_zh": "生蛋",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 136,
+    "name_zh": "飞膝踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 130,
+    "pp": 10
+  },
+  {
+    "id": 137,
+    "name_zh": "大蛇瞪眼",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 138,
+    "name_zh": "食梦",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 100,
+    "pp": 15
+  },
+  {
+    "id": 139,
+    "name_zh": "毒瓦斯",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 140,
+    "name_zh": "投球",
+    "type": "一般",
+    "category": "物理",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 141,
+    "name_zh": "汲取",
+    "type": "虫",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 142,
+    "name_zh": "恶魔之吻",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 143,
+    "name_zh": "神鸟猛击",
+    "type": "飞行",
+    "category": "物理",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 144,
+    "name_zh": "变身",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 145,
+    "name_zh": "泡沫",
+    "type": "水",
+    "category": "特殊",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 146,
+    "name_zh": "迷昏拳",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 147,
+    "name_zh": "蘑菇孢子",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 148,
+    "name_zh": "闪光",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 149,
+    "name_zh": "精神波",
+    "type": "超能力",
+    "category": "特殊",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 150,
+    "name_zh": "跃起",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 151,
+    "name_zh": "溶化",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 152,
+    "name_zh": "蟹钳锤",
+    "type": "水",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 153,
+    "name_zh": "大爆炸",
+    "type": "一般",
+    "category": "物理",
+    "power": 250,
+    "pp": 5
+  },
+  {
+    "id": 154,
+    "name_zh": "乱抓",
+    "type": "一般",
+    "category": "物理",
+    "power": 18,
+    "pp": 15
+  },
+  {
+    "id": 155,
+    "name_zh": "骨头回力镖",
+    "type": "地面",
+    "category": "物理",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 156,
+    "name_zh": "睡觉",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 157,
+    "name_zh": "岩崩",
+    "type": "岩石",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 158,
+    "name_zh": "终结门牙",
+    "type": "一般",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 159,
+    "name_zh": "棱角化",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 160,
+    "name_zh": "纹理",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 161,
+    "name_zh": "三重攻击",
+    "type": "一般",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 162,
+    "name_zh": "愤怒门牙",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 163,
+    "name_zh": "劈开",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 164,
+    "name_zh": "替身",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 165,
+    "name_zh": "挣扎",
+    "type": "一般",
+    "category": "物理",
+    "power": 50,
+    "pp": null
+  },
+  {
+    "id": 166,
+    "name_zh": "写生",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 167,
+    "name_zh": "三连踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 10,
+    "pp": 10
+  },
+  {
+    "id": 168,
+    "name_zh": "小偷",
+    "type": "恶",
+    "category": "物理",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 169,
+    "name_zh": "蛛网",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 170,
+    "name_zh": "心之眼",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 171,
+    "name_zh": "恶梦",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 172,
+    "name_zh": "火焰轮",
+    "type": "火",
+    "category": "物理",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 173,
+    "name_zh": "打鼾",
+    "type": "一般",
+    "category": "特殊",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 174,
+    "name_zh": "咒术",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 175,
+    "name_zh": "抓狂",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 176,
+    "name_zh": "纹理２",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 177,
+    "name_zh": "气旋攻击",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 178,
+    "name_zh": "棉孢子",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 179,
+    "name_zh": "绝处逢生",
+    "type": "格斗",
+    "category": "物理",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 180,
+    "name_zh": "怨恨",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 181,
+    "name_zh": "细雪",
+    "type": "冰",
+    "category": "特殊",
+    "power": 40,
+    "pp": 25
+  },
+  {
+    "id": 182,
+    "name_zh": "守住",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 183,
+    "name_zh": "音速拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 184,
+    "name_zh": "可怕面孔",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 185,
+    "name_zh": "出奇一击",
+    "type": "恶",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 186,
+    "name_zh": "天使之吻",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 187,
+    "name_zh": "腹鼓",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 188,
+    "name_zh": "污泥炸弹",
+    "type": "毒",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 189,
+    "name_zh": "掷泥",
+    "type": "地面",
+    "category": "特殊",
+    "power": 20,
+    "pp": 10
+  },
+  {
+    "id": 190,
+    "name_zh": "章鱼桶炮",
+    "type": "水",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 191,
+    "name_zh": "撒菱",
+    "type": "地面",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 192,
+    "name_zh": "电磁炮",
+    "type": "电",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 193,
+    "name_zh": "识破",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 194,
+    "name_zh": "同命",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 195,
+    "name_zh": "终焉之歌",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 196,
+    "name_zh": "冰冻之风",
+    "type": "冰",
+    "category": "特殊",
+    "power": 55,
+    "pp": 15
+  },
+  {
+    "id": 197,
+    "name_zh": "看穿",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 198,
+    "name_zh": "骨棒乱打",
+    "type": "地面",
+    "category": "物理",
+    "power": 25,
+    "pp": 10
+  },
+  {
+    "id": 199,
+    "name_zh": "锁定",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 200,
+    "name_zh": "逆鳞",
+    "type": "龙",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 201,
+    "name_zh": "沙暴",
+    "type": "岩石",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 202,
+    "name_zh": "终极吸取",
+    "type": "草",
+    "category": "特殊",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 203,
+    "name_zh": "挺住",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 204,
+    "name_zh": "撒娇",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 205,
+    "name_zh": "滚动",
+    "type": "岩石",
+    "category": "物理",
+    "power": 30,
+    "pp": 20
+  },
+  {
+    "id": 206,
+    "name_zh": "点到为止",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 40
+  },
+  {
+    "id": 207,
+    "name_zh": "虚张声势",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 208,
+    "name_zh": "喝牛奶",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 209,
+    "name_zh": "电光",
+    "type": "电",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 210,
+    "name_zh": "连斩",
+    "type": "虫",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 211,
+    "name_zh": "钢翼",
+    "type": "钢",
+    "category": "物理",
+    "power": 70,
+    "pp": 25
+  },
+  {
+    "id": 212,
+    "name_zh": "黑色目光",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 213,
+    "name_zh": "迷人",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 214,
+    "name_zh": "梦话",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 215,
+    "name_zh": "治愈铃声",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 216,
+    "name_zh": "报恩",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 217,
+    "name_zh": "礼物",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 218,
+    "name_zh": "迁怒",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 219,
+    "name_zh": "神秘守护",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 25
+  },
+  {
+    "id": 220,
+    "name_zh": "分担痛楚",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 221,
+    "name_zh": "神圣之火",
+    "type": "火",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 222,
+    "name_zh": "震级",
+    "type": "地面",
+    "category": "物理",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 223,
+    "name_zh": "爆裂拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 224,
+    "name_zh": "超级角击",
+    "type": "虫",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 225,
+    "name_zh": "龙息",
+    "type": "龙",
+    "category": "特殊",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 226,
+    "name_zh": "接棒",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 227,
+    "name_zh": "再来一次",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 228,
+    "name_zh": "追打",
+    "type": "恶",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 229,
+    "name_zh": "高速旋转",
+    "type": "一般",
+    "category": "物理",
+    "power": 50,
+    "pp": 40
+  },
+  {
+    "id": 230,
+    "name_zh": "甜甜香气",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 231,
+    "name_zh": "铁尾",
+    "type": "钢",
+    "category": "物理",
+    "power": 100,
+    "pp": 15
+  },
+  {
+    "id": 232,
+    "name_zh": "金属爪",
+    "type": "钢",
+    "category": "物理",
+    "power": 50,
+    "pp": 35
+  },
+  {
+    "id": 233,
+    "name_zh": "借力摔",
+    "type": "格斗",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 234,
+    "name_zh": "晨光",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 235,
+    "name_zh": "光合作用",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 236,
+    "name_zh": "月光",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 237,
+    "name_zh": "觉醒力量",
+    "type": "一般",
+    "category": "特殊",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 238,
+    "name_zh": "十字劈",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 239,
+    "name_zh": "龙卷风",
+    "type": "龙",
+    "category": "特殊",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 240,
+    "name_zh": "求雨",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 241,
+    "name_zh": "大晴天",
+    "type": "火",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 242,
+    "name_zh": "咬碎",
+    "type": "恶",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 243,
+    "name_zh": "镜面反射",
+    "type": "超能力",
+    "category": "特殊",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 244,
+    "name_zh": "自我暗示",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 245,
+    "name_zh": "神速",
+    "type": "一般",
+    "category": "物理",
+    "power": 80,
+    "pp": 5
+  },
+  {
+    "id": 246,
+    "name_zh": "原始之力",
+    "type": "岩石",
+    "category": "特殊",
+    "power": 60,
+    "pp": 5
+  },
+  {
+    "id": 247,
+    "name_zh": "暗影球",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 248,
+    "name_zh": "预知未来",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 249,
+    "name_zh": "碎岩",
+    "type": "格斗",
+    "category": "物理",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 250,
+    "name_zh": "潮旋",
+    "type": "水",
+    "category": "特殊",
+    "power": 35,
+    "pp": 15
+  },
+  {
+    "id": 251,
+    "name_zh": "围攻",
+    "type": "恶",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 252,
+    "name_zh": "击掌奇袭",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 10
+  },
+  {
+    "id": 253,
+    "name_zh": "吵闹",
+    "type": "一般",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 254,
+    "name_zh": "蓄力",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 255,
+    "name_zh": "喷出",
+    "type": "一般",
+    "category": "特殊",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 256,
+    "name_zh": "吞下",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 257,
+    "name_zh": "热风",
+    "type": "火",
+    "category": "特殊",
+    "power": 95,
+    "pp": 10
+  },
+  {
+    "id": 258,
+    "name_zh": "冰雹",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 259,
+    "name_zh": "无理取闹",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 260,
+    "name_zh": "吹捧",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 261,
+    "name_zh": "磷火",
+    "type": "火",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 262,
+    "name_zh": "临别礼物",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 263,
+    "name_zh": "硬撑",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 264,
+    "name_zh": "真气拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 150,
+    "pp": 20
+  },
+  {
+    "id": 265,
+    "name_zh": "清醒",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 266,
+    "name_zh": "看我嘛",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 267,
+    "name_zh": "自然之力",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 268,
+    "name_zh": "充电",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 269,
+    "name_zh": "挑衅",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 270,
+    "name_zh": "帮助",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 271,
+    "name_zh": "戏法",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 272,
+    "name_zh": "扮演",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 273,
+    "name_zh": "祈愿",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 274,
+    "name_zh": "借助",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 275,
+    "name_zh": "扎根",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 276,
+    "name_zh": "蛮力",
+    "type": "格斗",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 277,
+    "name_zh": "魔法反射",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 278,
+    "name_zh": "回收利用",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 279,
+    "name_zh": "报复",
+    "type": "格斗",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 280,
+    "name_zh": "劈瓦",
+    "type": "格斗",
+    "category": "物理",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 281,
+    "name_zh": "哈欠",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 282,
+    "name_zh": "拍落",
+    "type": "恶",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 283,
+    "name_zh": "蛮干",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 284,
+    "name_zh": "喷火",
+    "type": "火",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 285,
+    "name_zh": "特性互换",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 286,
+    "name_zh": "封印",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 287,
+    "name_zh": "焕然一新",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 288,
+    "name_zh": "怨念",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 289,
+    "name_zh": "化为己用",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 290,
+    "name_zh": "秘密之力",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 291,
+    "name_zh": "潜水",
+    "type": "水",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 292,
+    "name_zh": "猛推",
+    "type": "格斗",
+    "category": "物理",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 293,
+    "name_zh": "保护色",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 294,
+    "name_zh": "萤火",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 295,
+    "name_zh": "洁净光芒",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 95,
+    "pp": 5
+  },
+  {
+    "id": 296,
+    "name_zh": "薄雾球",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 95,
+    "pp": 5
+  },
+  {
+    "id": 297,
+    "name_zh": "羽毛舞",
+    "type": "飞行",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 298,
+    "name_zh": "摇晃舞",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 299,
+    "name_zh": "火焰踢",
+    "type": "火",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 300,
+    "name_zh": "玩泥巴",
+    "type": "地面",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 301,
+    "name_zh": "冰球",
+    "type": "冰",
+    "category": "物理",
+    "power": 30,
+    "pp": 20
+  },
+  {
+    "id": 302,
+    "name_zh": "尖刺臂",
+    "type": "草",
+    "category": "物理",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 303,
+    "name_zh": "偷懒",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 304,
+    "name_zh": "巨声",
+    "type": "一般",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 305,
+    "name_zh": "剧毒牙",
+    "type": "毒",
+    "category": "物理",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 306,
+    "name_zh": "撕裂爪",
+    "type": "一般",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 307,
+    "name_zh": "爆炸烈焰",
+    "type": "火",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 308,
+    "name_zh": "加农水炮",
+    "type": "水",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 309,
+    "name_zh": "彗星拳",
+    "type": "钢",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 310,
+    "name_zh": "惊吓",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 30,
+    "pp": 15
+  },
+  {
+    "id": 311,
+    "name_zh": "气象球",
+    "type": "一般",
+    "category": "特殊",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 312,
+    "name_zh": "芳香治疗",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 313,
+    "name_zh": "假哭",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 314,
+    "name_zh": "空气利刃",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 315,
+    "name_zh": "过热",
+    "type": "火",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 316,
+    "name_zh": "气味侦测",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 317,
+    "name_zh": "岩石封锁",
+    "type": "岩石",
+    "category": "物理",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 318,
+    "name_zh": "银色旋风",
+    "type": "虫",
+    "category": "特殊",
+    "power": 60,
+    "pp": 5
+  },
+  {
+    "id": 319,
+    "name_zh": "金属音",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 320,
+    "name_zh": "草笛",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 321,
+    "name_zh": "挠痒",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 322,
+    "name_zh": "宇宙力量",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 323,
+    "name_zh": "喷水",
+    "type": "水",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 324,
+    "name_zh": "信号光束",
+    "type": "虫",
+    "category": "特殊",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 325,
+    "name_zh": "暗影拳",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 326,
+    "name_zh": "神通力",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 327,
+    "name_zh": "冲天拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 85,
+    "pp": 15
+  },
+  {
+    "id": 328,
+    "name_zh": "流沙深渊",
+    "type": "地面",
+    "category": "物理",
+    "power": 35,
+    "pp": 15
+  },
+  {
+    "id": 329,
+    "name_zh": "绝对零度",
+    "type": "冰",
+    "category": "特殊",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 330,
+    "name_zh": "浊流",
+    "type": "水",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 331,
+    "name_zh": "种子机关枪",
+    "type": "草",
+    "category": "物理",
+    "power": 25,
+    "pp": 30
+  },
+  {
+    "id": 332,
+    "name_zh": "燕返",
+    "type": "飞行",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 333,
+    "name_zh": "冰锥",
+    "type": "冰",
+    "category": "物理",
+    "power": 25,
+    "pp": 30
+  },
+  {
+    "id": 334,
+    "name_zh": "铁壁",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 335,
+    "name_zh": "挡路",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 336,
+    "name_zh": "长嚎",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 337,
+    "name_zh": "龙爪",
+    "type": "龙",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 338,
+    "name_zh": "疯狂植物",
+    "type": "草",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 339,
+    "name_zh": "健美",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 340,
+    "name_zh": "弹跳",
+    "type": "飞行",
+    "category": "物理",
+    "power": 85,
+    "pp": 5
+  },
+  {
+    "id": 341,
+    "name_zh": "泥巴射击",
+    "type": "地面",
+    "category": "特殊",
+    "power": 55,
+    "pp": 15
+  },
+  {
+    "id": 342,
+    "name_zh": "毒尾",
+    "type": "毒",
+    "category": "物理",
+    "power": 50,
+    "pp": 25
+  },
+  {
+    "id": 343,
+    "name_zh": "渴望",
+    "type": "一般",
+    "category": "物理",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 344,
+    "name_zh": "伏特攻击",
+    "type": "电",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 345,
+    "name_zh": "魔法叶",
+    "type": "草",
+    "category": "特殊",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 346,
+    "name_zh": "玩水",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 347,
+    "name_zh": "冥想",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 348,
+    "name_zh": "叶刃",
+    "type": "草",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 349,
+    "name_zh": "龙之舞",
+    "type": "龙",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 350,
+    "name_zh": "岩石爆击",
+    "type": "岩石",
+    "category": "物理",
+    "power": 25,
+    "pp": 10
+  },
+  {
+    "id": 351,
+    "name_zh": "电击波",
+    "type": "电",
+    "category": "特殊",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 352,
+    "name_zh": "水之波动",
+    "type": "水",
+    "category": "特殊",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 353,
+    "name_zh": "破灭之愿",
+    "type": "钢",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 354,
+    "name_zh": "精神突进",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 355,
+    "name_zh": "羽栖",
+    "type": "飞行",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 356,
+    "name_zh": "重力",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 357,
+    "name_zh": "奇迹之眼",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 358,
+    "name_zh": "唤醒巴掌",
+    "type": "格斗",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 359,
+    "name_zh": "臂锤",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 360,
+    "name_zh": "陀螺球",
+    "type": "钢",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 361,
+    "name_zh": "治愈之愿",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 362,
+    "name_zh": "盐水",
+    "type": "水",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 363,
+    "name_zh": "自然之恩",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 364,
+    "name_zh": "佯攻",
+    "type": "一般",
+    "category": "物理",
+    "power": 30,
+    "pp": 10
+  },
+  {
+    "id": 365,
+    "name_zh": "啄食",
+    "type": "飞行",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 366,
+    "name_zh": "顺风",
+    "type": "飞行",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 367,
+    "name_zh": "点穴",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 368,
+    "name_zh": "金属爆炸",
+    "type": "钢",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 369,
+    "name_zh": "急速折返",
+    "type": "虫",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 370,
+    "name_zh": "近身战",
+    "type": "格斗",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 371,
+    "name_zh": "以牙还牙",
+    "type": "恶",
+    "category": "物理",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 372,
+    "name_zh": "恶意追击",
+    "type": "恶",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 373,
+    "name_zh": "查封",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 374,
+    "name_zh": "投掷",
+    "type": "恶",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 375,
+    "name_zh": "精神转移",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 376,
+    "name_zh": "王牌",
+    "type": "一般",
+    "category": "特殊",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 377,
+    "name_zh": "回复封锁",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 378,
+    "name_zh": "绞紧",
+    "type": "一般",
+    "category": "特殊",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 379,
+    "name_zh": "力量戏法",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 380,
+    "name_zh": "胃液",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 381,
+    "name_zh": "幸运咒语",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 382,
+    "name_zh": "抢先一步",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 383,
+    "name_zh": "仿效",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 384,
+    "name_zh": "力量互换",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 385,
+    "name_zh": "防守互换",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 386,
+    "name_zh": "惩罚",
+    "type": "恶",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 387,
+    "name_zh": "珍藏",
+    "type": "一般",
+    "category": "物理",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 388,
+    "name_zh": "烦恼种子",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 389,
+    "name_zh": "突袭",
+    "type": "恶",
+    "category": "物理",
+    "power": 70,
+    "pp": 5
+  },
+  {
+    "id": 390,
+    "name_zh": "毒菱",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 391,
+    "name_zh": "心灵互换",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 392,
+    "name_zh": "水流环",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 393,
+    "name_zh": "电磁飘浮",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 394,
+    "name_zh": "闪焰冲锋",
+    "type": "火",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 395,
+    "name_zh": "发劲",
+    "type": "格斗",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 396,
+    "name_zh": "波导弹",
+    "type": "格斗",
+    "category": "特殊",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 397,
+    "name_zh": "岩石打磨",
+    "type": "岩石",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 398,
+    "name_zh": "毒击",
+    "type": "毒",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 399,
+    "name_zh": "恶之波动",
+    "type": "恶",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 400,
+    "name_zh": "暗袭要害",
+    "type": "恶",
+    "category": "物理",
+    "power": 70,
+    "pp": 15
+  },
+  {
+    "id": 401,
+    "name_zh": "水流尾",
+    "type": "水",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 402,
+    "name_zh": "种子炸弹",
+    "type": "草",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 403,
+    "name_zh": "空气之刃",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 404,
+    "name_zh": "十字剪",
+    "type": "虫",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 405,
+    "name_zh": "虫鸣",
+    "type": "虫",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 406,
+    "name_zh": "龙之波动",
+    "type": "龙",
+    "category": "特殊",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 407,
+    "name_zh": "龙之俯冲",
+    "type": "龙",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 408,
+    "name_zh": "力量宝石",
+    "type": "岩石",
+    "category": "特殊",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 409,
+    "name_zh": "吸取拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 410,
+    "name_zh": "真空波",
+    "type": "格斗",
+    "category": "特殊",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 411,
+    "name_zh": "真气弹",
+    "type": "格斗",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 412,
+    "name_zh": "能量球",
+    "type": "草",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 413,
+    "name_zh": "勇鸟猛攻",
+    "type": "飞行",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 414,
+    "name_zh": "大地之力",
+    "type": "地面",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 415,
+    "name_zh": "掉包",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 416,
+    "name_zh": "终极冲击",
+    "type": "一般",
+    "category": "物理",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 417,
+    "name_zh": "诡计",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 418,
+    "name_zh": "子弹拳",
+    "type": "钢",
+    "category": "物理",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 419,
+    "name_zh": "雪崩",
+    "type": "冰",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 420,
+    "name_zh": "冰砾",
+    "type": "冰",
+    "category": "物理",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 421,
+    "name_zh": "暗影爪",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 70,
+    "pp": 15
+  },
+  {
+    "id": 422,
+    "name_zh": "雷电牙",
+    "type": "电",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 423,
+    "name_zh": "冰冻牙",
+    "type": "冰",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 424,
+    "name_zh": "火焰牙",
+    "type": "火",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 425,
+    "name_zh": "影子偷袭",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 426,
+    "name_zh": "泥巴炸弹",
+    "type": "地面",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 427,
+    "name_zh": "精神利刃",
+    "type": "超能力",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 428,
+    "name_zh": "意念头锤",
+    "type": "超能力",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 429,
+    "name_zh": "镜光射击",
+    "type": "钢",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 430,
+    "name_zh": "加农光炮",
+    "type": "钢",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 431,
+    "name_zh": "攀岩",
+    "type": "一般",
+    "category": "物理",
+    "power": 90,
+    "pp": 20
+  },
+  {
+    "id": 432,
+    "name_zh": "清除浓雾",
+    "type": "飞行",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 433,
+    "name_zh": "戏法空间",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 434,
+    "name_zh": "流星群",
+    "type": "龙",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 435,
+    "name_zh": "放电",
+    "type": "电",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 436,
+    "name_zh": "喷烟",
+    "type": "火",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 437,
+    "name_zh": "飞叶风暴",
+    "type": "草",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 438,
+    "name_zh": "强力鞭打",
+    "type": "草",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 439,
+    "name_zh": "岩石炮",
+    "type": "岩石",
+    "category": "物理",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 440,
+    "name_zh": "十字毒刃",
+    "type": "毒",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 441,
+    "name_zh": "垃圾射击",
+    "type": "毒",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 442,
+    "name_zh": "铁头",
+    "type": "钢",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 443,
+    "name_zh": "磁铁炸弹",
+    "type": "钢",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 444,
+    "name_zh": "尖石攻击",
+    "type": "岩石",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 445,
+    "name_zh": "诱惑",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 446,
+    "name_zh": "隐形岩",
+    "type": "岩石",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 447,
+    "name_zh": "打草结",
+    "type": "草",
+    "category": "特殊",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 448,
+    "name_zh": "喋喋不休",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 449,
+    "name_zh": "制裁光砾",
+    "type": "一般",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 450,
+    "name_zh": "虫咬",
+    "type": "虫",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 451,
+    "name_zh": "充电光束",
+    "type": "电",
+    "category": "特殊",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 452,
+    "name_zh": "木槌",
+    "type": "草",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 453,
+    "name_zh": "水流喷射",
+    "type": "水",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 454,
+    "name_zh": "攻击指令",
+    "type": "虫",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 455,
+    "name_zh": "防御指令",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 456,
+    "name_zh": "回复指令",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 457,
+    "name_zh": "双刃头锤",
+    "type": "岩石",
+    "category": "物理",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 458,
+    "name_zh": "二连击",
+    "type": "一般",
+    "category": "物理",
+    "power": 35,
+    "pp": 10
+  },
+  {
+    "id": 459,
+    "name_zh": "时光咆哮",
+    "type": "龙",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 460,
+    "name_zh": "亚空裂斩",
+    "type": "龙",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 461,
+    "name_zh": "新月舞",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 462,
+    "name_zh": "捏碎",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 463,
+    "name_zh": "熔岩风暴",
+    "type": "火",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 464,
+    "name_zh": "暗黑洞",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 465,
+    "name_zh": "种子闪光",
+    "type": "草",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 466,
+    "name_zh": "奇异之风",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 60,
+    "pp": 5
+  },
+  {
+    "id": 467,
+    "name_zh": "暗影潜袭",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 468,
+    "name_zh": "磨爪",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 469,
+    "name_zh": "广域防守",
+    "type": "岩石",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 470,
+    "name_zh": "防守平分",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 471,
+    "name_zh": "力量平分",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 472,
+    "name_zh": "奇妙空间",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 473,
+    "name_zh": "精神冲击",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 474,
+    "name_zh": "毒液冲击",
+    "type": "毒",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 475,
+    "name_zh": "身体轻量化",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 476,
+    "name_zh": "愤怒粉",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 477,
+    "name_zh": "意念移物",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 478,
+    "name_zh": "魔法空间",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 479,
+    "name_zh": "击落",
+    "type": "岩石",
+    "category": "物理",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 480,
+    "name_zh": "山岚摔",
+    "type": "格斗",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 481,
+    "name_zh": "烈焰溅射",
+    "type": "火",
+    "category": "特殊",
+    "power": 70,
+    "pp": 15
+  },
+  {
+    "id": 482,
+    "name_zh": "污泥波",
+    "type": "毒",
+    "category": "特殊",
+    "power": 95,
+    "pp": 10
+  },
+  {
+    "id": 483,
+    "name_zh": "蝶舞",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 484,
+    "name_zh": "重磅冲撞",
+    "type": "钢",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 485,
+    "name_zh": "同步干扰",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 486,
+    "name_zh": "电球",
+    "type": "电",
+    "category": "特殊",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 487,
+    "name_zh": "浸水",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 488,
+    "name_zh": "蓄能焰袭",
+    "type": "火",
+    "category": "物理",
+    "power": 50,
+    "pp": 20
+  },
+  {
+    "id": 489,
+    "name_zh": "盘蜷",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 490,
+    "name_zh": "下盘踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 491,
+    "name_zh": "酸液炸弹",
+    "type": "毒",
+    "category": "特殊",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 492,
+    "name_zh": "移花接木",
+    "type": "恶",
+    "category": "物理",
+    "power": 95,
+    "pp": 15
+  },
+  {
+    "id": 493,
+    "name_zh": "单纯光束",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 494,
+    "name_zh": "找伙伴",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 495,
+    "name_zh": "您先请",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 496,
+    "name_zh": "轮唱",
+    "type": "一般",
+    "category": "特殊",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 497,
+    "name_zh": "回声",
+    "type": "一般",
+    "category": "特殊",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 498,
+    "name_zh": "逐步击破",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 499,
+    "name_zh": "清除之烟",
+    "type": "毒",
+    "category": "特殊",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 500,
+    "name_zh": "辅助力量",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 20,
+    "pp": 10
+  },
+  {
+    "id": 501,
+    "name_zh": "快速防守",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 502,
+    "name_zh": "交换场地",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 503,
+    "name_zh": "热水",
+    "type": "水",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 504,
+    "name_zh": "破壳",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 505,
+    "name_zh": "治愈波动",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 506,
+    "name_zh": "祸不单行",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 507,
+    "name_zh": "自由落体",
+    "type": "飞行",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 508,
+    "name_zh": "换档",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 509,
+    "name_zh": "巴投",
+    "type": "格斗",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 510,
+    "name_zh": "烧净",
+    "type": "火",
+    "category": "特殊",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 511,
+    "name_zh": "延后",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 512,
+    "name_zh": "杂技",
+    "type": "飞行",
+    "category": "物理",
+    "power": 55,
+    "pp": 15
+  },
+  {
+    "id": 513,
+    "name_zh": "镜面属性",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 514,
+    "name_zh": "报仇",
+    "type": "一般",
+    "category": "物理",
+    "power": 70,
+    "pp": 5
+  },
+  {
+    "id": 515,
+    "name_zh": "搏命",
+    "type": "格斗",
+    "category": "特殊",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 516,
+    "name_zh": "传递礼物",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 517,
+    "name_zh": "烈火深渊",
+    "type": "火",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 518,
+    "name_zh": "水之誓约",
+    "type": "水",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 519,
+    "name_zh": "火之誓约",
+    "type": "火",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 520,
+    "name_zh": "草之誓约",
+    "type": "草",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 521,
+    "name_zh": "伏特替换",
+    "type": "电",
+    "category": "特殊",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 522,
+    "name_zh": "虫之抵抗",
+    "type": "虫",
+    "category": "特殊",
+    "power": 50,
+    "pp": 20
+  },
+  {
+    "id": 523,
+    "name_zh": "重踏",
+    "type": "地面",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 524,
+    "name_zh": "冰息",
+    "type": "冰",
+    "category": "特殊",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 525,
+    "name_zh": "龙尾",
+    "type": "龙",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 526,
+    "name_zh": "自我激励",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 527,
+    "name_zh": "电网",
+    "type": "电",
+    "category": "特殊",
+    "power": 55,
+    "pp": 15
+  },
+  {
+    "id": 528,
+    "name_zh": "疯狂伏特",
+    "type": "电",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 529,
+    "name_zh": "直冲钻",
+    "type": "地面",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 530,
+    "name_zh": "二连劈",
+    "type": "龙",
+    "category": "物理",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 531,
+    "name_zh": "爱心印章",
+    "type": "超能力",
+    "category": "物理",
+    "power": 60,
+    "pp": 25
+  },
+  {
+    "id": 532,
+    "name_zh": "木角",
+    "type": "草",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 533,
+    "name_zh": "圣剑",
+    "type": "格斗",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 534,
+    "name_zh": "贝壳刃",
+    "type": "水",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 535,
+    "name_zh": "高温重压",
+    "type": "火",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 536,
+    "name_zh": "青草搅拌器",
+    "type": "草",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 537,
+    "name_zh": "疯狂滚压",
+    "type": "虫",
+    "category": "物理",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 538,
+    "name_zh": "棉花防守",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 539,
+    "name_zh": "暗黑爆破",
+    "type": "恶",
+    "category": "特殊",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 540,
+    "name_zh": "精神击破",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 541,
+    "name_zh": "扫尾拍打",
+    "type": "一般",
+    "category": "物理",
+    "power": 25,
+    "pp": 10
+  },
+  {
+    "id": 542,
+    "name_zh": "暴风",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 110,
+    "pp": 10
+  },
+  {
+    "id": 543,
+    "name_zh": "爆炸头突击",
+    "type": "一般",
+    "category": "物理",
+    "power": 120,
+    "pp": 15
+  },
+  {
+    "id": 544,
+    "name_zh": "齿轮飞盘",
+    "type": "钢",
+    "category": "物理",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 545,
+    "name_zh": "火焰弹",
+    "type": "火",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 546,
+    "name_zh": "高科技光炮",
+    "type": "一般",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 547,
+    "name_zh": "古老之歌",
+    "type": "一般",
+    "category": "特殊",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 548,
+    "name_zh": "神秘之剑",
+    "type": "格斗",
+    "category": "特殊",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 549,
+    "name_zh": "冰封世界",
+    "type": "冰",
+    "category": "特殊",
+    "power": 65,
+    "pp": 10
+  },
+  {
+    "id": 550,
+    "name_zh": "雷击",
+    "type": "电",
+    "category": "物理",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 551,
+    "name_zh": "青焰",
+    "type": "火",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 552,
+    "name_zh": "火之舞",
+    "type": "火",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 553,
+    "name_zh": "冰冻伏特",
+    "type": "冰",
+    "category": "物理",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 554,
+    "name_zh": "极寒冷焰",
+    "type": "冰",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 555,
+    "name_zh": "大声咆哮",
+    "type": "恶",
+    "category": "特殊",
+    "power": 55,
+    "pp": 15
+  },
+  {
+    "id": 556,
+    "name_zh": "冰柱坠击",
+    "type": "冰",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 557,
+    "name_zh": "Ｖ热焰",
+    "type": "火",
+    "category": "物理",
+    "power": 180,
+    "pp": 5
+  },
+  {
+    "id": 558,
+    "name_zh": "交错火焰",
+    "type": "火",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 559,
+    "name_zh": "交错闪电",
+    "type": "电",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 560,
+    "name_zh": "飞身重压",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 561,
+    "name_zh": "掀榻榻米",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 562,
+    "name_zh": "打嗝",
+    "type": "毒",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 563,
+    "name_zh": "耕地",
+    "type": "地面",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 564,
+    "name_zh": "黏黏网",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 565,
+    "name_zh": "致命针刺",
+    "type": "虫",
+    "category": "物理",
+    "power": 50,
+    "pp": 25
+  },
+  {
+    "id": 566,
+    "name_zh": "潜灵奇袭",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 567,
+    "name_zh": "万圣夜",
+    "type": "幽灵",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 568,
+    "name_zh": "战吼",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 569,
+    "name_zh": "等离子浴",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 25
+  },
+  {
+    "id": 570,
+    "name_zh": "抛物面充电",
+    "type": "电",
+    "category": "特殊",
+    "power": 65,
+    "pp": 20
+  },
+  {
+    "id": 571,
+    "name_zh": "森林咒术",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 572,
+    "name_zh": "落英缤纷",
+    "type": "草",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 573,
+    "name_zh": "冷冻干燥",
+    "type": "冰",
+    "category": "特殊",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 574,
+    "name_zh": "魅惑之声",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 575,
+    "name_zh": "抛下狠话",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 576,
+    "name_zh": "颠倒",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 577,
+    "name_zh": "吸取之吻",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 578,
+    "name_zh": "戏法防守",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 579,
+    "name_zh": "鲜花防守",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 580,
+    "name_zh": "青草场地",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 581,
+    "name_zh": "薄雾场地",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 582,
+    "name_zh": "输电",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 583,
+    "name_zh": "嬉闹",
+    "type": "妖精",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 584,
+    "name_zh": "妖精之风",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 40,
+    "pp": 30
+  },
+  {
+    "id": 585,
+    "name_zh": "月亮之力",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 95,
+    "pp": 15
+  },
+  {
+    "id": 586,
+    "name_zh": "爆音波",
+    "type": "一般",
+    "category": "特殊",
+    "power": 140,
+    "pp": 10
+  },
+  {
+    "id": 587,
+    "name_zh": "妖精之锁",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 588,
+    "name_zh": "王者盾牌",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 589,
+    "name_zh": "和睦相处",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 590,
+    "name_zh": "密语",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 591,
+    "name_zh": "钻石风暴",
+    "type": "岩石",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 592,
+    "name_zh": "蒸汽爆炸",
+    "type": "水",
+    "category": "特殊",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 593,
+    "name_zh": "异次元洞",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 5
+  },
+  {
+    "id": 594,
+    "name_zh": "飞水手里剑",
+    "type": "水",
+    "category": "特殊",
+    "power": 15,
+    "pp": 20
+  },
+  {
+    "id": 595,
+    "name_zh": "魔法火焰",
+    "type": "火",
+    "category": "特殊",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 596,
+    "name_zh": "尖刺防守",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 597,
+    "name_zh": "芳香薄雾",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 598,
+    "name_zh": "怪异电波",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 599,
+    "name_zh": "毒液陷阱",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 600,
+    "name_zh": "粉尘",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 601,
+    "name_zh": "大地掌控",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 602,
+    "name_zh": "磁场操控",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 603,
+    "name_zh": "欢乐时光",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 604,
+    "name_zh": "电气场地",
+    "type": "电",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 605,
+    "name_zh": "魔法闪耀",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 606,
+    "name_zh": "庆祝",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 607,
+    "name_zh": "牵手",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 608,
+    "name_zh": "圆瞳",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 609,
+    "name_zh": "蹭蹭脸颊",
+    "type": "电",
+    "category": "物理",
+    "power": 20,
+    "pp": 20
+  },
+  {
+    "id": 610,
+    "name_zh": "手下留情",
+    "type": "一般",
+    "category": "物理",
+    "power": 40,
+    "pp": 40
+  },
+  {
+    "id": 611,
+    "name_zh": "纠缠不休",
+    "type": "虫",
+    "category": "特殊",
+    "power": 20,
+    "pp": 20
+  },
+  {
+    "id": 612,
+    "name_zh": "增强拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 613,
+    "name_zh": "归天之翼",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 614,
+    "name_zh": "千箭齐发",
+    "type": "地面",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 615,
+    "name_zh": "千波激荡",
+    "type": "地面",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 616,
+    "name_zh": "大地神力",
+    "type": "地面",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 617,
+    "name_zh": "破灭之光",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 618,
+    "name_zh": "根源波动",
+    "type": "水",
+    "category": "特殊",
+    "power": 110,
+    "pp": 10
+  },
+  {
+    "id": 619,
+    "name_zh": "断崖之剑",
+    "type": "地面",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 620,
+    "name_zh": "画龙点睛",
+    "type": "飞行",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 621,
+    "name_zh": "异次元猛攻",
+    "type": "恶",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 622,
+    "name_zh": "究极无敌大冲撞",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 623,
+    "name_zh": "究极无敌大冲撞",
+    "type": "一般",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 624,
+    "name_zh": "全力无双激烈拳",
+    "type": "格斗",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 625,
+    "name_zh": "全力无双激烈拳",
+    "type": "格斗",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 626,
+    "name_zh": "极速俯冲轰烈撞",
+    "type": "飞行",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 627,
+    "name_zh": "极速俯冲轰烈撞",
+    "type": "飞行",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 628,
+    "name_zh": "强酸剧毒灭绝雨",
+    "type": "毒",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 629,
+    "name_zh": "强酸剧毒灭绝雨",
+    "type": "毒",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 630,
+    "name_zh": "地隆啸天大终结",
+    "type": "地面",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 631,
+    "name_zh": "地隆啸天大终结",
+    "type": "地面",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 632,
+    "name_zh": "毁天灭地巨岩坠",
+    "type": "岩石",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 633,
+    "name_zh": "毁天灭地巨岩坠",
+    "type": "岩石",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 634,
+    "name_zh": "绝对捕食回旋斩",
+    "type": "虫",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 635,
+    "name_zh": "绝对捕食回旋斩",
+    "type": "虫",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 636,
+    "name_zh": "无尽暗夜之诱惑",
+    "type": "幽灵",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 637,
+    "name_zh": "无尽暗夜之诱惑",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 638,
+    "name_zh": "超绝螺旋连击",
+    "type": "钢",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 639,
+    "name_zh": "超绝螺旋连击",
+    "type": "钢",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 640,
+    "name_zh": "超强极限爆焰弹",
+    "type": "火",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 641,
+    "name_zh": "超强极限爆焰弹",
+    "type": "火",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 642,
+    "name_zh": "超级水流大漩涡",
+    "type": "水",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 643,
+    "name_zh": "超级水流大漩涡",
+    "type": "水",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 644,
+    "name_zh": "绚烂缤纷花怒放",
+    "type": "草",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 645,
+    "name_zh": "绚烂缤纷花怒放",
+    "type": "草",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 646,
+    "name_zh": "终极伏特狂雷闪",
+    "type": "电",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 647,
+    "name_zh": "终极伏特狂雷闪",
+    "type": "电",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 648,
+    "name_zh": "至高精神破坏波",
+    "type": "超能力",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 649,
+    "name_zh": "至高精神破坏波",
+    "type": "超能力",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 650,
+    "name_zh": "激狂大地万里冰",
+    "type": "冰",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 651,
+    "name_zh": "激狂大地万里冰",
+    "type": "冰",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 652,
+    "name_zh": "究极巨龙震天地",
+    "type": "龙",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 653,
+    "name_zh": "究极巨龙震天地",
+    "type": "龙",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 654,
+    "name_zh": "黑洞吞噬万物灭",
+    "type": "恶",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 655,
+    "name_zh": "黑洞吞噬万物灭",
+    "type": "恶",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 656,
+    "name_zh": "可爱星星飞天撞",
+    "type": "妖精",
+    "category": "物理",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 657,
+    "name_zh": "可爱星星飞天撞",
+    "type": "妖精",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 658,
+    "name_zh": "皮卡皮卡必杀击",
+    "type": "电",
+    "category": "物理",
+    "power": 210,
+    "pp": 1
+  },
+  {
+    "id": 659,
+    "name_zh": "集沙",
+    "type": "地面",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 660,
+    "name_zh": "迎头一击",
+    "type": "虫",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 661,
+    "name_zh": "碉堡",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 662,
+    "name_zh": "缝影",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 663,
+    "name_zh": "ＤＤ金勾臂",
+    "type": "恶",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 664,
+    "name_zh": "泡影的咏叹调",
+    "type": "水",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 665,
+    "name_zh": "冰锤",
+    "type": "冰",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 666,
+    "name_zh": "花疗",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 667,
+    "name_zh": "十万马力",
+    "type": "地面",
+    "category": "物理",
+    "power": 95,
+    "pp": 10
+  },
+  {
+    "id": 668,
+    "name_zh": "吸取力量",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 669,
+    "name_zh": "日光刃",
+    "type": "草",
+    "category": "物理",
+    "power": 125,
+    "pp": 10
+  },
+  {
+    "id": 670,
+    "name_zh": "树叶",
+    "type": "草",
+    "category": "物理",
+    "power": 40,
+    "pp": 40
+  },
+  {
+    "id": 671,
+    "name_zh": "聚光灯",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 672,
+    "name_zh": "毒丝",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 673,
+    "name_zh": "磨砺",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 30
+  },
+  {
+    "id": 674,
+    "name_zh": "辅助齿轮",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 675,
+    "name_zh": "深渊突刺",
+    "type": "恶",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 676,
+    "name_zh": "花粉团",
+    "type": "虫",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 677,
+    "name_zh": "掷锚",
+    "type": "钢",
+    "category": "物理",
+    "power": 80,
+    "pp": 20
+  },
+  {
+    "id": 678,
+    "name_zh": "精神场地",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 679,
+    "name_zh": "猛扑",
+    "type": "虫",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 680,
+    "name_zh": "火焰鞭",
+    "type": "火",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 681,
+    "name_zh": "嚣张",
+    "type": "恶",
+    "category": "物理",
+    "power": 20,
+    "pp": 10
+  },
+  {
+    "id": 682,
+    "name_zh": "燃尽",
+    "type": "火",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 683,
+    "name_zh": "速度互换",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 684,
+    "name_zh": "修长之角",
+    "type": "钢",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 685,
+    "name_zh": "净化",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 686,
+    "name_zh": "觉醒之舞",
+    "type": "一般",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 687,
+    "name_zh": "核心惩罚者",
+    "type": "龙",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 688,
+    "name_zh": "热带踢",
+    "type": "草",
+    "category": "物理",
+    "power": 70,
+    "pp": 15
+  },
+  {
+    "id": 689,
+    "name_zh": "号令",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 690,
+    "name_zh": "鸟嘴加农炮",
+    "type": "飞行",
+    "category": "物理",
+    "power": 100,
+    "pp": 15
+  },
+  {
+    "id": 691,
+    "name_zh": "鳞片噪音",
+    "type": "龙",
+    "category": "特殊",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 692,
+    "name_zh": "龙锤",
+    "type": "龙",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 693,
+    "name_zh": "狂舞挥打",
+    "type": "恶",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 694,
+    "name_zh": "极光幕",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 695,
+    "name_zh": "遮天蔽日暗影箭",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 180,
+    "pp": 1
+  },
+  {
+    "id": 696,
+    "name_zh": "极恶飞跃粉碎击",
+    "type": "恶",
+    "category": "物理",
+    "power": 180,
+    "pp": 1
+  },
+  {
+    "id": 697,
+    "name_zh": "海神庄严交响乐",
+    "type": "水",
+    "category": "特殊",
+    "power": 195,
+    "pp": 1
+  },
+  {
+    "id": 698,
+    "name_zh": "巨人卫士・阿罗拉",
+    "type": "妖精",
+    "category": "特殊",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 699,
+    "name_zh": "七星夺魂腿",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 195,
+    "pp": 1
+  },
+  {
+    "id": 700,
+    "name_zh": "驾雷驭电戏冲浪",
+    "type": "电",
+    "category": "特殊",
+    "power": 175,
+    "pp": 1
+  },
+  {
+    "id": 701,
+    "name_zh": "认真起来大爆击",
+    "type": "一般",
+    "category": "物理",
+    "power": 210,
+    "pp": 1
+  },
+  {
+    "id": 702,
+    "name_zh": "九彩昇华齐聚顶",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 703,
+    "name_zh": "起源超新星大爆炸",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 185,
+    "pp": 1
+  },
+  {
+    "id": 704,
+    "name_zh": "陷阱甲壳",
+    "type": "火",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 705,
+    "name_zh": "花朵加农炮",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 706,
+    "name_zh": "精神之牙",
+    "type": "超能力",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 707,
+    "name_zh": "跺脚",
+    "type": "地面",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 708,
+    "name_zh": "暗影之骨",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 709,
+    "name_zh": "冲岩",
+    "type": "岩石",
+    "category": "物理",
+    "power": 40,
+    "pp": 20
+  },
+  {
+    "id": 710,
+    "name_zh": "水流裂破",
+    "type": "水",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 711,
+    "name_zh": "棱镜镭射",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 160,
+    "pp": 10
+  },
+  {
+    "id": 712,
+    "name_zh": "暗影偷盗",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 713,
+    "name_zh": "流星闪冲",
+    "type": "钢",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 714,
+    "name_zh": "暗影之光",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 715,
+    "name_zh": "泪眼汪汪",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 716,
+    "name_zh": "麻麻刺刺",
+    "type": "电",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 717,
+    "name_zh": "自然之怒",
+    "type": "妖精",
+    "category": "特殊",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 718,
+    "name_zh": "多属性攻击",
+    "type": "一般",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 719,
+    "name_zh": "千万伏特",
+    "type": "电",
+    "category": "特殊",
+    "power": 195,
+    "pp": 1
+  },
+  {
+    "id": 720,
+    "name_zh": "惊爆大头",
+    "type": "火",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 721,
+    "name_zh": "等离子闪电拳",
+    "type": "电",
+    "category": "物理",
+    "power": 100,
+    "pp": 15
+  },
+  {
+    "id": 722,
+    "name_zh": "光子喷涌",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 723,
+    "name_zh": "炽魂热舞烈音爆",
+    "type": "龙",
+    "category": "特殊",
+    "power": 185,
+    "pp": 1
+  },
+  {
+    "id": 724,
+    "name_zh": "狼啸石牙飓风暴",
+    "type": "岩石",
+    "category": "物理",
+    "power": 190,
+    "pp": 1
+  },
+  {
+    "id": 725,
+    "name_zh": "亲密无间大乱揍",
+    "type": "妖精",
+    "category": "物理",
+    "power": 190,
+    "pp": 1
+  },
+  {
+    "id": 726,
+    "name_zh": "日光回旋下苍穹",
+    "type": "钢",
+    "category": "物理",
+    "power": 200,
+    "pp": 1
+  },
+  {
+    "id": 727,
+    "name_zh": "月华飞溅落灵霄",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 200,
+    "pp": 1
+  },
+  {
+    "id": 728,
+    "name_zh": "焚天灭世炽光爆",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 200,
+    "pp": 1
+  },
+  {
+    "id": 729,
+    "name_zh": "电电加速",
+    "type": "电",
+    "category": "物理",
+    "power": 50,
+    "pp": 15
+  },
+  {
+    "id": 730,
+    "name_zh": "滔滔冲浪",
+    "type": "水",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 731,
+    "name_zh": "飘飘坠落",
+    "type": "飞行",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 732,
+    "name_zh": "闪闪雷光",
+    "type": "电",
+    "category": "特殊",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 733,
+    "name_zh": "活活气泡",
+    "type": "水",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 734,
+    "name_zh": "麻麻电击",
+    "type": "电",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 735,
+    "name_zh": "熊熊火爆",
+    "type": "火",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 736,
+    "name_zh": "哗哗气场",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 737,
+    "name_zh": "坏坏领域",
+    "type": "恶",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 738,
+    "name_zh": "茁茁炸弹",
+    "type": "草",
+    "category": "物理",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 739,
+    "name_zh": "冰冰霜冻",
+    "type": "冰",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 740,
+    "name_zh": "亮亮风暴",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 90,
+    "pp": 15
+  },
+  {
+    "id": 741,
+    "name_zh": "砰砰击破",
+    "type": "一般",
+    "category": "物理",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 742,
+    "name_zh": "钢拳双击",
+    "type": "钢",
+    "category": "物理",
+    "power": 60,
+    "pp": 5
+  },
+  {
+    "id": 743,
+    "name_zh": "极巨防壁",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 744,
+    "name_zh": "极巨炮",
+    "type": "龙",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 745,
+    "name_zh": "狙击",
+    "type": "水",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 746,
+    "name_zh": "紧咬不放",
+    "type": "恶",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 747,
+    "name_zh": "大快朵颐",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 748,
+    "name_zh": "背水一战",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 749,
+    "name_zh": "沥青射击",
+    "type": "岩石",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 750,
+    "name_zh": "魔法粉",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 20
+  },
+  {
+    "id": 751,
+    "name_zh": "龙箭",
+    "type": "龙",
+    "category": "物理",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 752,
+    "name_zh": "茶会",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 753,
+    "name_zh": "蛸固",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 754,
+    "name_zh": "电喙",
+    "type": "电",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 755,
+    "name_zh": "鳃咬",
+    "type": "水",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 756,
+    "name_zh": "换场",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 757,
+    "name_zh": "极巨火爆",
+    "type": "火",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 758,
+    "name_zh": "极巨虫蛊",
+    "type": "虫",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 759,
+    "name_zh": "极巨闪电",
+    "type": "电",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 760,
+    "name_zh": "极巨攻击",
+    "type": "一般",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 761,
+    "name_zh": "极巨拳斗",
+    "type": "格斗",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 762,
+    "name_zh": "极巨幽魂",
+    "type": "幽灵",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 763,
+    "name_zh": "极巨寒冰",
+    "type": "冰",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 764,
+    "name_zh": "极巨酸毒",
+    "type": "毒",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 765,
+    "name_zh": "极巨水流",
+    "type": "水",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 766,
+    "name_zh": "极巨飞冲",
+    "type": "飞行",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 767,
+    "name_zh": "极巨妖精",
+    "type": "妖精",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 768,
+    "name_zh": "极巨龙骑",
+    "type": "龙",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 769,
+    "name_zh": "极巨超能",
+    "type": "超能力",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 770,
+    "name_zh": "极巨岩石",
+    "type": "岩石",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 771,
+    "name_zh": "极巨大地",
+    "type": "地面",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 772,
+    "name_zh": "极巨恶霸",
+    "type": "恶",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 773,
+    "name_zh": "极巨草原",
+    "type": "草",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 774,
+    "name_zh": "极巨钢铁",
+    "type": "钢",
+    "category": "极巨",
+    "power": null,
+    "pp": null
+  },
+  {
+    "id": 775,
+    "name_zh": "魂舞烈音爆",
+    "type": "龙",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 776,
+    "name_zh": "扑击",
+    "type": "格斗",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 777,
+    "name_zh": "装饰",
+    "type": "妖精",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 778,
+    "name_zh": "鼓击",
+    "type": "草",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 779,
+    "name_zh": "捕兽夹",
+    "type": "草",
+    "category": "物理",
+    "power": 35,
+    "pp": 15
+  },
+  {
+    "id": 780,
+    "name_zh": "火焰球",
+    "type": "火",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 781,
+    "name_zh": "巨兽斩",
+    "type": "钢",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 782,
+    "name_zh": "巨兽弹",
+    "type": "钢",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 783,
+    "name_zh": "气场轮",
+    "type": "电",
+    "category": "物理",
+    "power": 110,
+    "pp": 10
+  },
+  {
+    "id": 784,
+    "name_zh": "广域破坏",
+    "type": "龙",
+    "category": "物理",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 785,
+    "name_zh": "木枝突刺",
+    "type": "草",
+    "category": "物理",
+    "power": 40,
+    "pp": 40
+  },
+  {
+    "id": 786,
+    "name_zh": "破音",
+    "type": "电",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 787,
+    "name_zh": "苹果酸",
+    "type": "草",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 788,
+    "name_zh": "万有引力",
+    "type": "草",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 789,
+    "name_zh": "灵魂冲击",
+    "type": "妖精",
+    "category": "物理",
+    "power": 75,
+    "pp": 15
+  },
+  {
+    "id": 790,
+    "name_zh": "神奇蒸汽",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 791,
+    "name_zh": "生命水滴",
+    "type": "水",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 792,
+    "name_zh": "拦堵",
+    "type": "恶",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 793,
+    "name_zh": "假跪真撞",
+    "type": "恶",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 794,
+    "name_zh": "流星突击",
+    "type": "格斗",
+    "category": "物理",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 795,
+    "name_zh": "无极光束",
+    "type": "龙",
+    "category": "特殊",
+    "power": 160,
+    "pp": 5
+  },
+  {
+    "id": 796,
+    "name_zh": "铁蹄光线",
+    "type": "钢",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 797,
+    "name_zh": "广域战力",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 798,
+    "name_zh": "铁滚轮",
+    "type": "钢",
+    "category": "物理",
+    "power": 130,
+    "pp": 5
+  },
+  {
+    "id": 799,
+    "name_zh": "鳞射",
+    "type": "龙",
+    "category": "物理",
+    "power": 25,
+    "pp": 20
+  },
+  {
+    "id": 800,
+    "name_zh": "流星光束",
+    "type": "岩石",
+    "category": "特殊",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 801,
+    "name_zh": "臂贝武器",
+    "type": "毒",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 802,
+    "name_zh": "薄雾炸裂",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 803,
+    "name_zh": "青草滑梯",
+    "type": "草",
+    "category": "物理",
+    "power": 55,
+    "pp": 20
+  },
+  {
+    "id": 804,
+    "name_zh": "电力上升",
+    "type": "电",
+    "category": "特殊",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 805,
+    "name_zh": "大地波动",
+    "type": "一般",
+    "category": "特殊",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 806,
+    "name_zh": "爬击",
+    "type": "虫",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 807,
+    "name_zh": "妒火",
+    "type": "火",
+    "category": "特殊",
+    "power": 70,
+    "pp": 5
+  },
+  {
+    "id": 808,
+    "name_zh": "泄愤",
+    "type": "恶",
+    "category": "物理",
+    "power": 75,
+    "pp": 5
+  },
+  {
+    "id": 809,
+    "name_zh": "灵骚",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 110,
+    "pp": 5
+  },
+  {
+    "id": 810,
+    "name_zh": "腐蚀气体",
+    "type": "毒",
+    "category": "变化",
+    "power": null,
+    "pp": 40
+  },
+  {
+    "id": 811,
+    "name_zh": "指导",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 812,
+    "name_zh": "快速折返",
+    "type": "水",
+    "category": "物理",
+    "power": 60,
+    "pp": 20
+  },
+  {
+    "id": 813,
+    "name_zh": "三旋击",
+    "type": "冰",
+    "category": "物理",
+    "power": 20,
+    "pp": 10
+  },
+  {
+    "id": 814,
+    "name_zh": "双翼",
+    "type": "飞行",
+    "category": "物理",
+    "power": 40,
+    "pp": 10
+  },
+  {
+    "id": 815,
+    "name_zh": "热沙大地",
+    "type": "地面",
+    "category": "特殊",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 816,
+    "name_zh": "丛林治疗",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 817,
+    "name_zh": "暗冥强击",
+    "type": "恶",
+    "category": "物理",
+    "power": 75,
+    "pp": 5
+  },
+  {
+    "id": 818,
+    "name_zh": "水流连打",
+    "type": "水",
+    "category": "物理",
+    "power": 25,
+    "pp": 5
+  },
+  {
+    "id": 819,
+    "name_zh": "雷电囚笼",
+    "type": "电",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 820,
+    "name_zh": "巨龙威能",
+    "type": "龙",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 821,
+    "name_zh": "冰冷视线",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 822,
+    "name_zh": "怒火中烧",
+    "type": "恶",
+    "category": "特殊",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 823,
+    "name_zh": "雷鸣蹴击",
+    "type": "格斗",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 824,
+    "name_zh": "雪矛",
+    "type": "冰",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 825,
+    "name_zh": "星碎",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 826,
+    "name_zh": "诡异咒语",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 5
+  },
+  {
+    "id": 827,
+    "name_zh": "克命爪",
+    "type": "毒",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 828,
+    "name_zh": "屏障猛攻",
+    "type": "超能力",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 829,
+    "name_zh": "力量转换",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 830,
+    "name_zh": "岩斧",
+    "type": "岩石",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 831,
+    "name_zh": "阳春风暴",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 832,
+    "name_zh": "神秘之力",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 833,
+    "name_zh": "大愤慨",
+    "type": "火",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 834,
+    "name_zh": "波动冲",
+    "type": "水",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 835,
+    "name_zh": "叶绿爆震",
+    "type": "草",
+    "category": "特殊",
+    "power": 150,
+    "pp": 5
+  },
+  {
+    "id": 836,
+    "name_zh": "冰山风",
+    "type": "冰",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 837,
+    "name_zh": "胜利之舞",
+    "type": "格斗",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 838,
+    "name_zh": "突飞猛扑",
+    "type": "地面",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 839,
+    "name_zh": "毒千针",
+    "type": "毒",
+    "category": "物理",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 840,
+    "name_zh": "气场之翼",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 841,
+    "name_zh": "冤冤相报",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 842,
+    "name_zh": "闭关",
+    "type": "钢",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 843,
+    "name_zh": "三连箭",
+    "type": "格斗",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 844,
+    "name_zh": "群魔乱舞",
+    "type": "幽灵",
+    "category": "特殊",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 845,
+    "name_zh": "秘剑・千重涛",
+    "type": "恶",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 846,
+    "name_zh": "枯叶风暴",
+    "type": "飞行",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 847,
+    "name_zh": "鸣雷风暴",
+    "type": "电",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 848,
+    "name_zh": "热沙风暴",
+    "type": "地面",
+    "category": "特殊",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 849,
+    "name_zh": "新月祈祷",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 5
+  },
+  {
+    "id": 850,
+    "name_zh": "勇气填充",
+    "type": "超能力",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 851,
+    "name_zh": "太晶爆发",
+    "type": "一般",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 852,
+    "name_zh": "线阱",
+    "type": "虫",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 853,
+    "name_zh": "下压踢",
+    "type": "格斗",
+    "category": "物理",
+    "power": 120,
+    "pp": 10
+  },
+  {
+    "id": 854,
+    "name_zh": "扫墓",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 855,
+    "name_zh": "琉光冲激",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 856,
+    "name_zh": "上菜",
+    "type": "龙",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 857,
+    "name_zh": "喷射拳",
+    "type": "水",
+    "category": "物理",
+    "power": 60,
+    "pp": 15
+  },
+  {
+    "id": 858,
+    "name_zh": "辣椒精华",
+    "type": "草",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 859,
+    "name_zh": "疾速转轮",
+    "type": "钢",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 860,
+    "name_zh": "鼠数儿",
+    "type": "一般",
+    "category": "物理",
+    "power": 20,
+    "pp": 10
+  },
+  {
+    "id": 861,
+    "name_zh": "冰旋",
+    "type": "冰",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 862,
+    "name_zh": "巨剑突击",
+    "type": "龙",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 863,
+    "name_zh": "复生祈祷",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 1
+  },
+  {
+    "id": 864,
+    "name_zh": "盐腌",
+    "type": "岩石",
+    "category": "物理",
+    "power": 40,
+    "pp": 15
+  },
+  {
+    "id": 865,
+    "name_zh": "三连钻",
+    "type": "水",
+    "category": "物理",
+    "power": 30,
+    "pp": 10
+  },
+  {
+    "id": 866,
+    "name_zh": "晶光转转",
+    "type": "毒",
+    "category": "物理",
+    "power": 30,
+    "pp": 15
+  },
+  {
+    "id": 867,
+    "name_zh": "描绘",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 868,
+    "name_zh": "甩肉",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 869,
+    "name_zh": "仆刀",
+    "type": "恶",
+    "category": "物理",
+    "power": 85,
+    "pp": 10
+  },
+  {
+    "id": 870,
+    "name_zh": "千变万花",
+    "type": "草",
+    "category": "物理",
+    "power": 70,
+    "pp": 10
+  },
+  {
+    "id": 871,
+    "name_zh": "闪焰高歌",
+    "type": "火",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 872,
+    "name_zh": "流水旋舞",
+    "type": "水",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 873,
+    "name_zh": "怒牛",
+    "type": "一般",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 874,
+    "name_zh": "淘金潮",
+    "type": "钢",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 875,
+    "name_zh": "精神剑",
+    "type": "超能力",
+    "category": "物理",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 876,
+    "name_zh": "水蒸气",
+    "type": "水",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 877,
+    "name_zh": "大灾难",
+    "type": "恶",
+    "category": "特殊",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 878,
+    "name_zh": "全开猛撞",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 879,
+    "name_zh": "闪电猛冲",
+    "type": "电",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 880,
+    "name_zh": "断尾",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 881,
+    "name_zh": "冷笑话",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 882,
+    "name_zh": "大扫除",
+    "type": "一般",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 883,
+    "name_zh": "雪景",
+    "type": "冰",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 884,
+    "name_zh": "虫扑",
+    "type": "虫",
+    "category": "物理",
+    "power": 50,
+    "pp": 20
+  },
+  {
+    "id": 885,
+    "name_zh": "起草",
+    "type": "草",
+    "category": "物理",
+    "power": 50,
+    "pp": 20
+  },
+  {
+    "id": 886,
+    "name_zh": "泼冷水",
+    "type": "水",
+    "category": "特殊",
+    "power": 50,
+    "pp": 20
+  },
+  {
+    "id": 887,
+    "name_zh": "强力钻",
+    "type": "一般",
+    "category": "物理",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 888,
+    "name_zh": "双光束",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 40,
+    "pp": 10
+  },
+  {
+    "id": 889,
+    "name_zh": "愤怒之拳",
+    "type": "幽灵",
+    "category": "物理",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 890,
+    "name_zh": "铠农炮",
+    "type": "火",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 891,
+    "name_zh": "悔念剑",
+    "type": "火",
+    "category": "物理",
+    "power": 90,
+    "pp": 10
+  },
+  {
+    "id": 892,
+    "name_zh": "电光双击",
+    "type": "电",
+    "category": "物理",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 893,
+    "name_zh": "巨力锤",
+    "type": "钢",
+    "category": "物理",
+    "power": 160,
+    "pp": 5
+  },
+  {
+    "id": 894,
+    "name_zh": "复仇",
+    "type": "恶",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 895,
+    "name_zh": "水波刀",
+    "type": "水",
+    "category": "物理",
+    "power": 70,
+    "pp": 20
+  },
+  {
+    "id": 896,
+    "name_zh": "灼热暴冲",
+    "type": "火",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 897,
+    "name_zh": "黑暗暴冲",
+    "type": "恶",
+    "category": "物理",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 898,
+    "name_zh": "剧毒暴冲",
+    "type": "毒",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 899,
+    "name_zh": "格斗暴冲",
+    "type": "格斗",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 900,
+    "name_zh": "魔法暴冲",
+    "type": "妖精",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 901,
+    "name_zh": "血月",
+    "type": "一般",
+    "category": "特殊",
+    "power": 140,
+    "pp": 5
+  },
+  {
+    "id": 902,
+    "name_zh": "刷刷茶炮",
+    "type": "草",
+    "category": "特殊",
+    "power": 80,
+    "pp": 15
+  },
+  {
+    "id": 903,
+    "name_zh": "糖浆炸弹",
+    "type": "草",
+    "category": "特殊",
+    "power": 60,
+    "pp": 10
+  },
+  {
+    "id": 904,
+    "name_zh": "棘藤棒",
+    "type": "草",
+    "category": "物理",
+    "power": 100,
+    "pp": 10
+  },
+  {
+    "id": 905,
+    "name_zh": "电光束",
+    "type": "电",
+    "category": "特殊",
+    "power": 130,
+    "pp": 10
+  },
+  {
+    "id": 906,
+    "name_zh": "晶光星群",
+    "type": "一般",
+    "category": "特殊",
+    "power": 120,
+    "pp": 5
+  },
+  {
+    "id": 907,
+    "name_zh": "随机光",
+    "type": "龙",
+    "category": "特殊",
+    "power": 80,
+    "pp": 5
+  },
+  {
+    "id": 908,
+    "name_zh": "火焰守护",
+    "type": "火",
+    "category": "变化",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 909,
+    "name_zh": "迅雷",
+    "type": "电",
+    "category": "特殊",
+    "power": 70,
+    "pp": 5
+  },
+  {
+    "id": 910,
+    "name_zh": "强刃攻击",
+    "type": "岩石",
+    "category": "物理",
+    "power": 95,
+    "pp": 5
+  },
+  {
+    "id": 911,
+    "name_zh": "迅子利刃",
+    "type": "钢",
+    "category": "特殊",
+    "power": 50,
+    "pp": 10
+  },
+  {
+    "id": 912,
+    "name_zh": "硬压",
+    "type": "钢",
+    "category": "物理",
+    "power": null,
+    "pp": 10
+  },
+  {
+    "id": 913,
+    "name_zh": "龙声鼓舞",
+    "type": "龙",
+    "category": "变化",
+    "power": null,
+    "pp": 15
+  },
+  {
+    "id": 914,
+    "name_zh": "魅诱之声",
+    "type": "妖精",
+    "category": "特殊",
+    "power": 80,
+    "pp": 10
+  },
+  {
+    "id": 915,
+    "name_zh": "豁出去",
+    "type": "火",
+    "category": "物理",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 916,
+    "name_zh": "闪电强袭",
+    "type": "电",
+    "category": "物理",
+    "power": 100,
+    "pp": 15
+  },
+  {
+    "id": 917,
+    "name_zh": "精神噪音",
+    "type": "超能力",
+    "category": "特殊",
+    "power": 75,
+    "pp": 10
+  },
+  {
+    "id": 918,
+    "name_zh": "快手还击",
+    "type": "格斗",
+    "category": "物理",
+    "power": 65,
+    "pp": 15
+  },
+  {
+    "id": 919,
+    "name_zh": "邪毒锁链",
+    "type": "毒",
+    "category": "特殊",
+    "power": 100,
+    "pp": 5
+  },
+  {
+    "id": 920,
+    "name_zh": "归无之光",
+    "type": "龙",
+    "category": "特殊",
+    "power": 200,
+    "pp": null
+  }
+]

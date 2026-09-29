@@ -13,10 +13,10 @@ public enum TransferMode { Conversion, Fidelity }
 
 public static class EmeraldHgssTransfer
 {
-    public static TransferReport TransferStored(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion) =>
-        Transfer(pokemon, heartGoldPath, outputPath, mode);
+    public static TransferReport TransferStored(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion, int destinationSlot = -1) =>
+        Transfer(pokemon, heartGoldPath, outputPath, mode, destinationSlot);
 
-    public static TransferBatchReport TransferStoredMany(IReadOnlyList<PKM> pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion)
+    public static TransferBatchReport TransferStoredMany(IReadOnlyList<PKM> pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion, int destinationSlot = -1)
     {
         if (pokemon.Count == 0)
             return new(false, outputPath, "未选择宝可梦。", []);
@@ -32,7 +32,7 @@ public static class EmeraldHgssTransfer
             {
                 var nextPath = Path.Combine(Path.GetTempPath(), $"mono-home-batch-{Guid.NewGuid():N}-{index}.sav");
                 temporaryPaths.Add(nextPath);
-                var report = Transfer(entity, currentPath, nextPath, mode);
+                var report = Transfer(entity, currentPath, nextPath, mode, destinationSlot >= 0 ? destinationSlot + index : -1);
                 reports.Add(report);
                 if (!report.Succeeded)
                 {
@@ -58,7 +58,7 @@ public static class EmeraldHgssTransfer
         }
     }
 
-    static TransferReport Transfer(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode)
+    static TransferReport Transfer(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode, int destinationSlot = -1)
     {
         var target = SaveUtil.GetSaveFile(heartGoldPath) as SAV4HGSS ?? throw new InvalidDataException("Invalid HeartGold save.");
         var changes = new List<TransferChange>();
@@ -115,27 +115,30 @@ public static class EmeraldHgssTransfer
         if (mode == TransferMode.Conversion)
             RestoreEmptyMoves(converted, changes);
 
-        var empty = Enumerable.Range(0, target.SlotCount).FirstOrDefault(i => target.GetBoxSlotAtIndex(i).Species == 0, -1);
-        if (empty < 0)
+        var slot = destinationSlot >= 0
+            ? destinationSlot
+            : Enumerable.Range(0, target.SlotCount).FirstOrDefault(i => target.GetBoxSlotAtIndex(i).Species == 0, -1);
+        if (slot < 0 || slot >= target.SlotCount)
             return new(false, converted.Species, conversionResult.ToString(), false, outputPath, "Target save has no empty slot.", changes);
 
-        target.SetBoxSlotAtIndex(converted, empty);
-        var legality = new LegalityAnalysis(target.GetBoxSlotAtIndex(empty));
-        if (!legality.Valid && legality.Report().Contains("Nickname too long.", StringComparison.Ordinal))
+        target.SetBoxSlotAtIndex(converted, slot);
+        var legality = new LegalityAnalysis(target.GetBoxSlotAtIndex(slot));
+        var legalityReport = legality.Report();
+        if (!legality.Valid && legalityReport.Contains("Nickname", StringComparison.Ordinal))
         {
             var defaultNickname = SpeciesName.GetSpeciesNameGeneration(converted.Species, target.Language, (byte)target.Generation);
             changes.Add(new("Nickname", converted.Nickname, defaultNickname));
             converted.Nickname = defaultNickname;
             converted.IsNicknamed = false;
-            target.SetBoxSlotAtIndex(converted, empty);
-            legality = new LegalityAnalysis(target.GetBoxSlotAtIndex(empty));
+            target.SetBoxSlotAtIndex(converted, slot);
+            legality = new LegalityAnalysis(target.GetBoxSlotAtIndex(slot));
         }
         if (!legality.Valid)
             return new(false, converted.Species, conversionResult.ToString(), false, outputPath, legality.Report(), changes);
 
         File.WriteAllBytes(outputPath, target.Write().ToArray());
         var persisted = SaveUtil.GetSaveFile(outputPath) as SAV4HGSS;
-        var persistedSlot = persisted?.GetBoxSlotAtIndex(empty);
+        var persistedSlot = persisted?.GetBoxSlotAtIndex(slot);
         var persistedLegality = persistedSlot is null ? null : new LegalityAnalysis(persistedSlot);
         if (persistedLegality is { Valid: false } && persistedLegality.Report().Contains("Nickname", StringComparison.Ordinal))
         {
@@ -143,10 +146,10 @@ public static class EmeraldHgssTransfer
             changes.Add(new("Nickname", converted.Nickname, defaultNickname));
             converted.Nickname = defaultNickname;
             converted.IsNicknamed = false;
-            target.SetBoxSlotAtIndex(converted, empty);
+            target.SetBoxSlotAtIndex(converted, slot);
             File.WriteAllBytes(outputPath, target.Write().ToArray());
             persisted = SaveUtil.GetSaveFile(outputPath) as SAV4HGSS;
-            persistedSlot = persisted?.GetBoxSlotAtIndex(empty);
+            persistedSlot = persisted?.GetBoxSlotAtIndex(slot);
             persistedLegality = persistedSlot is null ? null : new LegalityAnalysis(persistedSlot);
         }
         if (persisted is null || persistedSlot is null || persistedLegality is null || !persistedLegality.Valid)
@@ -154,7 +157,7 @@ public static class EmeraldHgssTransfer
             try { File.Delete(outputPath); } catch { }
             return new(false, converted.Species, conversionResult.ToString(), false, outputPath, persistedLegality?.Report() ?? "写出后无法重新读取目标存档。", changes);
         }
-        return new(true, converted.Species, conversionResult.ToString(), true, outputPath, $"Written to box slot {empty}.", changes, empty);
+        return new(true, converted.Species, conversionResult.ToString(), true, outputPath, $"Written to box slot {slot}.", changes, slot);
     }
 
     static PKM NormalizeGen3Correlation(PKM pokemon, List<TransferChange> changes)
