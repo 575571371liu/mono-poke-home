@@ -53,6 +53,9 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo")
             return Json("{\"private\":true,\"default_branch\":\"main\",\"permissions\":{\"push\":true},\"name\":\"repo\"}");
 
+        if (request.Method == HttpMethod.Get && path == "/user/repos")
+            return Json("[{\"owner\":{\"login\":\"test\"},\"name\":\"repo\",\"private\":true,\"default_branch\":\"main\",\"permissions\":{\"push\":true}},{\"owner\":{\"login\":\"test\"},\"name\":\"read-only\",\"private\":true,\"default_branch\":\"main\",\"permissions\":{\"push\":false}}]");
+
         if (request.Method == HttpMethod.Get && path == $"/repos/test/repo/contents/{SavePath}")
         {
             var reference = Query(request.RequestUri, "ref");

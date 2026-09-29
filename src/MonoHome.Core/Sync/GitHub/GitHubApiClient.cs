@@ -72,17 +72,29 @@ public sealed class GitHubApiClient
     {
         using var json = await SendAsync(HttpMethod.Get, $"repos/{Segment(owner)}/{Segment(repository)}", null, cancellationToken);
         var root = json.RootElement;
-        var permissions = root.TryGetProperty("permissions", out var permissionElement) ? permissionElement : default;
-        var canPush = permissions.ValueKind == JsonValueKind.Object &&
-            ((permissions.TryGetProperty("push", out var push) && push.GetBoolean()) ||
-             (permissions.TryGetProperty("admin", out var admin) && admin.GetBoolean()) ||
-             (permissions.TryGetProperty("maintain", out var maintain) && maintain.GetBoolean()));
         return new GitHubRepositoryInfo(
             owner,
             repository,
             root.GetProperty("private").GetBoolean(),
             root.GetProperty("default_branch").GetString() ?? "main",
-            canPush);
+            CanPush(root));
+    }
+
+    public async Task<IReadOnlyList<GitHubRepositoryInfo>> ListRepositoriesAsync(CancellationToken cancellationToken)
+    {
+        using var json = await SendAsync(
+            HttpMethod.Get,
+            "user/repos?per_page=100&affiliation=owner%2Ccollaborator%2Corganization_member",
+            null,
+            cancellationToken);
+        return json.RootElement.EnumerateArray()
+            .Select(root => new GitHubRepositoryInfo(
+                root.GetProperty("owner").GetProperty("login").GetString() ?? throw new InvalidDataException("GitHub repository has no owner."),
+                root.GetProperty("name").GetString() ?? throw new InvalidDataException("GitHub repository has no name."),
+                root.GetProperty("private").GetBoolean(),
+                root.GetProperty("default_branch").GetString() ?? "main",
+                CanPush(root)))
+            .ToArray();
     }
 
     public async Task<GitHubFileContent> GetFileAsync(
@@ -280,6 +292,15 @@ public sealed class GitHubApiClient
         {
             return null;
         }
+    }
+
+    static bool CanPush(JsonElement root)
+    {
+        var permissions = root.TryGetProperty("permissions", out var permissionElement) ? permissionElement : default;
+        return permissions.ValueKind == JsonValueKind.Object &&
+            ((permissions.TryGetProperty("push", out var push) && push.GetBoolean()) ||
+             (permissions.TryGetProperty("admin", out var admin) && admin.GetBoolean()) ||
+             (permissions.TryGetProperty("maintain", out var maintain) && maintain.GetBoolean()));
     }
 
     static string Segment(string value) => Uri.EscapeDataString(value);

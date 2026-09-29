@@ -152,6 +152,9 @@ var githubProbe = new GitHubRemoteSaveProvider(
     new RepositoryBinding("github", "test", "repo", "main", DateTimeOffset.UtcNow, 1));
 var githubBinding = await githubProbe.BindRepositoryAsync("test", "repo", CancellationToken.None);
 AssertTrue(githubBinding.Provider == "github" && githubBinding.Owner == "test" && githubBinding.Repository == "repo", "GitHub binding validates private writable repository");
+var accessibleRepositories = await githubApi.ListRepositoriesAsync(CancellationToken.None);
+AssertEqual(2, accessibleRepositories.Count, "GitHub repository discovery lists accessible repositories");
+AssertTrue(accessibleRepositories.Single(repository => repository.Name == "repo").CanPush, "GitHub repository discovery preserves write permission");
 var githubProvider = new GitHubRemoteSaveProvider(githubApi, githubBinding);
 var githubManifest = await githubProvider.GetManifestAsync("main", false, CancellationToken.None);
 AssertEqual(1, githubManifest.Schema, "GitHub manifest schema");

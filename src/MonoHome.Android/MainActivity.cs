@@ -354,7 +354,7 @@ public class MainActivity : Activity
 
         var dialog = new AlertDialog.Builder(this);
         dialog.SetTitle("选择仓库操作");
-        dialog.SetMessage("创建专用仓库会打开 GitHub 的新建私有仓库页面；已有仓库则直接填写 owner 和仓库名。两种方式都会在绑定前验证私有状态和写权限。");
+        dialog.SetMessage("创建专用仓库会打开 GitHub 的新建私有仓库页面；绑定已有仓库会先列出当前账号可写的私有仓库，也支持手动输入。绑定前仍会验证私有状态和写权限。");
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetNeutralButton("创建专用仓库", (_, _) =>
         {
@@ -362,8 +362,59 @@ public class MainActivity : Activity
             StartActivity(new Intent(Intent.ActionView, global::Android.Net.Uri.Parse(url)));
             ShowRepositoryBindingInput(DefaultRemoteRepository);
         });
-        dialog.SetPositiveButton("绑定已有仓库", (_, _) => ShowRepositoryBindingInput());
+        dialog.SetPositiveButton("绑定已有仓库", (_, _) => _ = ShowAvailableRepositoriesAsync());
         dialog.Show();
+    }
+
+    async Task ShowAvailableRepositoriesAsync()
+    {
+        SetBusy(true);
+        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        try
+        {
+            var token = await LoadGithubAccessTokenAsync(operation.Token);
+            using var client = new HttpClient();
+            var api = new GitHubApiClient(client, _ => Task.FromResult(token));
+            var repositories = (await api.ListRepositoriesAsync(operation.Token))
+                .Where(repository => repository.IsPrivate && repository.CanPush)
+                .ToArray();
+            if (repositories.Length == 0)
+            {
+                ShowSyncMessage("绑定已有仓库", "没有发现可写的私有仓库；也可以手动输入 owner 和仓库名。");
+                ShowRepositoryBindingInput();
+                return;
+            }
+
+            var labels = repositories
+                .Select(repository => $"{repository.Owner}/{repository.Name}\n默认分支：{repository.DefaultBranch}")
+                .ToArray();
+            var dialog = new AlertDialog.Builder(this);
+            dialog.SetTitle("选择可写的私有仓库");
+            dialog.SetItems(labels, (_, args) =>
+            {
+                var repository = repositories[args.Which];
+                _ = BindRepositoryAsync(repository.Owner, repository.Name);
+            });
+            dialog.SetNegativeButton("取消", (_, _) => { });
+            dialog.SetNeutralButton("手动输入", (_, _) => ShowRepositoryBindingInput());
+            dialog.Show();
+        }
+        catch (OperationCanceledException)
+        {
+            ShowSyncMessage("绑定已有仓库", "GitHub 请求超时或已取消，请稍后重试。");
+        }
+        catch (GitHubApiException ex)
+        {
+            ShowSyncMessage("绑定已有仓库", ex.UserMessage);
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("绑定已有仓库", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
     }
 
     void ShowRepositoryBindingInput(string? defaultRepository = null)
