@@ -493,7 +493,9 @@ public class MainActivity : Activity
         {
             using var client = new HttpClient();
             var api = new GitHubApiClient(client, _ => Task.FromResult(token));
-            await api.ListRepositoriesAsync(operation.Token);
+            var repositories = await api.ListRepositoriesAsync(operation.Token);
+            if (!repositories.Any(repository => repository.IsWritablePrivate))
+                throw new InvalidOperationException("PAT 无法访问任何可写的私有仓库，请检查仓库范围和 Contents 读写权限。");
             await new AndroidTokenStore(this).SaveTokenAsync(token, operation.Token);
             status!.Text = "PAT 已校验并保存，请继续绑定私有存档仓库。";
             await ShowRepositoryDialogAsync();

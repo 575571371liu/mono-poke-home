@@ -11,7 +11,10 @@ public sealed record GitHubRepositoryInfo(
     string Name,
     bool IsPrivate,
     string DefaultBranch,
-    bool CanPush);
+    bool CanPush)
+{
+    public bool IsWritablePrivate => IsPrivate && CanPush;
+}
 
 public sealed record GitHubFileContent(string Path, string BlobSha, byte[] Content);
 

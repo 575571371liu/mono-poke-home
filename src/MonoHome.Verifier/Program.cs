@@ -155,6 +155,7 @@ AssertTrue(githubBinding.Provider == "github" && githubBinding.Owner == "test" &
 var accessibleRepositories = await githubApi.ListRepositoriesAsync(CancellationToken.None);
 AssertEqual(2, accessibleRepositories.Count, "GitHub repository discovery lists accessible repositories");
 AssertTrue(accessibleRepositories.Single(repository => repository.Name == "repo").CanPush, "GitHub repository discovery preserves write permission");
+AssertTrue(accessibleRepositories.Single(repository => repository.Name == "repo").IsWritablePrivate, "PAT preflight accepts a writable private repository");
 var githubProvider = new GitHubRemoteSaveProvider(githubApi, githubBinding);
 var githubManifest = await githubProvider.GetManifestAsync("main", false, CancellationToken.None);
 AssertEqual(1, githubManifest.Schema, "GitHub manifest schema");
