@@ -36,6 +36,9 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/commits")
             return Json("[{\"sha\":\"commit-1\",\"commit\":{\"message\":\"seed\",\"committer\":{\"date\":\"2026-09-29T00:00:00Z\"}},\"parents\":[]}]");
 
+        if (request.Method == HttpMethod.Get && path == "/repos/test/repo/branches")
+            return Json("[{\"name\":\"main\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/emerald/test-lineage\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/heartgold/other-lineage\",\"commit\":{\"sha\":\"heartgold-1\"}}]");
+
         if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/saves/emerald/emerald.srm")
             return Json("{\"content\":{\"sha\":\"blob-2\"},\"commit\":{\"sha\":\"commit-2\"}}");
 

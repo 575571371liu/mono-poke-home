@@ -550,7 +550,7 @@ public class MainActivity : Activity
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             using var client = new HttpClient();
             var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
-            var versions = await provider.ListVersionsAsync(saveKey, saveBinding.LineageId, operation.Token);
+            var versions = await provider.ListAllVersionsAsync(saveKey, saveBinding.LineageId, operation.Token);
             if (versions.Count == 0)
             {
                 ShowSyncMessage("历史版本", "当前存档线还没有可选择的历史版本。");
@@ -558,7 +558,7 @@ public class MainActivity : Activity
             }
 
             var labels = versions.Select((version, index) =>
-                $"v{versions.Count - index} · {version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n{version.CommitSha}\n{version.Message}\n存档线：{version.LineageId}").ToArray();
+                $"v{versions.Count - index}{(version.LineageId == saveBinding.LineageId ? " · 当前线" : " · 其他线")} · {version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n{version.CommitSha}\n{version.Message}\n存档线：{version.LineageId}").ToArray();
             var dialog = new AlertDialog.Builder(this);
             dialog.SetTitle("选择历史版本");
             dialog.SetItems(labels, (_, args) => ConfirmSaveVersionPull(saveKey, versions[args.Which]));

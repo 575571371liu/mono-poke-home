@@ -28,6 +28,8 @@ public sealed record GitHubPutContentResult(
 
 public sealed record GitHubReference(string Ref, string Sha);
 
+public sealed record GitHubBranchInfo(string Name, string CommitSha);
+
 public sealed class GitHubApiException(HttpStatusCode statusCode, string message, TimeSpan? retryAfter = null)
     : HttpRequestException(message, null, statusCode)
 {
@@ -120,6 +122,23 @@ public sealed class GitHubApiClient
         var endpoint = $"repos/{Segment(owner)}/{Segment(repository)}/commits?path={Uri.EscapeDataString(path)}&sha={Uri.EscapeDataString(branch)}&per_page=100";
         using var json = await SendAsync(HttpMethod.Get, endpoint, null, cancellationToken);
         return json.RootElement.EnumerateArray().Select(ParseCommit).ToArray();
+    }
+
+    public async Task<IReadOnlyList<GitHubBranchInfo>> ListBranchesAsync(
+        string owner,
+        string repository,
+        CancellationToken cancellationToken)
+    {
+        using var json = await SendAsync(
+            HttpMethod.Get,
+            $"repos/{Segment(owner)}/{Segment(repository)}/branches?per_page=100",
+            null,
+            cancellationToken);
+        return json.RootElement.EnumerateArray()
+            .Select(branch => new GitHubBranchInfo(
+                branch.GetProperty("name").GetString() ?? throw new InvalidDataException("GitHub branch response has no name."),
+                branch.GetProperty("commit").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub branch response has no commit SHA.")))
+            .ToArray();
     }
 
     public async Task<GitHubPutContentResult> PutFileAsync(

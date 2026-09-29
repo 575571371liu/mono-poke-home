@@ -106,6 +106,30 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
             commit.ParentSha)).ToArray();
     }
 
+    public async Task<IReadOnlyList<RemoteSaveVersion>> ListAllVersionsAsync(
+        string saveKey,
+        string activeLineageId,
+        CancellationToken cancellationToken)
+    {
+        var branches = await api.ListBranchesAsync(binding.Owner, binding.Repository, cancellationToken);
+        var prefix = $"save/{saveKey}/";
+        var lineages = branches
+            .Select(branch => branch.Name)
+            .Where(name => string.Equals(name, binding.DefaultBranch, StringComparison.Ordinal) ||
+                string.Equals(name, activeLineageId, StringComparison.Ordinal) ||
+                name.StartsWith(prefix, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        var versions = new List<RemoteSaveVersion>();
+        foreach (var lineageId in lineages)
+            versions.AddRange(await ListVersionsAsync(saveKey, lineageId, cancellationToken));
+        return versions
+            .GroupBy(version => $"{version.LineageId}:{version.CommitSha}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .OrderByDescending(version => version.ModifiedAt)
+            .ToArray();
+    }
+
     public async Task<byte[]> DownloadAsync(RemoteSaveVersion version, CancellationToken cancellationToken)
     {
         var file = await api.GetFileAsync(binding.Owner, binding.Repository, GetPath(version.SaveKey), version.CommitSha, cancellationToken);
