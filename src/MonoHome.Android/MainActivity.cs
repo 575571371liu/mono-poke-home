@@ -526,6 +526,13 @@ public class MainActivity : Activity
         dialog.Show();
     }
 
+    static string CreateSaveRecoveryPoint(RegisteredSave save)
+    {
+        var recoveryPath = $"{save.SnapshotPath}.{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}.{Guid.NewGuid():N}.recovery";
+        File.Copy(save.SnapshotPath, recoveryPath, overwrite: false);
+        return recoveryPath;
+    }
+
     void ShowSaveSyncActions(string saveKey)
     {
         var dialog = new AlertDialog.Builder(this);
@@ -618,9 +625,11 @@ public class MainActivity : Activity
             {
                 var local = File.ReadAllBytes(current.SnapshotPath);
                 var snapshot = new LocalSaveSnapshot(saveKey, local, SaveSyncService.ComputeHash(local), DateTimeOffset.UtcNow);
+                var recoveryPath = CreateSaveRecoveryPoint(current);
                 result = createLineage
                     ? await service.ForkAndUploadAsync(snapshot, repository, saveBinding, operation.Token)
                     : await service.UploadAsync(snapshot, repository, saveBinding, operation.Token);
+                result = result with { RecoveryPointPath = recoveryPath };
             }
             else
             {
@@ -648,8 +657,11 @@ public class MainActivity : Activity
                 result.State.BaseCommitSha,
                 result.State.RemoteLatest?.ContentHash ?? result.State.LocalHash), operation.Token);
             UpdateButtons();
-            status!.Text = result.Message;
-            ShowSyncMessage("存档同步完成", result.Message);
+            var completionMessage = result.RecoveryPointPath is null
+                ? result.Message
+                : $"{result.Message}\n\n本地 recovery：{result.RecoveryPointPath}";
+            status!.Text = completionMessage;
+            ShowSyncMessage("存档同步完成", completionMessage);
         }
         catch (OperationCanceledException)
         {
