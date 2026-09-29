@@ -41,6 +41,7 @@ public sealed class GitHubApiException(HttpStatusCode statusCode, string message
         HttpStatusCode.Forbidden => "GitHub 拒绝了仓库访问，请检查仓库权限或请求频率。",
         HttpStatusCode.NotFound => "GitHub 仓库或存档文件不存在。",
         HttpStatusCode.Conflict => "远端存档已被其他设备修改，请先刷新版本。",
+        HttpStatusCode.UnprocessableEntity => "GitHub 拒绝了请求参数，请检查仓库、分支或存档线。",
         (HttpStatusCode)429 => "GitHub 请求过于频繁，请稍后重试。",
         _ => $"GitHub 请求失败（{(int?)StatusCode}）。",
     };
@@ -192,24 +193,50 @@ public sealed class GitHubApiClient
 
     async Task<JsonDocument> SendAsync(HttpMethod method, string endpoint, HttpContent? content, CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(method, endpoint) { Content = content };
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
-        request.Headers.Add("X-GitHub-Api-Version", ApiVersion);
-        request.Headers.UserAgent.ParseAdd("MonoHome/1.1");
-        var token = await accessTokenProvider(cancellationToken);
-        if (string.IsNullOrWhiteSpace(token))
-            throw new InvalidOperationException("GitHub access token is missing.");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        var body = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (!response.IsSuccessStatusCode)
+        var retryable = method == HttpMethod.Get;
+        for (var attempt = 0; ; attempt++)
         {
-            var message = TryGetErrorMessage(body) ?? response.ReasonPhrase ?? "GitHub request failed.";
-            var retryAfter = response.Headers.RetryAfter?.Delta;
-            throw new GitHubApiException(response.StatusCode, message, retryAfter);
+            try
+            {
+                using var request = new HttpRequestMessage(method, endpoint) { Content = content };
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+                request.Headers.Add("X-GitHub-Api-Version", ApiVersion);
+                request.Headers.UserAgent.ParseAdd("MonoHome/1.1");
+                var token = await accessTokenProvider(cancellationToken);
+                if (string.IsNullOrWhiteSpace(token))
+                    throw new InvalidOperationException("GitHub access token is missing.");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                if (response.IsSuccessStatusCode)
+                    return JsonDocument.Parse(body);
+
+                var message = TryGetErrorMessage(body) ?? response.ReasonPhrase ?? "GitHub request failed.";
+                var retryAfter = response.Headers.RetryAfter?.Delta;
+                if (!retryable || attempt >= 2 || !IsTransient(response.StatusCode))
+                    throw new GitHubApiException(response.StatusCode, message, retryAfter);
+                await Task.Delay(GetRetryDelay(attempt, retryAfter), cancellationToken);
+            }
+            catch (HttpRequestException ex) when (ex is not GitHubApiException && retryable && attempt < 2)
+            {
+                await Task.Delay(GetRetryDelay(attempt, null), cancellationToken);
+            }
         }
-        return JsonDocument.Parse(body);
+    }
+
+    static bool IsTransient(HttpStatusCode statusCode) =>
+        statusCode == (HttpStatusCode)429 ||
+        statusCode == HttpStatusCode.BadGateway ||
+        statusCode == HttpStatusCode.ServiceUnavailable ||
+        statusCode == HttpStatusCode.GatewayTimeout;
+
+    static TimeSpan GetRetryDelay(int attempt, TimeSpan? retryAfter)
+    {
+        var serverDelay = retryAfter.GetValueOrDefault();
+        if (serverDelay > TimeSpan.Zero)
+            return TimeSpan.FromSeconds(Math.Min(30, serverDelay.TotalSeconds));
+        return TimeSpan.FromSeconds(Math.Pow(2, attempt));
     }
 
     static GitHubCommitInfo ParseCommit(JsonElement element)

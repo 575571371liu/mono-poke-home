@@ -9,11 +9,23 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
 
     public List<HttpRequestMessage> Requests { get; } = [];
     public bool ManifestMissing { get; set; }
+    public int TransientGetFailures { get; set; }
+    public bool ReturnUnprocessable { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         Requests.Add(request);
         var path = request.RequestUri!.AbsolutePath;
+        if (ReturnUnprocessable)
+            return new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+            {
+                Content = new StringContent("{\"message\":\"invalid branch\"}", Encoding.UTF8, "application/json"),
+            };
+        if (request.Method == HttpMethod.Get && TransientGetFailures > 0)
+        {
+            TransientGetFailures--;
+            return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+        }
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo")
             return Json("{\"private\":true,\"default_branch\":\"main\",\"permissions\":{\"push\":true},\"name\":\"repo\"}");
 

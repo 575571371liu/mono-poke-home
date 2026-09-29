@@ -142,6 +142,23 @@ var githubHistory = await githubProvider.ListVersionsAsync("emerald", "save/emer
 AssertTrue(githubHistory.Count == 1 && githubHistory[0].ContentHash is null && githubHistory[0].LineageId == "save/emerald/test-lineage", "GitHub history keeps lineage and defers content hash");
 var githubAllHistory = await githubProvider.ListAllVersionsAsync("emerald", "save/emerald/test-lineage", CancellationToken.None);
 AssertTrue(githubAllHistory.Count == 2 && githubAllHistory.Select(version => version.LineageId).Distinct().Count() == 2, "GitHub history includes current and save-specific lineages");
+var retryHandler = new GitHubFakeHttpHandler { TransientGetFailures = 1 };
+using var retryHttp = new HttpClient(retryHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var retryProvider = new GitHubRemoteSaveProvider(new GitHubApiClient(retryHttp, _ => Task.FromResult("test-token")), githubBinding);
+AssertTrue((await retryProvider.GetLatestAsync("emerald", "main", CancellationToken.None)) is not null, "GitHub GET retries transient service failure");
+var invalidHandler = new GitHubFakeHttpHandler { ReturnUnprocessable = true };
+using var invalidHttp = new HttpClient(invalidHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var invalidApi = new GitHubApiClient(invalidHttp, _ => Task.FromResult("test-token"));
+GitHubApiException? invalidError = null;
+try
+{
+    await invalidApi.GetRepositoryAsync("test", "repo", CancellationToken.None);
+}
+catch (GitHubApiException ex)
+{
+    invalidError = ex;
+}
+AssertTrue(invalidError is not null && invalidError.UserMessage.Contains("请求参数", StringComparison.Ordinal), "GitHub 422 error has user message");
 var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
