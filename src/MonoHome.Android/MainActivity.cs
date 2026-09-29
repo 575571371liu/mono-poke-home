@@ -15,7 +15,10 @@ using System.Text.Json.Serialization;
 using PKHeX.Core;
 using MonoHome.Core.Repository;
 using MonoHome.Core.Saves;
+using MonoHome.Core.Sync;
+using MonoHome.Core.Sync.GitHub;
 using MonoHome.Core.Transfers;
+using MonoHome.Android.Sync;
 
 [Activity(Label = "@string/app_name", MainLauncher = true, Theme = "@style/AppTheme")]
 public class MainActivity : Activity
@@ -36,6 +39,8 @@ public class MainActivity : Activity
     Button? refreshSavesButton;
     Button? warehouseFilterButton;
     Button? settingsButton;
+    Button? emeraldSyncButton;
+    Button? heartGoldSyncButton;
     Button? navHome;
     Button? navSaves;
     Button? navEmerald;
@@ -153,6 +158,8 @@ public class MainActivity : Activity
         refreshSavesButton = FindViewById<Button>(Resource.Id.refresh_saves_button);
         warehouseFilterButton = FindViewById<Button>(Resource.Id.warehouse_filter_button);
         settingsButton = FindViewById<Button>(Resource.Id.settings_button);
+        emeraldSyncButton = FindViewById<Button>(Resource.Id.emerald_sync_button);
+        heartGoldSyncButton = FindViewById<Button>(Resource.Id.heartgold_sync_button);
         navHome = FindViewById<Button>(Resource.Id.nav_home);
         navSaves = FindViewById<Button>(Resource.Id.nav_saves);
         navEmerald = FindViewById<Button>(Resource.Id.nav_emerald);
@@ -249,6 +256,8 @@ public class MainActivity : Activity
         refreshSavesButton!.Click += async (_, _) => await RefreshRegisteredSavesAsync();
         warehouseFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog();
         settingsButton!.Click += (_, _) => ShowSettingsDialog();
+        emeraldSyncButton!.Click += async (_, _) => await ShowSaveSyncDialogAsync("emerald");
+        heartGoldSyncButton!.Click += async (_, _) => await ShowSaveSyncDialogAsync("heartgold");
         navHome!.Click += (_, _) => SwitchPage("warehouse", navHome);
         navEmerald!.Click += (_, _) => SwitchPage("emerald", navEmerald);
         navHeartGold!.Click += (_, _) => SwitchPage("heartgold", navHeartGold);
@@ -268,13 +277,168 @@ public class MainActivity : Activity
     void ShowSettingsDialog()
     {
         var saves = new[] { emeraldSave, heartGoldSave, otherSave }.Count(save => save is not null);
-        var message = $"版本：本地仓库模式\n存档：{saves} 个已登记\n仓库：{allWarehouse.Count} 条记录\n\n所有数据只保存在本机，不会上传网络。";
+        var message = $"版本：本地仓库模式\n存档：{saves} 个已登记\n仓库：{allWarehouse.Count} 条记录\n\n中央仓库默认只保存在本机。远程存档同步为可选功能，仅在你绑定私有仓库并主动操作时访问网络。";
         var dialog = new AlertDialog.Builder(this);
         dialog.SetTitle("设置");
         dialog.SetMessage(message);
         dialog.SetNegativeButton("关闭", (_, _) => { });
         dialog.SetNeutralButton("刷新存档", async (_, _) => await RefreshRegisteredSavesAsync());
         dialog.SetPositiveButton("检查版本更新", async (_, _) => await CheckForUpdatesAsync());
+        dialog.Show();
+    }
+
+    async Task ShowSaveSyncDialogAsync(string saveKey)
+    {
+        var requestCode = saveKey == "emerald" ? EmeraldRequest : HeartGoldRequest;
+        var current = saveKey == "emerald" ? emeraldSave : heartGoldSave;
+        if (current is null)
+        {
+            ShowSyncMessage("存档同步", "请先导入对应存档。");
+            return;
+        }
+
+        SetBusy(true);
+        try
+        {
+            await RefreshRegisteredSaveAsync(requestCode);
+            current = saveKey == "emerald" ? emeraldSave : heartGoldSave;
+            if (current is null)
+            {
+                ShowSyncMessage("存档同步", "存档刷新失败，请重新导入。");
+                return;
+            }
+            var save = current;
+
+            var local = File.ReadAllBytes(save.SnapshotPath);
+            var localHash = SaveSyncService.ComputeHash(local);
+            var bindingStore = new AndroidRepositoryBindingStore(this);
+            var repository = await bindingStore.LoadRepositoryAsync();
+            var token = await new AndroidTokenStore(this).LoadTokenAsync();
+            if (repository is null || string.IsNullOrWhiteSpace(token))
+            {
+                ShowSyncMessage("存档同步", $"本地 SHA-256：{localHash}\n\n尚未绑定远端仓库或 GitHub 账号。\n远程同步需要先完成私有仓库绑定。");
+                return;
+            }
+
+            using var client = new HttpClient();
+            var api = new GitHubApiClient(client, _ => Task.FromResult(token));
+            var provider = new GitHubRemoteSaveProvider(api, repository);
+            var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey)
+                ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
+            var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, CancellationToken.None);
+            var state = new SaveSyncService(provider).Compare(saveKey, local, saveBinding, remote);
+            var message = $"仓库：{repository.Owner}/{repository.Repository}\n本地 SHA-256：{state.LocalHash}\n远端版本：{remote?.CommitSha ?? "尚无远端存档"}\n状态：{SyncStatusText(state.Status)}";
+            var dialog = new AlertDialog.Builder(this);
+            dialog.SetTitle($"{save.DisplayName} · 存档同步");
+            dialog.SetMessage(message);
+            dialog.SetNegativeButton("关闭", (_, _) => { });
+            dialog.SetNeutralButton("上传", (_, _) => ConfirmSaveSyncAction(saveKey, true));
+            dialog.SetPositiveButton("拉取", (_, _) => ConfirmSaveSyncAction(saveKey, false));
+            dialog.Show();
+        }
+        catch (GitHubApiException ex)
+        {
+            ShowSyncMessage("存档同步失败", ex.UserMessage);
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("存档同步失败", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    void ConfirmSaveSyncAction(string saveKey, bool upload)
+    {
+        var action = upload ? "上传本地存档并创建远端版本" : "用远端版本覆盖本地快照";
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle(upload ? "确认上传" : "确认拉取");
+        dialog.SetMessage($"将要{action}。{(upload ? "远端内容不一致时不会直接覆盖。" : "当前本地快照会先保存为 recovery 文件。")}");
+        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetPositiveButton("确认", async (_, _) => await RunSaveSyncActionAsync(saveKey, upload));
+        dialog.Show();
+    }
+
+    async Task RunSaveSyncActionAsync(string saveKey, bool upload)
+    {
+        SetBusy(true);
+        try
+        {
+            var requestCode = saveKey == "emerald" ? EmeraldRequest : HeartGoldRequest;
+            await RefreshRegisteredSaveAsync(requestCode);
+            var current = saveKey == "emerald" ? emeraldSave : heartGoldSave;
+            if (current is null)
+                throw new InvalidOperationException("请先导入对应存档。");
+
+            var bindingStore = new AndroidRepositoryBindingStore(this);
+            var repository = await bindingStore.LoadRepositoryAsync() ?? throw new InvalidOperationException("尚未绑定远端仓库。");
+            var token = await new AndroidTokenStore(this).LoadTokenAsync() ?? throw new InvalidOperationException("尚未连接 GitHub 账号。");
+            var saveBinding = await bindingStore.LoadSaveBindingAsync(saveKey)
+                ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
+            using var client = new HttpClient();
+            var provider = new GitHubRemoteSaveProvider(new GitHubApiClient(client, _ => Task.FromResult(token)), repository);
+            var service = new SaveSyncService(provider);
+            SyncOperationResult result;
+            if (upload)
+            {
+                var local = File.ReadAllBytes(current.SnapshotPath);
+                result = await service.UploadAsync(
+                    new LocalSaveSnapshot(saveKey, local, SaveSyncService.ComputeHash(local), DateTimeOffset.UtcNow),
+                    repository,
+                    saveBinding,
+                    CancellationToken.None);
+            }
+            else
+            {
+                var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, CancellationToken.None)
+                    ?? throw new InvalidOperationException("远端还没有这个存档版本。");
+                result = await service.PullAsync(current, remote, repository, saveBinding, CancellationToken.None);
+                if (saveKey == "emerald")
+                    emeraldSave = SaveRegistry.Get(SavesPath, current.Id);
+                else
+                    heartGoldSave = SaveRegistry.Get(SavesPath, current.Id);
+            }
+
+            await bindingStore.SaveSaveBindingAsync(new SaveRemoteBinding(
+                saveKey,
+                result.State.LineageId,
+                result.State.BaseCommitSha,
+                result.State.RemoteLatest?.ContentHash ?? result.State.LocalHash));
+            UpdateButtons();
+            status!.Text = result.Message;
+            ShowSyncMessage("存档同步完成", result.Message);
+        }
+        catch (GitHubApiException ex)
+        {
+            ShowSyncMessage("存档同步失败", ex.UserMessage);
+        }
+        catch (Exception ex)
+        {
+            ShowSyncMessage("存档同步失败", ex.Message);
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    static string SyncStatusText(SyncStatus status) => status switch
+    {
+        SyncStatus.Aligned => "已对齐",
+        SyncStatus.LocalNewer => "本地较新，可上传",
+        SyncStatus.RemoteNewer => "远端较新，可拉取",
+        SyncStatus.Diverged => "两端分叉，请先选择版本",
+        _ => "尚未建立同步基线",
+    };
+
+    void ShowSyncMessage(string title, string message)
+    {
+        var dialog = new AlertDialog.Builder(this);
+        dialog.SetTitle(title);
+        dialog.SetMessage(message);
+        dialog.SetPositiveButton("关闭", (_, _) => { });
         dialog.Show();
     }
 
