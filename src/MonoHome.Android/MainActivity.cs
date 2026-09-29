@@ -557,9 +557,10 @@ public class MainActivity : Activity
     void ConfirmSaveForkAction(string saveKey)
     {
         var dialog = new AlertDialog.Builder(this);
-        dialog.SetTitle("创建新的存档线");
-        dialog.SetMessage("远端和本地都已偏离共同基线。将从本地基线 commit 创建新存档线，再上传当前本地内容；原有远端历史不会被覆盖。");
-        dialog.SetNegativeButton("取消", (_, _) => { });
+        dialog.SetTitle("两端都有修改");
+        dialog.SetMessage("远端和本地都已偏离共同基线。请选择如何处理；返回可取消，不会自动覆盖任何一方。");
+        dialog.SetNegativeButton("使用远端最新", async (_, _) => await RunSaveSyncActionAsync(saveKey, false));
+        dialog.SetNeutralButton("查看历史", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
         dialog.SetPositiveButton("创建并上传", async (_, _) => await RunSaveSyncActionAsync(saveKey, true, null, true));
         dialog.Show();
     }
