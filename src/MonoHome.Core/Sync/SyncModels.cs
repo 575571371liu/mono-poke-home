@@ -1,5 +1,31 @@
 namespace MonoHome.Core.Sync;
 
+public sealed record SaveManifestEntry(string DisplayName, string Path, string Format);
+
+public sealed record SaveRepositoryManifest(
+    int Schema,
+    string App,
+    IReadOnlyDictionary<string, SaveManifestEntry> Saves)
+{
+    public static SaveRepositoryManifest CreateDefault() => new(
+        1,
+        "mono-home",
+        new Dictionary<string, SaveManifestEntry>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["emerald"] = new("绿宝石", "saves/emerald/emerald.srm", "srm"),
+            ["heartgold"] = new("心金", "saves/heartgold/heartgold.sav", "sav"),
+            ["soulsilver"] = new("魂银", "saves/soulsilver/soulsilver.sav", "sav"),
+        });
+
+    public void Validate()
+    {
+        if (Schema != 1 || !string.Equals(App, "mono-home", StringComparison.Ordinal))
+            throw new InvalidDataException("Unsupported MONO / HOME repository manifest.");
+        if (Saves.Count == 0 || Saves.Any(pair => string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value.Path)))
+            throw new InvalidDataException("MONO / HOME repository manifest has no valid saves.");
+    }
+}
+
 public sealed record RepositoryBinding(
     string Provider,
     string Owner,

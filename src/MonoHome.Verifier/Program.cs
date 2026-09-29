@@ -93,6 +93,9 @@ var githubProbe = new GitHubRemoteSaveProvider(
 var githubBinding = await githubProbe.BindRepositoryAsync("test", "repo", CancellationToken.None);
 AssertTrue(githubBinding.Provider == "github" && githubBinding.Owner == "test" && githubBinding.Repository == "repo", "GitHub binding validates private writable repository");
 var githubProvider = new GitHubRemoteSaveProvider(githubApi, githubBinding);
+var githubManifest = await githubProvider.GetManifestAsync("main", false, CancellationToken.None);
+AssertEqual(1, githubManifest.Schema, "GitHub manifest schema");
+AssertEqual("saves/emerald/emerald.srm", githubManifest.Saves["emerald"].Path, "GitHub manifest save path");
 var githubLatest = await githubProvider.GetLatestAsync("emerald", "main", CancellationToken.None);
 AssertTrue(githubLatest is not null && githubLatest.CommitSha == "commit-1" && githubLatest.BlobSha == "blob-1", "GitHub provider separates commit SHA and blob SHA");
 AssertEqual(SaveSyncService.ComputeHash(new byte[] { 10, 20, 30 }), githubLatest!.ContentHash!, "GitHub provider computes content hash from bytes");
@@ -100,6 +103,15 @@ var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byt
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
 AssertTrue(githubHandler.Requests.All(request => request.Headers.Authorization?.Scheme == "Bearer"), "GitHub requests carry bearer authorization");
+githubHandler.ManifestMissing = true;
+var initializedManifest = await githubProvider.GetManifestAsync("main", true, CancellationToken.None);
+AssertEqual("mono-home", initializedManifest.App, "GitHub missing manifest is initialized");
+var authClient = new GitHubAuthClient(new GitHubAuthOptions("public-client-id", new Uri("io.github.monohome:/oauth2redirect")));
+var authRequest = authClient.CreateAuthorizationRequest();
+AssertTrue(authRequest.AuthorizationUri.Query.Contains("code_challenge_method=S256", StringComparison.Ordinal), "GitHub auth uses PKCE S256");
+AssertTrue(authRequest.AuthorizationUri.Query.Contains("state=", StringComparison.Ordinal) && authRequest.CodeVerifier.Length >= 43, "GitHub auth includes state and verifier");
+AssertEqual("auth-code", GitHubAuthClient.ValidateCallback(authRequest.State, authRequest.State, "auth-code"), "GitHub auth accepts matching callback state");
+AssertThrows<InvalidOperationException>(() => GitHubAuthClient.ValidateCallback(authRequest.State, "wrong-state", "auth-code"), "GitHub auth rejects mismatched callback state");
 Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
@@ -271,6 +283,19 @@ static void AssertTrue(bool value, string label)
 {
     if (!value)
         throw new InvalidOperationException($"{label}: expected true.");
+}
+
+static void AssertThrows<T>(Action action, string label) where T : Exception
+{
+    try
+    {
+        action();
+    }
+    catch (T)
+    {
+        return;
+    }
+    throw new InvalidOperationException($"{label}: expected {typeof(T).Name}.");
 }
 
 static string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));

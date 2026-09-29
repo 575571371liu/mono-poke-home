@@ -1,9 +1,12 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace MonoHome.Core.Sync.GitHub;
 
 public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
 {
+    const string ManifestPath = ".mono-home/manifest.json";
+    static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     static readonly IReadOnlyDictionary<string, string> DefaultPaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["emerald"] = "saves/emerald/emerald.srm",
@@ -33,6 +36,35 @@ public sealed class GitHubRemoteSaveProvider : IRemoteSaveProvider
         if (!info.CanPush)
             throw new InvalidOperationException("当前 GitHub 账号没有该仓库的 Contents 写权限。");
         return new RepositoryBinding("github", info.Owner, info.Name, info.DefaultBranch, DateTimeOffset.UtcNow, 1);
+    }
+
+    public async Task<SaveRepositoryManifest> GetManifestAsync(
+        string lineageId,
+        bool initializeIfMissing,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var file = await api.GetFileAsync(binding.Owner, binding.Repository, ManifestPath, lineageId, cancellationToken);
+            var manifest = JsonSerializer.Deserialize<SaveRepositoryManifest>(file.Content, Json)
+                ?? throw new InvalidDataException("MONO / HOME repository manifest is empty.");
+            manifest.Validate();
+            return manifest;
+        }
+        catch (GitHubApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound && initializeIfMissing)
+        {
+            var manifest = SaveRepositoryManifest.CreateDefault();
+            await api.PutFileAsync(
+                binding.Owner,
+                binding.Repository,
+                ManifestPath,
+                lineageId,
+                JsonSerializer.SerializeToUtf8Bytes(manifest, Json),
+                "Initialize MONO / HOME save manifest",
+                null,
+                cancellationToken);
+            return manifest;
+        }
     }
 
     public async Task<RemoteSaveVersion?> GetLatestAsync(string saveKey, string lineageId, CancellationToken cancellationToken)

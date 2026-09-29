@@ -8,6 +8,7 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     static readonly byte[] InitialContent = [10, 20, 30];
 
     public List<HttpRequestMessage> Requests { get; } = [];
+    public bool ManifestMissing { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -24,11 +25,22 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
             return Json($"{{\"path\":\"saves/emerald/emerald.srm\",\"sha\":\"{blob}\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(content)}\"}}");
         }
 
+        if (request.Method == HttpMethod.Get && path == "/repos/test/repo/contents/.mono-home/manifest.json")
+        {
+            if (ManifestMissing)
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            var manifest = "{\"schema\":1,\"app\":\"mono-home\",\"saves\":{\"emerald\":{\"displayName\":\"绿宝石\",\"path\":\"saves/emerald/emerald.srm\",\"format\":\"srm\"}}}";
+            return Json($"{{\"path\":\".mono-home/manifest.json\",\"sha\":\"manifest-1\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(manifest))}\"}}");
+        }
+
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/commits")
             return Json("[{\"sha\":\"commit-1\",\"commit\":{\"message\":\"seed\",\"committer\":{\"date\":\"2026-09-29T00:00:00Z\"}},\"parents\":[]}]");
 
         if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/saves/emerald/emerald.srm")
             return Json("{\"content\":{\"sha\":\"blob-2\"},\"commit\":{\"sha\":\"commit-2\"}}");
+
+        if (request.Method == HttpMethod.Put && path == "/repos/test/repo/contents/.mono-home/manifest.json")
+            return Json("{\"content\":{\"sha\":\"manifest-1\"},\"commit\":{\"sha\":\"manifest-commit\"}}");
 
         return new HttpResponseMessage(HttpStatusCode.NotFound)
         {
