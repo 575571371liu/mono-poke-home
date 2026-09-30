@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:id="@+id/main_scroll" xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#0B1414" android:fillViewport="true">
-  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingTop="22dp" android:paddingBottom="30dp">
+<ScrollView android:id="@+id/main_scroll" xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#0B1414" android:fillViewport="true" android:fitsSystemWindows="true">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingTop="36dp" android:paddingBottom="30dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
       <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="MONO / HOME" android:textColor="#E9F4EF" android:textSize="15sp" android:textStyle="bold" android:letterSpacing="0.12" />
       <Button android:id="@+id/settings_button" android:layout_width="wrap_content" android:layout_height="34dp" android:paddingLeft="10dp" android:paddingRight="10dp" android:backgroundTint="#162623" android:text="设置" android:textColor="#91AAA1" android:textSize="10sp" />

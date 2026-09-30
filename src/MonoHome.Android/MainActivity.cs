@@ -2592,26 +2592,31 @@ public class MainActivity : Activity
             var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
             row.SetGravity(GravityFlags.CenterVertical);
             row.SetPadding(0, Dp(3), 0, 0);
-            var name = move == 0 ? "—" : StringAt(strings.Move, move, $"招式 #{move}");
+            var name = move == 0 ? string.Empty : StringAt(strings.Move, move, $"招式 #{move}");
             var typeId = move == 0 ? (byte)0 : MoveInfo.GetType(move, pokemon.Context);
             var typeName = move == 0 ? string.Empty : StringAt(strings.Types, typeId, "未知属性");
-            row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
             var moveData = move == 0 ? null : GetMoveEffectData(move);
-            var category = move == 0 ? "—" : MoveCategoryText(move, typeId, pokemon.Context, moveData);
-            var categoryKey = category == "物理" ? "physical" : category == "特殊" ? "special" : "status";
-            var categoryIcon = new ImageView(this);
-            var categoryIconId = Resources.GetIdentifier($"move_category_{categoryKey}", "drawable", PackageName);
-            if (categoryIconId != 0)
-                categoryIcon.SetImageResource(categoryIconId);
-            categoryIcon.SetScaleType(ImageView.ScaleType.CenterInside);
-            categoryIcon.ContentDescription = category == "物理" ? "物理" : category == "特殊" ? "特殊" : "变化";
+            View categoryIcon = new Space(this);
+            if (move != 0)
+            {
+                var category = MoveCategoryText(move, typeId, pokemon.Context, moveData);
+                var categoryKey = category == "物理" ? "physical" : category == "特殊" ? "special" : "status";
+                var categoryImage = new ImageView(this);
+                var categoryIconId = Resources.GetIdentifier($"move_category_{categoryKey}", "drawable", PackageName);
+                if (categoryIconId != 0)
+                    categoryImage.SetImageResource(categoryIconId);
+                categoryImage.SetScaleType(ImageView.ScaleType.CenterInside);
+                categoryImage.ContentDescription = category;
+                categoryIcon = categoryImage;
+            }
             row.AddView(categoryIcon, new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
+            row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
             row.AddView(Text(name, 11, move == 0 ? "#628078" : "#E9F4EF"), new LinearLayout.LayoutParams(0, -2, 1));
-            var power = move == 0 || moveData?.Power is not > 0 ? "—" : moveData.Power.Value.ToString();
+            var power = move == 0 ? string.Empty : moveData?.Power is not > 0 ? "—" : moveData.Power.Value.ToString();
             row.AddView(Text(power, 10, "#DCEBE6"), new LinearLayout.LayoutParams(Dp(32), -2) { RightMargin = Dp(4) });
             var currentPp = move == 0 ? 0 : MoveCurrentPp(pokemon, index);
             var maxPp = move == 0 ? 0 : moveData?.PP is > 0 ? moveData.PP.Value : MoveInfo.GetPP(pokemon.Context, (ushort)move);
-            row.AddView(Text(move == 0 ? "—" : $"{currentPp}/{maxPp}", 10, "#91AAA1"), new LinearLayout.LayoutParams(Dp(48), -2));
+            row.AddView(Text(move == 0 ? string.Empty : $"{currentPp}/{maxPp}", 10, "#91AAA1"), new LinearLayout.LayoutParams(Dp(48), -2));
             if (warehouseRecord is not null)
             {
                 var moveSlot = index;
