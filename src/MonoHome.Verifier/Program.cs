@@ -203,6 +203,18 @@ var githubHistory = await githubProvider.ListVersionsAsync("emerald", "save/emer
 AssertTrue(githubHistory.Count == 1 && githubHistory[0].ContentHash is null && githubHistory[0].LineageId == "save/emerald/test-lineage", "GitHub history keeps lineage and defers content hash");
 var githubAllHistory = await githubProvider.ListAllVersionsAsync("emerald", "save/emerald/test-lineage", CancellationToken.None);
 AssertTrue(githubAllHistory.Count == 2 && githubAllHistory.Select(version => version.LineageId).Distinct().Count() == 2, "GitHub history includes current and save-specific lineages");
+var paginatedHistoryHandler = new GitHubFakeHttpHandler { PaginatedCommitHistory = true };
+using var paginatedHistoryHttp = new HttpClient(paginatedHistoryHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var paginatedHistory = await new GitHubApiClient(paginatedHistoryHttp, _ => Task.FromResult("test-token"))
+    .ListCommitsAsync("test", "repo", "saves/emerald/emerald.srm", "main", CancellationToken.None);
+AssertEqual(101, paginatedHistory.Count, "GitHub commit history reads beyond the first 100 versions");
+AssertTrue(paginatedHistoryHandler.Requests.Any(request => request.RequestUri!.Query.Contains("page=2", StringComparison.Ordinal)), "GitHub commit history requests subsequent pages");
+var paginatedBranchesHandler = new GitHubFakeHttpHandler { PaginatedBranchHistory = true };
+using var paginatedBranchesHttp = new HttpClient(paginatedBranchesHandler) { BaseAddress = new Uri("https://api.github.test/") };
+var paginatedBranches = await new GitHubApiClient(paginatedBranchesHttp, _ => Task.FromResult("test-token"))
+    .ListBranchesAsync("test", "repo", CancellationToken.None);
+AssertEqual(101, paginatedBranches.Count, "GitHub save history reads beyond the first 100 lineages");
+AssertTrue(paginatedBranchesHandler.Requests.Any(request => request.RequestUri!.Query.Contains("page=2", StringComparison.Ordinal)), "GitHub branch history requests subsequent pages");
 var retryHandler = new GitHubFakeHttpHandler { TransientGetFailures = 1 };
 using var retryHttp = new HttpClient(retryHandler) { BaseAddress = new Uri("https://api.github.test/") };
 var retryProvider = new GitHubRemoteSaveProvider(new GitHubApiClient(retryHttp, _ => Task.FromResult("test-token")), githubBinding);

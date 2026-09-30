@@ -144,9 +144,17 @@ public sealed class GitHubApiClient
         string branch,
         CancellationToken cancellationToken)
     {
-        var endpoint = $"repos/{Segment(owner)}/{Segment(repository)}/commits?path={Uri.EscapeDataString(path)}&sha={Uri.EscapeDataString(branch)}&per_page=100";
-        using var json = await SendAsync(HttpMethod.Get, endpoint, null, cancellationToken);
-        return json.RootElement.EnumerateArray().Select(ParseCommit).ToArray();
+        const int pageSize = 100;
+        var commits = new List<GitHubCommitInfo>();
+        for (var page = 1; ; page++)
+        {
+            var endpoint = $"repos/{Segment(owner)}/{Segment(repository)}/commits?path={Uri.EscapeDataString(path)}&sha={Uri.EscapeDataString(branch)}&per_page={pageSize}&page={page}";
+            using var json = await SendAsync(HttpMethod.Get, endpoint, null, cancellationToken);
+            var currentPage = json.RootElement.EnumerateArray().Select(ParseCommit).ToArray();
+            commits.AddRange(currentPage);
+            if (currentPage.Length < pageSize)
+                return commits;
+        }
     }
 
     public async Task<IReadOnlyList<GitHubBranchInfo>> ListBranchesAsync(
@@ -154,16 +162,24 @@ public sealed class GitHubApiClient
         string repository,
         CancellationToken cancellationToken)
     {
-        using var json = await SendAsync(
-            HttpMethod.Get,
-            $"repos/{Segment(owner)}/{Segment(repository)}/branches?per_page=100",
-            null,
-            cancellationToken);
-        return json.RootElement.EnumerateArray()
-            .Select(branch => new GitHubBranchInfo(
-                branch.GetProperty("name").GetString() ?? throw new InvalidDataException("GitHub branch response has no name."),
-                branch.GetProperty("commit").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub branch response has no commit SHA.")))
-            .ToArray();
+        const int pageSize = 100;
+        var branches = new List<GitHubBranchInfo>();
+        for (var page = 1; ; page++)
+        {
+            using var json = await SendAsync(
+                HttpMethod.Get,
+                $"repos/{Segment(owner)}/{Segment(repository)}/branches?per_page={pageSize}&page={page}",
+                null,
+                cancellationToken);
+            var currentPage = json.RootElement.EnumerateArray()
+                .Select(branch => new GitHubBranchInfo(
+                    branch.GetProperty("name").GetString() ?? throw new InvalidDataException("GitHub branch response has no name."),
+                    branch.GetProperty("commit").GetProperty("sha").GetString() ?? throw new InvalidDataException("GitHub branch response has no commit SHA.")))
+                .ToArray();
+            branches.AddRange(currentPage);
+            if (currentPage.Length < pageSize)
+                return branches;
+        }
     }
 
     public async Task<GitHubPutContentResult> PutFileAsync(

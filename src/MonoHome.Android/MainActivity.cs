@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.2";
+    const string CurrentVersion = "1.2.3";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -63,10 +63,6 @@ public class MainActivity : Activity
     TextView? selectedPokemon;
     TextView? emeraldState;
     TextView? heartGoldState;
-    ImageView? emeraldSaveIcon;
-    ImageView? heartGoldSaveIcon;
-    View? emeraldSourceCard;
-    View? heartGoldSourceCard;
     TextView? warehouseState;
     TextView? historyState;
     LinearLayout? warehouseGrid;
@@ -79,7 +75,6 @@ public class MainActivity : Activity
     View? transferPacket;
     ObjectAnimator? transferAnimator;
     ScrollView? mainScroll;
-    View? connectedSavesSection;
     View? warehouseSection;
     View? centralWarehouseContent;
     View? sourceArchiveContent;
@@ -177,7 +172,6 @@ public class MainActivity : Activity
         navHeartGold = FindViewById<Button>(Resource.Id.nav_heartgold);
         navHistory = FindViewById<Button>(Resource.Id.nav_history);
         mainScroll = FindViewById<ScrollView>(Resource.Id.main_scroll);
-        connectedSavesSection = FindViewById(Resource.Id.connected_saves_section);
         warehouseSection = FindViewById(Resource.Id.warehouse_section);
         centralWarehouseContent = FindViewById(Resource.Id.central_warehouse_content);
         sourceArchiveContent = FindViewById(Resource.Id.source_archive_content);
@@ -202,10 +196,6 @@ public class MainActivity : Activity
         selectedPokemon = FindViewById<TextView>(Resource.Id.selected_pokemon);
         emeraldState = FindViewById<TextView>(Resource.Id.emerald_state);
         heartGoldState = FindViewById<TextView>(Resource.Id.heartgold_state);
-        emeraldSaveIcon = FindViewById<ImageView>(Resource.Id.emerald_save_icon);
-        heartGoldSaveIcon = FindViewById<ImageView>(Resource.Id.heartgold_save_icon);
-        emeraldSourceCard = FindViewById(Resource.Id.emerald_source_card);
-        heartGoldSourceCard = FindViewById(Resource.Id.heartgold_source_card);
         warehouseState = FindViewById<TextView>(Resource.Id.warehouse_state);
         historyState = FindViewById<TextView>(Resource.Id.history_state);
         warehouseGrid = FindViewById<LinearLayout>(Resource.Id.warehouse_grid);
@@ -233,10 +223,6 @@ public class MainActivity : Activity
         saveNicknameButton = FindViewById<Button>(Resource.Id.save_nickname);
         discardEditsButton = FindViewById<Button>(Resource.Id.discard_edits);
         warehousePicker!.ItemSelected += (_, _) => SelectWarehousePokemon();
-        FindViewById<Button>(Resource.Id.import_emerald)!.Click += (_, _) => PickSave(AnySaveRequest);
-        FindViewById<Button>(Resource.Id.import_heartgold)!.Click += (_, _) => PickSave(AnySaveRequest);
-        emeraldSourceCard!.Click += (_, _) => SelectSourceSave(EmeraldRequest);
-        heartGoldSourceCard!.Click += (_, _) => SelectSourceSave(HeartGoldRequest);
         uploadButton!.Click += async (_, _) => await UploadSelectedAsync();
         sourcePreviousBox!.Click += (_, _) => CycleSourceBox(-1);
         sourceNextBox!.Click += (_, _) => CycleSourceBox(1);
@@ -687,13 +673,27 @@ public class MainActivity : Activity
                 ?? new SaveRemoteBinding(saveKey, repository.DefaultBranch, null);
             await provider.GetManifestAsync(saveBinding.LineageId, false, operation.Token);
             var remote = await provider.GetLatestAsync(saveKey, saveBinding.LineageId, operation.Token);
+            var versions = (await provider.ListAllVersionsAsync(saveKey, saveBinding.LineageId, operation.Token)).ToList();
             var state = new SaveSyncService(provider).Compare(saveKey, local, saveBinding, remote);
-            var message = $"仓库：{repository.Owner}/{repository.Repository}\n本地 SHA-256：{state.LocalHash}\n远端版本：{remote?.CommitSha ?? "尚无远端存档"}\n状态：{SyncStatusText(state.Status)}";
+            var localSlots = saveKey == "emerald" ? emeraldSlots.Count : heartGoldSlots.Count;
+            var localModified = File.GetLastWriteTimeUtc(save.SnapshotPath).ToLocalTime();
+            var remoteHash = remote?.ContentHash ?? "尚未读取";
+            var remoteCommit = remote is null ? "尚无远端存档" : remote.CommitSha;
+            var remoteModified = remote is null ? "—" : remote.ModifiedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+            var message = $"仓库：{repository.Owner}/{repository.Repository}\n\n" +
+                $"本地进度：{localSlots} 只 · Gen {save.Generation}\n" +
+                $"本地修改：{localModified:yyyy-MM-dd HH:mm}\n" +
+                $"本地 SHA-256：{state.LocalHash}\n\n" +
+                $"远端最新：{remoteCommit}\n" +
+                $"远端修改：{remoteModified}\n" +
+                $"远端 SHA-256：{remoteHash}\n" +
+                $"历史版本：{versions.Count} 个\n\n" +
+                $"状态：{SyncStatusText(state.Status)}";
             var dialog = new AlertDialog.Builder(this);
             dialog.SetTitle($"{save.DisplayName} · 存档同步");
             dialog.SetMessage(message);
             dialog.SetNegativeButton("关闭", (_, _) => { });
-            dialog.SetNeutralButton("历史版本", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
+            dialog.SetNeutralButton("选择历史版本", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
             dialog.SetPositiveButton("操作", (_, _) => ShowSaveSyncActions(saveKey));
             ShowSafely(dialog);
         }
@@ -1946,13 +1946,15 @@ public class MainActivity : Activity
     {
         UpdateArchiveTabs();
         var centralPage = centralWarehouseContent?.Visibility == global::Android.Views.ViewStates.Visible;
-        if (connectedSavesSection is not null)
-        {
-            var hasConnectedSaves = emeraldSave is not null || heartGoldSave is not null;
-            connectedSavesSection.Visibility = centralPage && hasConnectedSaves
+        var archivePage = sourceArchiveContent?.Visibility == global::Android.Views.ViewStates.Visible;
+        if (emeraldSyncButton is not null)
+            emeraldSyncButton.Visibility = archivePage && activeSourceRequest == EmeraldRequest
                 ? global::Android.Views.ViewStates.Visible
                 : global::Android.Views.ViewStates.Gone;
-        }
+        if (heartGoldSyncButton is not null)
+            heartGoldSyncButton.Visibility = archivePage && activeSourceRequest == HeartGoldRequest
+                ? global::Android.Views.ViewStates.Visible
+                : global::Android.Views.ViewStates.Gone;
         if (uploadButton is not null)
         {
             uploadButton.Visibility = selectedSourceSlots.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
@@ -1976,11 +1978,15 @@ public class MainActivity : Activity
         if (discardEditsButton is not null)
             discardEditsButton.Enabled = storedPokemon is not null;
         if (emeraldState is not null)
+        {
             emeraldState.Text = emeraldSave is null ? "尚未导入" : $"已登记 · {emeraldSlots.Count} 只 · Gen {emeraldSave.Generation} · {emeraldExternalState}";
+            emeraldState.Visibility = archivePage && activeSourceRequest == EmeraldRequest ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+        }
         if (heartGoldState is not null)
+        {
             heartGoldState.Text = heartGoldSave is null ? "尚未导入" : $"已登记 · {heartGoldSave.Game} · Gen {heartGoldSave.Generation} · {heartGoldExternalState}";
-        emeraldSaveIcon?.SetImageResource(Resource.Drawable.a_384);
-        heartGoldSaveIcon?.SetImageResource(Resource.Drawable.a_250);
+            heartGoldState.Visibility = archivePage && activeSourceRequest == HeartGoldRequest ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+        }
         if (targetPicker is not null)
         {
             string[] targets = heartGoldSave is null
