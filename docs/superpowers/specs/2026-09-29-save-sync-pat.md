@@ -4,11 +4,11 @@
 
 ## 目标
 
-为个人私有工具提供无需 GitHub App Client ID 的远程存档同步。远端固定为用户拥有的私有仓库 `575571371liu/mono-home-saves`；未来公开产品另行接入正式授权服务，不复用个人 PAT。
+为个人存档提供无需 GitHub App Client ID 的远程同步。每位用户绑定自己拥有且可写的私有仓库；`mono-home-saves` 只是建议仓库名。1.2.3 继续采用用户自备 PAT，未来面向更广泛用户时可接入正式授权服务。
 
 ## 认证与绑定
 
-1. 用户在 GitHub 创建细粒度 PAT，仓库范围仅为 `mono-home-saves`，权限仅为 `Contents: Read and write`（`Metadata: Read-only` 为 GitHub 必需项）。
+1. 用户在 GitHub 创建细粒度 PAT，仓库范围仅为自己的私有存档仓库，权限仅为 `Contents: Read and write`（`Metadata: Read-only` 为 GitHub 必需项）；建议设置有效期。
 2. Android 以密码输入框收集 PAT，不记录、不显示回显；经 `GET /user` 和 `GET /repos/{owner}/{repo}` 校验后，用现有 Android Keystore 存储。
 3. 普通配置只保存 owner、repository、branch、schema 和每个存档的 lineage；不得保存 PAT。
 4. 401/403 只提示替换 PAT，绝不删除本地存档、绑定或远端历史。解绑仅清本机凭据和绑定。
@@ -24,7 +24,7 @@
 
 保留 `GitHubApiClient`、`GitHubRemoteSaveProvider`、`SaveSyncService`、`AndroidTokenStore`、版本/lineage UI。删除或不再调用 `GitHubAuthClient`、`GitHubDeviceFlowClient`、`github_client_id` 和刷新 Token 路径。
 
-`AndroidTokenStore` 直接保存 PAT 为无过期 bearer token；不新增凭据格式或依赖。设置页改为“输入 PAT 并绑定私有仓库”，默认预填个人仓库，仍允许手工修改 owner/repository 以便恢复或迁移。
+`AndroidTokenStore` 直接把 PAT 作为 bearer token 保存；过期后由用户更新 PAT，不新增凭据格式或依赖。设置页为“输入 PAT 并绑定私有仓库”，默认预填建议仓库名，仍允许手工修改 owner/repository 以便恢复或迁移。
 
 ## 验收
 
@@ -35,4 +35,4 @@
 
 ## 安全边界
 
-该路径仅服务个人私有使用。PAT 永不过期是已确认的个人取舍，但仍仅限一个私有仓库且可在 GitHub 撤销；任何公开发布版本必须改用独立的正式授权/同步服务，不能内置或共享此 PAT。
+1.2.3 公开分发 APK，但同步是面向愿意自行管理 GitHub 凭据的用户的可选功能。每位用户只把自己创建的 PAT 输入自己的设备；APK 不内置开发者令牌，也不共享任何用户令牌。PAT 应仅限一个私有仓库的最低权限，设置有效期，并可随时在 GitHub 撤销。更广泛用户的授权体验应改为正式授权服务。

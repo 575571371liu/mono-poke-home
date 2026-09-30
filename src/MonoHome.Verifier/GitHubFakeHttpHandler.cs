@@ -19,6 +19,8 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
     public string SavePath { get; set; } = "saves/emerald/emerald.srm";
     public string ManifestSavePath { get; set; } = "saves/emerald/emerald.srm";
     public bool ThrowTransportFailure { get; set; }
+    public bool PaginatedCommitHistory { get; set; }
+    public bool PaginatedBranchHistory { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -72,8 +74,28 @@ public sealed class GitHubFakeHttpHandler : HttpMessageHandler
             return Json($"{{\"path\":\".mono-home/manifest.json\",\"sha\":\"manifest-1\",\"encoding\":\"base64\",\"content\":\"{Convert.ToBase64String(Encoding.UTF8.GetBytes(manifest))}\"}}");
         }
 
+        if (request.Method == HttpMethod.Get && path == "/repos/test/repo/commits" && PaginatedCommitHistory)
+        {
+            var page = int.Parse(Query(request.RequestUri, "page") ?? "1");
+            var count = page == 1 ? 100 : page == 2 ? 1 : 0;
+            var first = (page - 1) * 100 + 1;
+            var commits = Enumerable.Range(first, count).Select(index =>
+                $"{{\"sha\":\"commit-{index}\",\"commit\":{{\"message\":\"save {index}\",\"committer\":{{\"date\":\"2026-09-29T00:00:00Z\"}}}},\"parents\":[]}}");
+            return Json($"[{string.Join(",", commits)}]");
+        }
+
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/commits")
             return Json("[{\"sha\":\"commit-1\",\"commit\":{\"message\":\"seed\",\"committer\":{\"date\":\"2026-09-29T00:00:00Z\"}},\"parents\":[]}]");
+
+        if (request.Method == HttpMethod.Get && path == "/repos/test/repo/branches" && PaginatedBranchHistory)
+        {
+            var page = int.Parse(Query(request.RequestUri, "page") ?? "1");
+            var count = page == 1 ? 100 : page == 2 ? 1 : 0;
+            var first = (page - 1) * 100 + 1;
+            var branches = Enumerable.Range(first, count).Select(index =>
+                $"{{\"name\":\"save/emerald/lineage-{index}\",\"commit\":{{\"sha\":\"commit-{index}\"}}}}");
+            return Json($"[{string.Join(",", branches)}]");
+        }
 
         if (request.Method == HttpMethod.Get && path == "/repos/test/repo/branches")
             return Json("[{\"name\":\"main\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/emerald/test-lineage\",\"commit\":{\"sha\":\"commit-1\"}},{\"name\":\"save/heartgold/other-lineage\",\"commit\":{\"sha\":\"heartgold-1\"}}]");
