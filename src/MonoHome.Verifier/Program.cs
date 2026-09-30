@@ -9,15 +9,10 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
-var root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "fixtures", "private"));
-var emeraldPath = Path.Combine(root, "emerald.srm");
-var heartGoldPath = Path.Combine(root, "heartgold.sav");
+var emeraldPath = TestEnvironment.EmeraldSave;
+var heartGoldPath = TestEnvironment.HeartGoldSave;
 var emeraldHash = Hash(emeraldPath);
 var heartGoldHash = Hash(heartGoldPath);
-var desktopEmerald = @"C:\Users\liujinwen\Desktop\Pokemon Emerald.srm";
-var desktopHeartGold = @"C:\Users\liujinwen\Desktop\口袋妖怪(精灵宝可梦) 心灵之金 官译修正版v1.5.0(中).sav";
-AssertEqual(Hash(desktopEmerald), emeraldHash, "Emerald fixture matches user-provided save");
-AssertEqual(Hash(desktopHeartGold), heartGoldHash, "HeartGold fixture matches user-provided save");
 var emerald = SaveInspector.Inspect(emeraldPath);
 var heartGold = SaveInspector.Inspect(heartGoldPath);
 
@@ -40,7 +35,7 @@ AssertTrue(heartGoldPokemon.Count > 0, "HeartGold has readable Pokémon slots");
 AssertTrue(emeraldPokemon.All(slot => slot.Nickname is not null), "reader exposes Pokémon nicknames");
 Console.WriteLine($"Emerald slots: {emeraldPokemon.Count}; HeartGold slots: {heartGoldPokemon.Count}.");
 Console.WriteLine("PASS: real save fixtures identified.");
-var savesRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-saves", Guid.NewGuid().ToString("N"));
+var savesRoot = TestEnvironment.NewScratchDirectory("saves");
 var registered = SaveRegistry.Register(File.ReadAllBytes(emeraldPath), "emerald.srm", savesRoot, "content://local/emerald.srm");
 AssertEqual(emerald.Game, registered.Game, "save registry records game");
 AssertEqual(emeraldHash, registered.Hash, "save registry records input hash");
@@ -115,7 +110,7 @@ var pullResult = await pullService.PullAsync(
     CancellationToken.None);
 AssertTrue(pullResult.Succeeded && pullResult.RecoveryPointPath is not null && File.Exists(pullResult.RecoveryPointPath), "sync pull creates a recovery point after validation");
 AssertEqual(emeraldHash, SaveRegistry.Get(savesRoot, registered.Id)!.Hash, "sync pull keeps a valid local snapshot");
-var invalidPullRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-invalid-pull", Guid.NewGuid().ToString("N"));
+var invalidPullRoot = TestEnvironment.NewScratchDirectory("invalid-pull");
 var invalidLocal = SaveRegistry.Register(pullContent, "invalid-pull.srm", invalidPullRoot);
 var invalidProvider = new SyncFakeRemoteSaveProvider();
 var invalidService = new SaveSyncService(invalidProvider);
@@ -254,6 +249,26 @@ var cancellationTask = new GitHubApiClient(cancellationHttp, _ => Task.FromResul
     .GetRepositoryAsync("test", "repo", cancellation.Token);
 cancellation.CancelAfter(10);
 await AssertThrowsAsync<OperationCanceledException>(() => cancellationTask, "GitHub caller cancellation is preserved");
+// GitHub signals its secondary rate limit with 403 + Retry-After, which must be retried
+// after the requested wait rather than surfaced immediately as a permission failure.
+var rateLimitedHandler = new GitHubFakeHttpHandler
+{
+    ForcedStatusCode = HttpStatusCode.Forbidden,
+    RetryAfter = TimeSpan.FromMilliseconds(50),
+};
+using var rateLimitedHttp = new HttpClient(rateLimitedHandler) { BaseAddress = new Uri("https://api.github.test/") };
+GitHubApiException? rateLimitedError = null;
+try
+{
+    await new GitHubApiClient(rateLimitedHttp, _ => Task.FromResult("test-token"))
+        .GetRepositoryAsync("test", "repo", CancellationToken.None);
+}
+catch (GitHubApiException ex)
+{
+    rateLimitedError = ex;
+}
+AssertTrue(rateLimitedError is not null, "a persistent rate limit is still surfaced");
+AssertTrue(rateLimitedHandler.RequestLog.Count > 1, "GitHub 403 with Retry-After is retried after the server wait");
 var githubUploaded = await githubProvider.UploadAsync("emerald", "main", new byte[] { 40, 50, 60 }, "commit-1", "sync test", CancellationToken.None);
 AssertEqual("commit-2", githubUploaded.CommitSha, "GitHub provider returns commit SHA after upload");
 AssertEqual("blob-2", githubUploaded.BlobSha!, "GitHub provider returns blob SHA after upload");
@@ -302,10 +317,14 @@ AssertEqual(2, deviceHandler.PollCount, "GitHub device flow handles pending resp
 var refreshedToken = await deviceFlow.RefreshAccessTokenAsync(deviceToken.RefreshToken!, CancellationToken.None);
 AssertEqual("ghu-refreshed", refreshedToken.AccessToken, "GitHub device flow refreshes expired access token");
 AssertEqual(1, deviceHandler.RefreshCount, "GitHub device flow sends one refresh request");
+AssertTrue(deviceHandler.AlwaysRequestedJson, "GitHub device flow requests a JSON response on every OAuth call");
+AssertTrue(deviceCode.Interval >= TimeSpan.FromSeconds(1), "GitHub device flow never polls faster than once per second");
+AssertTrue(!deviceToken.ToString().Contains("ghu-test", StringComparison.Ordinal), "GitHub access token never prints its secret");
+AssertTrue(!deviceCode.ToString().Contains("device-1", StringComparison.Ordinal), "GitHub device code never prints its secret");
 Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
-var repositoryRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-repository", Guid.NewGuid().ToString("N"));
+var repositoryRoot = TestEnvironment.NewScratchDirectory("repository");
 var stored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, selected), repositoryRoot);
 AssertEqual(stored.Id, LocalRepository.GetLatest(repositoryRoot)!.Id, "repository restores latest upload");
 AssertTrue(File.Exists(stored.ManifestPath), "repository persists a metadata record");
@@ -357,23 +376,36 @@ AssertTrue(copy.Id != stored.Id, "legal copy has its own ID");
 AssertEqual(parentHash, Hash(stored.WorkingPath), "legal copy does not rewrite parent");
 AssertEqual(1L, copy.Revision, "new copy starts at revision 1");
 var registeredTarget = SaveRegistry.Register(File.ReadAllBytes(heartGoldPath), "heartgold.sav", savesRoot, "content://local/heartgold.sav");
-var preparationRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-preparation", Guid.NewGuid().ToString("N"));
+var preparationRoot = TestEnvironment.NewScratchDirectory("preparation");
 var preparation = TargetPreparationService.Prepare(copy, registeredTarget, heartGoldPath, preparationRoot);
 AssertEqual(TargetPreparationState.Ready, preparation.State, "target preparation is ready for legal conversion");
+AssertEqual(TransferMode.Conversion, preparation.Mode, "target preparation reports the requested mode");
 AssertTrue(preparation.IsCurrentFor(copy, registeredTarget), "target preparation matches current repository revision");
 copy = LocalRepository.SaveWorking(copy, LocalRepository.LoadWorking(copy));
 AssertTrue(!preparation.IsCurrentFor(copy, registeredTarget), "target preparation becomes stale after repository revision changes");
-var transferPath = Path.Combine(Path.GetTempPath(), "mono-home-heartgold-result.sav");
+
+// The faithful route must actually reach the engine: the app exposes this choice, and it
+// lands in a different save than a conversion would.
+var fidelityPreparation = TargetPreparationService.Prepare(copy, registeredTarget, heartGoldPath, preparationRoot, -1, TransferMode.Fidelity);
+AssertEqual(TargetPreparationState.Ready, fidelityPreparation.State, "fidelity preparation is ready");
+AssertEqual(TransferMode.Fidelity, fidelityPreparation.Mode, "fidelity preparation keeps the requested mode");
+AssertTrue(fidelityPreparation.PreparedSavePath != preparation.PreparedSavePath, "each transfer mode prepares its own output");
+var fidelityOccupant = ((SAV4HGSS)SaveUtil.GetSaveFile(fidelityPreparation.PreparedSavePath!)!).GetBoxSlotAtIndex(20);
+AssertEqual(LocalRepository.LoadWorking(copy).OriginalTrainerName, fidelityOccupant.OriginalTrainerName, "fidelity preparation keeps the source trainer");
+var transferPath = TestEnvironment.ScratchFile("heartgold-result.sav");
 var transfer = EmeraldHgssTransfer.TransferStored(storedPokemon, heartGoldPath, transferPath);
 AssertTrue(transfer.Succeeded, $"Emerald to HeartGold transfer: {transfer.Message}");
 AssertEqual(selected.Species, transfer.Species, "selected Pokémon is transferred");
 AssertTrue(transfer.Changes.Any(change => change.Field == "OriginalTrainer"), "transfer reports target trainer change");
-AssertTrue(transfer.Changes.Any(change => change.Field == "Shiny"), "transfer reports shiny policy even when preserved");
 AssertTrue(File.Exists(transferPath), "transfer output exists");
 var convertedSave = SaveInspector.Inspect(transferPath);
 AssertEqual("HeartGold", convertedSave.Game, "converted save game");
 var targetSave = (SAV4HGSS)SaveUtil.GetSaveFile(transferPath)!;
-var inserted = targetSave.GetBoxSlotAtIndex(20);
+
+// Assert on the entity that actually landed in the written file, at the slot the engine
+// reports, so a wrong-slot or identity-losing write cannot pass.
+AssertTrue(transfer.Slot >= 0, "transfer reports the slot it wrote to");
+var inserted = targetSave.GetBoxSlotAtIndex(transfer.Slot);
 AssertEqual(targetSave.OT, inserted.OriginalTrainerName, "converted Pokémon uses target OT");
 AssertEqual(targetSave.TID16, inserted.TID16, "converted Pokémon uses target TID");
 AssertEqual(targetSave.SID16, inserted.SID16, "converted Pokémon uses target SID");
@@ -384,7 +416,7 @@ var chosenDestination = heartGoldPages.Skip(1)
     .SelectMany((page, pageIndex) => page.Slots.Where(slot => slot.Pokemon is null).Select(slot => pageIndex * page.Capacity + slot.Index))
     .Skip(1)
     .First();
-var routedTransferPath = Path.Combine(Path.GetTempPath(), "mono-home-heartgold-routed.sav");
+var routedTransferPath = TestEnvironment.ScratchFile("heartgold-routed.sav");
 var routedTransfer = EmeraldHgssTransfer.TransferStored(storedPokemon, heartGoldPath, routedTransferPath, TransferMode.Conversion, chosenDestination);
 AssertTrue(routedTransfer.Succeeded, $"routed transfer: {routedTransfer.Message}");
 var routedSave = (SAV4HGSS)SaveUtil.GetSaveFile(routedTransferPath)!;
@@ -394,13 +426,44 @@ Console.WriteLine($"PASS: routed transfer wrote selected slot {chosenDestination
 var special = emeraldPokemon.FirstOrDefault(slot => slot.IsShiny || slot.HeldItem != 0 || slot.StatusCondition != 0 || slot.PokerusStrain != 0 || slot.IsEgg);
 AssertTrue(special is not null, "Emerald fixture has a special-state Pokémon");
 Console.WriteLine($"Special slot: #{special!.Species} nickname={special.Nickname} shiny={special.IsShiny} item={special.HeldItem} status={special.StatusCondition} pokerus={special.PokerusStrain}/{special.PokerusDays} egg={special.IsEgg}.");
-var specialStored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, special!), Path.Combine(Path.GetTempPath(), "mono-home-verifier-special"));
-var specialTransfer = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(specialStored), heartGoldPath, Path.Combine(Path.GetTempPath(), "mono-home-heartgold-special.sav"));
+var specialStored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, special!), TestEnvironment.NewScratchDirectory("special"));
+var specialTransfer = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(specialStored), heartGoldPath, TestEnvironment.ScratchFile("heartgold-special.sav"));
 AssertTrue(specialTransfer.Succeeded, $"special-state transfer: {specialTransfer.Message}");
 AssertTrue(specialTransfer.Changes.Any(change => change.Field == "HeldItem"), "transfer reports held-item policy");
 AssertTrue(specialTransfer.Changes.Any(change => change.Field == "Form") && specialTransfer.Changes.Any(change => change.Field == "Ribbons"), "transfer reports form and ribbon policies");
+var specialSource = LocalRepository.LoadWorking(specialStored);
+var specialPersisted = ((SAV4HGSS)SaveUtil.GetSaveFile(specialTransfer.OutputPath)!).GetBoxSlotAtIndex(specialTransfer.Slot);
+AssertEqual(specialSource.IsShiny, specialPersisted.IsShiny, "conversion preserves the source shiny state");
 Console.WriteLine($"PASS: special-state transfer #{special.Species}; {string.Join(", ", specialTransfer.Changes.Select(change => change.Field))}.");
-var fidelityProbePath = Path.Combine(Path.GetTempPath(), "mono-home-heartgold-fidelity.sav");
+
+// A shiny source must stay shiny across a conversion: shininess is derived from
+// PID ^ TID ^ SID, so rewriting the trainer is exactly the operation that can lose it.
+var shinySource = LocalRepository.ApplyEdit(specialSource, new WorkingEdit(null, null, null, null, null, null, Shiny: true));
+AssertTrue(shinySource.IsShiny, "editing an entity can make it shiny");
+var shinyConverted = EmeraldHgssTransfer.TransferStored(shinySource.Clone(), heartGoldPath, TestEnvironment.ScratchFile("heartgold-shiny.sav"));
+if (shinyConverted.Succeeded)
+{
+    var shinyPersisted = ((SAV4HGSS)SaveUtil.GetSaveFile(shinyConverted.OutputPath)!).GetBoxSlotAtIndex(shinyConverted.Slot);
+    AssertTrue(shinyPersisted.IsShiny, "conversion keeps a shiny source shiny instead of silently dropping it");
+}
+else
+{
+    AssertTrue(shinyConverted.Message.Contains("闪", StringComparison.Ordinal),
+        $"a conversion that cannot keep shininess must say so: {shinyConverted.Message}");
+}
+Console.WriteLine("PASS: shiny state survives a trainer-rewriting conversion.");
+
+// Clearing the shiny flag must actually clear it, and must not rewrite the trainer SID.
+var shinySid = shinySource.SID16;
+var unshinied = LocalRepository.ApplyEdit(shinySource, new WorkingEdit(null, null, null, null, null, null, Shiny: false));
+AssertTrue(!unshinied.IsShiny, "clearing the shiny flag produces a non-shiny entity");
+AssertEqual(shinySid, unshinied.SID16, "clearing the shiny flag leaves the trainer SID alone");
+
+// A nature edit on a shiny entity must not silently drop shininess either.
+var shinyNature = LocalRepository.ApplyEdit(shinySource, new WorkingEdit(null, null, null, null, null, null, Nature: 12));
+AssertTrue(shinyNature.IsShiny, "a nature edit keeps a shiny entity shiny");
+Console.WriteLine("PASS: shiny editing is honest in both directions.");
+var fidelityProbePath = TestEnvironment.ScratchFile("heartgold-fidelity.sav");
 var fidelityProbe = EmeraldHgssTransfer.TransferStored(BoxReader.ReadPokemon(emeraldPath, special!), heartGoldPath, fidelityProbePath, TransferMode.Fidelity);
 AssertTrue(fidelityProbe.Succeeded, $"fidelity transfer: {fidelityProbe.Message}");
 var fidelitySave = (SAV4HGSS)SaveUtil.GetSaveFile(fidelityProbePath)!;
@@ -413,7 +476,7 @@ Console.WriteLine($"PASS: fidelity transfer preserves source trainer and IDs; {f
 var conversionFailures = new List<string>();
 foreach (var (slot, index) in emeraldPokemon.Select((slot, index) => (slot, index)))
 {
-    var output = Path.Combine(Path.GetTempPath(), $"mono-home-heartgold-all-{index}.sav");
+    var output = TestEnvironment.ScratchFile($"heartgold-all-{index}.sav");
     var result = EmeraldHgssTransfer.TransferStored(
         BoxReader.ReadPokemon(emeraldPath, slot),
         heartGoldPath,
@@ -433,7 +496,7 @@ Console.WriteLine($"PASS: all {emeraldPokemon.Count} supplied Emerald Pokémon c
 var fidelityAccepted = 0;
 foreach (var (slot, index) in emeraldPokemon.Select((slot, index) => (slot, index)))
 {
-    var output = Path.Combine(Path.GetTempPath(), $"mono-home-heartgold-fidelity-all-{index}.sav");
+    var output = TestEnvironment.ScratchFile($"heartgold-fidelity-all-{index}.sav");
     var result = EmeraldHgssTransfer.TransferStored(BoxReader.ReadPokemon(emeraldPath, slot), heartGoldPath, output, TransferMode.Fidelity);
     if (!result.Succeeded)
         continue;
@@ -443,7 +506,7 @@ foreach (var (slot, index) in emeraldPokemon.Select((slot, index) => (slot, inde
 }
 AssertTrue(fidelityAccepted > 0, "fidelity route accepts at least one supplied Pokémon");
 Console.WriteLine($"PASS: fidelity route legally accepted {fidelityAccepted}/{emeraldPokemon.Count} supplied Pokémon; rejected sources remain blocked.");
-var batchPath = Path.Combine(Path.GetTempPath(), "mono-home-heartgold-batch.sav");
+var batchPath = TestEnvironment.ScratchFile("heartgold-batch.sav");
 var batchEntities = new[] { BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), BoxReader.ReadPokemon(emeraldPath, special!) };
 Console.WriteLine($"Batch entities: {string.Join(",", batchEntities.Select(entity => entity.Species))}");
 var batch = EmeraldHgssTransfer.TransferStoredMany(batchEntities, heartGoldPath, batchPath, TransferMode.Conversion);
@@ -452,13 +515,29 @@ var batchSave = (SAV4HGSS)SaveUtil.GetSaveFile(batchPath)!;
 Console.WriteLine($"Batch slots: {string.Join(", ", batch.Reports.Select(report => $"{report.Slot}=#{batchSave.GetBoxSlotAtIndex(report.Slot).Species}"))}");
 AssertTrue(batch.Reports.All(report => new LegalityAnalysis(batchSave.GetBoxSlotAtIndex(report.Slot)).Valid), "batch output slots are legal");
 Console.WriteLine($"PASS: batch transfer wrote {batch.Reports.Count} legal Pokémon.");
-var transferLogRoot = Path.Combine(Path.GetTempPath(), "mono-home-verifier-transfers", Guid.NewGuid().ToString("N"));
+
+// Writing the batch output straight onto the target would begin by deleting the user's
+// save, so the guard must refuse before anything is touched.
+var samePathBatch = EmeraldHgssTransfer.TransferStoredMany(batchEntities, heartGoldPath, heartGoldPath);
+AssertTrue(!samePathBatch.Succeeded, "batch transfer refuses to write onto the target save");
+AssertEqual(heartGoldHash, Hash(heartGoldPath), "refused batch transfer leaves the target save untouched");
+
+// An explicit occupied destination is refused on request and recorded when allowed.
+var occupiedSource = (SAV4HGSS)SaveUtil.GetSaveFile(heartGoldPath)!;
+var occupiedSlot = Enumerable.Range(0, occupiedSource.SlotCount)
+    .First(index => occupiedSource.GetBoxSlotAtIndex(index).Species != 0);
+var blockedOverwrite = EmeraldHgssTransfer.TransferStored(batchEntities[0], heartGoldPath, TestEnvironment.ScratchFile("heartgold-blocked.sav"), TransferMode.Conversion, occupiedSlot, allowOverwrite: false);
+AssertTrue(!blockedOverwrite.Succeeded, "an occupied destination is refused when overwrite is not allowed");
+var recordedOverwrite = EmeraldHgssTransfer.TransferStored(batchEntities[0], heartGoldPath, TestEnvironment.ScratchFile("heartgold-overwrite.sav"), TransferMode.Conversion, occupiedSlot);
+if (recordedOverwrite.Succeeded)
+    AssertTrue(recordedOverwrite.Changes.Any(change => change.Field == "Overwritten"), "an allowed overwrite is recorded in the transfer changes");
+var transferLogRoot = TestEnvironment.NewScratchDirectory("transfers");
 var transferLog = TransferJournal.Append(transferLogRoot, stored.Id, "Emerald", "HeartGold", transfer);
 AssertEqual(transferLog.Id, TransferJournal.List(transferLogRoot).Single().Id, "transfer journal persists output");
 AssertEqual("conversion", transferLog.Mode!, "transfer journal persists conversion mode");
 var exportedLog = TransferJournal.MarkExported(transferLogRoot, transferLog.Id, "heartgold-transfer.sav");
 AssertEqual("succeeded", exportedLog.Status, "transfer journal records completed export");
-var removable = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), Path.Combine(Path.GetTempPath(), "mono-home-verifier-removal"));
+var removable = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), TestEnvironment.NewScratchDirectory("removal"));
 LocalRepository.Remove(removable);
 AssertTrue(!File.Exists(removable.ManifestPath), "transferred repository record is removed");
 Console.WriteLine("PASS: successful transfer removal deletes the central warehouse record.");

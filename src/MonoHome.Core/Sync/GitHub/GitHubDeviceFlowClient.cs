@@ -7,13 +7,21 @@ public sealed record GitHubDeviceCode(
     string UserCode,
     Uri VerificationUri,
     TimeSpan ExpiresIn,
-    TimeSpan Interval);
+    TimeSpan Interval)
+{
+    /// <summary>Redacts the device code so it cannot reach a log or an error dialog.</summary>
+    public override string ToString() => $"GitHubDeviceCode {{ UserCode = {UserCode}, ExpiresIn = {ExpiresIn}, Interval = {Interval} }}";
+}
 
 public sealed record GitHubAccessToken(
     string AccessToken,
     string TokenType,
     DateTimeOffset? ExpiresAt,
-    string? RefreshToken);
+    string? RefreshToken)
+{
+    /// <summary>Redacts both secrets so the token cannot reach a log or an error dialog.</summary>
+    public override string ToString() => $"GitHubAccessToken {{ TokenType = {TokenType}, ExpiresAt = {ExpiresAt}, HasRefreshToken = {RefreshToken is not null} }}";
+}
 
 public sealed class GitHubOAuthException(string error, string? description = null) : InvalidOperationException(description is null ? error : $"{error}: {description}")
 {
@@ -22,6 +30,12 @@ public sealed class GitHubOAuthException(string error, string? description = nul
 
 public sealed class GitHubDeviceFlowClient
 {
+    const string DefaultBaseAddress = "https://github.com/";
+    const int DefaultPollSeconds = 5;
+
+    /// <summary>RFC 8628 requires a positive polling interval; GitHub may return 0.</summary>
+    const int MinimumPollSeconds = 1;
+
     readonly HttpClient client;
     readonly string clientId;
 
@@ -29,15 +43,15 @@ public sealed class GitHubDeviceFlowClient
     {
         this.client = client;
         this.clientId = clientId;
-        client.BaseAddress ??= new Uri("https://github.com/");
+        client.BaseAddress ??= new Uri(DefaultBaseAddress);
     }
 
     public async Task<GitHubDeviceCode> RequestDeviceCodeAsync(CancellationToken cancellationToken)
     {
         EnsureClientId();
-        using var response = await client.PostAsync(
+        using var response = await PostFormAsync(
             "login/device/code",
-            new FormUrlEncodedContent(new Dictionary<string, string> { ["client_id"] = clientId }),
+            new Dictionary<string, string> { ["client_id"] = clientId },
             cancellationToken);
         using var json = await ReadJsonAsync(response, cancellationToken);
         ThrowOAuthError(json);
@@ -47,7 +61,7 @@ public sealed class GitHubDeviceFlowClient
             root.GetProperty("user_code").GetString() ?? throw new InvalidDataException("GitHub device response has no user code."),
             new Uri(root.GetProperty("verification_uri").GetString() ?? throw new InvalidDataException("GitHub device response has no verification URI.")),
             TimeSpan.FromSeconds(root.GetProperty("expires_in").GetInt32()),
-            TimeSpan.FromSeconds(root.TryGetProperty("interval", out var interval) ? interval.GetInt32() : 5));
+            TimeSpan.FromSeconds(root.TryGetProperty("interval", out var interval) ? Math.Max(interval.GetInt32(), MinimumPollSeconds) : DefaultPollSeconds));
     }
 
     public async Task<GitHubAccessToken> WaitForAccessTokenAsync(GitHubDeviceCode deviceCode, CancellationToken cancellationToken)
@@ -58,14 +72,14 @@ public sealed class GitHubDeviceFlowClient
         while (DateTimeOffset.UtcNow < deadline)
         {
             await Task.Delay(interval, cancellationToken);
-            using var response = await client.PostAsync(
+            using var response = await PostFormAsync(
                 "login/oauth/access_token",
-                new FormUrlEncodedContent(new Dictionary<string, string>
+                new Dictionary<string, string>
                 {
                     ["client_id"] = clientId,
                     ["device_code"] = deviceCode.DeviceCode,
                     ["grant_type"] = "urn:ietf:params:oauth:grant-type:device_code",
-                }),
+                },
                 cancellationToken);
             using var json = await ReadJsonAsync(response, cancellationToken);
             var root = json.RootElement;
@@ -93,19 +107,34 @@ public sealed class GitHubDeviceFlowClient
         if (string.IsNullOrWhiteSpace(refreshToken))
             throw new ArgumentException("Refresh token is required.", nameof(refreshToken));
 
-        using var response = await client.PostAsync(
+        using var response = await PostFormAsync(
             "login/oauth/access_token",
-            new FormUrlEncodedContent(new Dictionary<string, string>
+            new Dictionary<string, string>
             {
                 ["client_id"] = clientId,
                 ["refresh_token"] = refreshToken,
                 ["grant_type"] = "refresh_token",
-            }),
+            },
             cancellationToken);
         using var json = await ReadJsonAsync(response, cancellationToken);
         ThrowOAuthError(json);
         var refreshed = ParseAccessToken(json.RootElement);
         return refreshed with { RefreshToken = refreshed.RefreshToken ?? refreshToken };
+    }
+
+    /// <summary>
+    /// Posts a form body and asks for a JSON reply. GitHub serves these endpoints as
+    /// <c>application/x-www-form-urlencoded</c> unless the request opts in with
+    /// <c>Accept: application/json</c>, so the header is required for every call.
+    /// </summary>
+    async Task<HttpResponseMessage> PostFormAsync(string path, Dictionary<string, string> form, CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, path)
+        {
+            Content = new FormUrlEncodedContent(form),
+        };
+        request.Headers.Accept.ParseAdd("application/json");
+        return await client.SendAsync(request, cancellationToken);
     }
 
     void EnsureClientId()
@@ -129,8 +158,45 @@ public sealed class GitHubDeviceFlowClient
     {
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"GitHub device flow failed: {(int)response.StatusCode} {body}", null, response.StatusCode);
+        {
+            // A successful OAuth reply carries the access token, so the body must never be
+            // embedded in a message: messages reach dialogs and logs. Only a short prefix of
+            // a failed response is kept, and error fields are redacted.
+            throw new HttpRequestException(
+                $"GitHub device flow failed: {(int)response.StatusCode} {Summarize(body)}",
+                null,
+                response.StatusCode);
+        }
         return JsonDocument.Parse(body);
+    }
+
+    static string Summarize(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return "no response body";
+        var flattened = body.Replace('\r', ' ').Replace('\n', ' ').Trim();
+        return flattened.Length <= 200 ? Redact(flattened) : Redact(flattened[..200]) + "…";
+    }
+
+    static string Redact(string value)
+    {
+        var result = value;
+        foreach (var key in (string[])["access_token", "refresh_token", "device_code"])
+            result = RedactField(result, key);
+        return result;
+    }
+
+    static string RedactField(string value, string key)
+    {
+        var index = value.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+        if (index < 0)
+            return value;
+        var separator = value.IndexOf('=', index);
+        if (separator < 0)
+            return value;
+        var end = value.IndexOf('&', separator);
+        var tail = end < 0 ? string.Empty : value[end..];
+        return string.Concat(value.AsSpan(0, index), key, "=<redacted>", tail);
     }
 
     static void ThrowOAuthError(JsonDocument json)

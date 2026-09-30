@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.0";
+    const string CurrentVersion = "1.2.1";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -141,6 +141,19 @@ public class MainActivity : Activity
     string emeraldExternalState = "尚未导入";
     string heartGoldExternalState = "尚未导入";
     string otherExternalState = "尚未导入";
+
+    /// <summary>
+    /// Cancelled once the Activity is destroyed, so long-running sync/transfer work stops
+    /// instead of resuming and touching a dead view tree.
+    /// </summary>
+    readonly CancellationTokenSource lifetime = new();
+
+    /// <summary>
+    /// True from <see cref="OnDestroy"/> onwards. Every continuation that would show a
+    /// dialog or write to a view checks this first: showing a dialog after the Activity is
+    /// gone throws <c>WindowManager.BadTokenException</c> and kills the process.
+    /// </summary>
+    bool destroyed;
 
     string WarehousePath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "warehouse");
     string SavesPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "saves");
@@ -268,6 +281,74 @@ public class MainActivity : Activity
         SwitchPage("warehouse", navHome);
     }
 
+    protected override void OnPause()
+    {
+        base.OnPause();
+        // A repeating animator keeps drawing into a view tree that may never come back.
+        StopTransferAnimation();
+    }
+
+    protected override void OnDestroy()
+    {
+        destroyed = true;
+        if (!lifetime.IsCancellationRequested)
+            lifetime.Cancel();
+        StopTransferAnimation();
+        base.OnDestroy();
+    }
+
+    /// <summary>
+    /// Links an operation to the Activity lifetime while keeping its own timeout, so the
+    /// work stops both on timeout and when the Activity goes away.
+    /// </summary>
+    CancellationTokenSource BeginOperation(TimeSpan timeout)
+    {
+        var operation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+        operation.CancelAfter(timeout);
+        return operation;
+    }
+
+    /// <summary>
+    /// True when it is still safe to show a dialog or touch views. Long operations must
+    /// re-check this after every await: the Activity can be destroyed while they wait.
+    /// </summary>
+    bool CanTouchUi => !destroyed && !IsFinishing && !IsDestroyed;
+
+    /// <summary>
+    /// Shows a dialog only while the Activity can still own a window. Showing one after the
+    /// Activity is gone throws <c>WindowManager.BadTokenException</c>, so callers get a
+    /// dismissed dialog back and must not touch it afterwards.
+    /// </summary>
+    void ShowSafely(AlertDialog.Builder builder) => ShowSafely(builder.Create()!);
+
+    /// <inheritdoc cref="ShowSafely(AlertDialog.Builder)"/>
+    void ShowSafely(AlertDialog dialog)
+    {
+        if (!CanTouchUi)
+        {
+            dialog.Dismiss();
+            return;
+        }
+        dialog.Show();
+    }
+
+    /// <inheritdoc cref="ShowSafely(AlertDialog.Builder)"/>
+    void ShowSafely(Dialog dialog)
+    {
+        if (!CanTouchUi)
+        {
+            dialog.Dismiss();
+            return;
+        }
+        dialog.Show();
+    }
+
+    void StopTransferAnimation()
+    {
+        transferAnimator?.Cancel();
+        transferAnimator = null;
+    }
+
     void ShowImportChooser()
     {
         if (status is null)
@@ -285,7 +366,7 @@ public class MainActivity : Activity
         dialog.SetNegativeButton("关闭", (_, _) => { });
         dialog.SetNeutralButton("存档仓库", async (_, _) => await ShowRepositoryDialogAsync());
         dialog.SetPositiveButton("检查版本更新", async (_, _) => await CheckForUpdatesAsync());
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task ShowRepositoryDialogAsync()
@@ -305,7 +386,7 @@ public class MainActivity : Activity
             dialog.SetNegativeButton("解除绑定", (_, _) => ConfirmUnbindRepository());
         dialog.SetNeutralButton(string.IsNullOrWhiteSpace(token) ? "输入 PAT" : "更新 PAT", (_, _) => ShowPersonalAccessTokenInput());
         dialog.SetPositiveButton(repository is null ? "绑定仓库" : "更换仓库", (_, _) => ShowRepositoryChoice());
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ConfirmUnbindRepository()
@@ -315,7 +396,7 @@ public class MainActivity : Activity
         dialog.SetMessage("只清除本机保存的 GitHub 凭据、仓库绑定和存档线记录，不删除远端仓库或远端存档。之后仍可重新连接并绑定。");
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetPositiveButton("确认解除", async (_, _) => await UnbindRepositoryAsync());
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task UnbindRepositoryAsync()
@@ -363,13 +444,13 @@ public class MainActivity : Activity
             ShowRepositoryBindingInput(DefaultRemoteRepository);
         });
         dialog.SetPositiveButton("绑定已有仓库", (_, _) => _ = ShowAvailableRepositoriesAsync());
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task ShowAvailableRepositoriesAsync()
     {
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(2));
         try
         {
             var token = await LoadGithubAccessTokenAsync(operation.Token);
@@ -427,11 +508,11 @@ public class MainActivity : Activity
             });
             dialog.SetNegativeButton("取消", (_, _) => { });
             dialog.SetNeutralButton("手动输入", (_, _) => ShowRepositoryBindingInput());
-            dialog.Show();
+            ShowSafely(dialog);
         }
         catch (OperationCanceledException)
         {
-            ShowSyncMessage("绑定已有仓库", "GitHub 请求超时或已取消，请稍后重试。");
+            ShowSyncMessage("绑定已有仓库", "操作已取消或超时（离开页面也会取消），请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -463,7 +544,7 @@ public class MainActivity : Activity
         dialog.SetView(fields);
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetPositiveButton("验证并绑定", async (_, _) => await BindRepositoryAsync(ownerInput.Text?.Trim(), repositoryInput.Text?.Trim()));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ShowPersonalAccessTokenInput()
@@ -477,7 +558,7 @@ public class MainActivity : Activity
         dialog.SetView(input);
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetPositiveButton("校验并保存", async (_, _) => await SavePersonalAccessTokenAsync(input.Text?.Trim()));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task SavePersonalAccessTokenAsync(string? token)
@@ -488,7 +569,7 @@ public class MainActivity : Activity
             return;
         }
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(1));
         try
         {
             using var client = new HttpClient();
@@ -529,7 +610,7 @@ public class MainActivity : Activity
         }
 
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(2));
         try
         {
             var token = await LoadGithubAccessTokenAsync(operation.Token);
@@ -546,7 +627,7 @@ public class MainActivity : Activity
         }
         catch (OperationCanceledException)
         {
-            ShowSyncMessage("绑定仓库失败", "GitHub 请求超时或已取消，请稍后重试。");
+            ShowSyncMessage("绑定仓库失败", "操作已取消或超时（离开页面也会取消），请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -573,7 +654,7 @@ public class MainActivity : Activity
         }
 
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(2));
         try
         {
             if (!await RefreshRegisteredSaveAsync(requestCode))
@@ -616,11 +697,11 @@ public class MainActivity : Activity
             dialog.SetNegativeButton("关闭", (_, _) => { });
             dialog.SetNeutralButton("历史版本", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
             dialog.SetPositiveButton("操作", (_, _) => ShowSaveSyncActions(saveKey));
-            dialog.Show();
+            ShowSafely(dialog);
         }
         catch (OperationCanceledException)
         {
-            ShowSyncMessage("存档同步失败", "GitHub 请求超时或已取消，请稍后重试。");
+            ShowSyncMessage("存档同步失败", "操作已取消或超时（离开页面也会取消），请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -644,7 +725,7 @@ public class MainActivity : Activity
         dialog.SetMessage($"将要{action}。{(upload ? "远端内容不一致时不会直接覆盖。" : "当前本地快照会先保存为 recovery 文件。")}");
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetPositiveButton("确认", async (_, _) => await RunSaveSyncActionAsync(saveKey, upload));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ConfirmSaveForkAction(string saveKey)
@@ -655,7 +736,7 @@ public class MainActivity : Activity
         dialog.SetNegativeButton("使用远端最新", async (_, _) => await RunSaveSyncActionAsync(saveKey, false));
         dialog.SetNeutralButton("查看历史", (_, _) => _ = ShowSaveHistoryAsync(saveKey));
         dialog.SetPositiveButton("创建并上传", async (_, _) => await RunSaveSyncActionAsync(saveKey, true, null, true));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     static string CreateSaveRecoveryPoint(RegisteredSave save)
@@ -673,13 +754,13 @@ public class MainActivity : Activity
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetNeutralButton("上传", (_, _) => ConfirmSaveSyncAction(saveKey, true));
         dialog.SetPositiveButton("拉取最新", (_, _) => ConfirmSaveSyncAction(saveKey, false));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task ShowSaveHistoryAsync(string saveKey)
     {
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(2));
         try
         {
             var bindingStore = new AndroidRepositoryBindingStore(this);
@@ -705,11 +786,11 @@ public class MainActivity : Activity
             dialog.SetTitle("选择历史版本");
             dialog.SetItems(labels, (_, args) => ConfirmSaveVersionPull(saveKey, versions[args.Which]));
             dialog.SetNegativeButton("取消", (_, _) => { });
-            dialog.Show();
+            ShowSafely(dialog);
         }
         catch (OperationCanceledException)
         {
-            ShowSyncMessage("历史版本", "GitHub 请求超时或已取消，请稍后重试。");
+            ShowSyncMessage("历史版本", "操作已取消或超时（离开页面也会取消），请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -732,13 +813,13 @@ public class MainActivity : Activity
         dialog.SetMessage($"版本：{version.CommitSha}\n时间：{version.ModifiedAt.ToLocalTime():yyyy-MM-dd HH:mm}\n\n当前本地快照会先保存为 recovery 文件。");
         dialog.SetNegativeButton("取消", (_, _) => { });
         dialog.SetPositiveButton("确认拉取", async (_, _) => await RunSaveSyncActionAsync(saveKey, false, version));
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task RunSaveSyncActionAsync(string saveKey, bool upload, RemoteSaveVersion? selectedVersion = null, bool createLineage = false)
     {
         SetBusy(true);
-        using var operation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+        using var operation = BeginOperation(TimeSpan.FromMinutes(2));
         try
         {
             var requestCode = saveKey == "emerald" ? EmeraldRequest : HeartGoldRequest;
@@ -802,7 +883,7 @@ public class MainActivity : Activity
         }
         catch (OperationCanceledException)
         {
-            ShowSyncMessage("存档同步失败", "GitHub 请求超时或已取消，请稍后重试。");
+            ShowSyncMessage("存档同步失败", "操作已取消或超时（离开页面也会取消），请稍后重试。");
         }
         catch (GitHubApiException ex)
         {
@@ -833,7 +914,7 @@ public class MainActivity : Activity
         dialog.SetTitle(title);
         dialog.SetMessage(message);
         dialog.SetPositiveButton("关闭", (_, _) => { });
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     async Task CheckForUpdatesAsync()
@@ -867,7 +948,7 @@ public class MainActivity : Activity
             update.SetMessage(message);
             update.SetNegativeButton("稍后", (_, _) => { });
             update.SetPositiveButton("打开下载", (_, _) => OpenReleaseUrl(apkUrl ?? releaseUrl));
-            update.Show();
+            ShowSafely(update);
             status.Text = $"发现新版本：{tag}。";
         }
         catch (Exception ex)
@@ -1092,7 +1173,7 @@ public class MainActivity : Activity
             var heartGoldPath = global::System.IO.Path.Combine(cachePath, "heartgold-input.sav");
             File.WriteAllBytes(heartGoldPath, heartGoldBytes);
             var current = storedPokemon;
-            var preparation = await Task.Run(() => TargetPreparationService.Prepare(current, heartGoldSave, heartGoldPath, global::System.IO.Path.Combine(cachePath, "prepared"), destinationSlot));
+            var preparation = await Task.Run(() => TargetPreparationService.Prepare(current, heartGoldSave, heartGoldPath, global::System.IO.Path.Combine(cachePath, "prepared"), destinationSlot, transferMode));
             if (!preparation.IsCurrentFor(current, heartGoldSave) || string.IsNullOrWhiteSpace(preparation.PreparedSavePath))
             {
                 storedPokemon = LocalRepository.SetLegality(current, "invalid");
@@ -1111,6 +1192,7 @@ public class MainActivity : Activity
             heartGoldSave = SaveRegistry.UpdateSnapshot(heartGoldSave, write.WrittenBytes!);
             selectedTransferTarget = heartGoldSave;
             selectedTransferSlot = destinationSlot;
+            AdoptRecoveryPoint(write.BackupPath);
             heartGoldBytes = write.WrittenBytes;
             heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
             heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
@@ -1155,7 +1237,7 @@ public class MainActivity : Activity
             var outputPath = global::System.IO.Path.Combine(cachePath, "heartgold-transfer.sav");
             File.WriteAllBytes(heartGoldPath, heartGoldBytes);
             var entities = records.Select(LocalRepository.LoadWorking).ToArray();
-            var batch = await Task.Run(() => EmeraldHgssTransfer.TransferStoredMany(entities, heartGoldPath, outputPath, TransferMode.Conversion, destinationSlot));
+            var batch = await Task.Run(() => EmeraldHgssTransfer.TransferStoredMany(entities, heartGoldPath, outputPath, transferMode, destinationSlot));
             if (!batch.Succeeded)
             {
                 foreach (var record in records)
@@ -1171,6 +1253,7 @@ public class MainActivity : Activity
                 return;
             }
             heartGoldSave = SaveRegistry.UpdateSnapshot(heartGoldSave, write.WrittenBytes!);
+            AdoptRecoveryPoint(write.BackupPath);
             heartGoldBytes = write.WrittenBytes;
             heartGoldSlots = BoxReader.Read(heartGoldBytes, heartGoldSave.DisplayName).ToList();
             heartGoldPages = BoxReader.ReadPages(heartGoldBytes, heartGoldSave.DisplayName).ToList();
@@ -1233,7 +1316,7 @@ public class MainActivity : Activity
         dialog.SetTitle("选择下载目标存档");
         dialog.SetItems(choices.ToArray(), (_, args) => actions[args?.Which ?? 0]());
         dialog.SetNegativeButton("取消", (_, _) => { });
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ShowTransferTargetChooser()
@@ -1277,7 +1360,7 @@ public class MainActivity : Activity
         dialog.SetTitle("选择传送目标存档");
         dialog.SetItems(choices.ToArray(), (_, args) => actions[args?.Which ?? 0]());
         dialog.SetNegativeButton("取消", (_, _) => { });
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ShowTransferPlacementDialog(RegisteredSave target)
@@ -1371,7 +1454,7 @@ public class MainActivity : Activity
         next.Click += (_, _) => { pageIndex++; RenderPage(); };
         RenderPage();
         dialog.SetContentView(panel);
-        dialog.Show();
+        ShowSafely(dialog);
         if (dialog.Window is { } window)
         {
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -1398,7 +1481,7 @@ public class MainActivity : Activity
             placement.Dismiss();
             await GenerateTransferAsync(destinationSlot);
         });
-        confirm.Show();
+        ShowSafely(confirm);
     }
 
     void ShowBatchTransferPlacementDialog(RegisteredSave target)
@@ -1505,7 +1588,7 @@ public class MainActivity : Activity
         next.Click += (_, _) => { pageIndex++; RenderPage(); };
         RenderPage();
         dialog.SetContentView(panel);
-        dialog.Show();
+        ShowSafely(dialog);
         if (dialog.Window is { } window)
         {
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -1538,7 +1621,7 @@ public class MainActivity : Activity
             placement.Dismiss();
             await GenerateBatchTransferAsync(destinationSlot);
         });
-        confirm.Show();
+        ShowSafely(confirm);
     }
 
     void RegisterSave(int requestCode, byte[] bytes, IReadOnlyList<PokemonSlot> slots, string? sourceUri, int sourceFlags = 0, string? displayName = null)
@@ -1828,8 +1911,8 @@ public class MainActivity : Activity
         fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}")
             .SetMessage($"{message}\n\n位置：{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n状态：{(slot.IsShiny ? "闪光" : "普通")}")
             .SetNegativeButton("关闭", (_, _) => { })
-            .SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) => ToggleSourceSlot(slot))
-            .Show();
+            .SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) => ToggleSourceSlot(slot));
+        ShowSafely(fallback.Create()!);
     }
 
     static GradientDrawable CreateSlotBackground(bool occupied, bool selected, bool empty)
@@ -2108,7 +2191,7 @@ public class MainActivity : Activity
             _ = ApplyWarehouseFilterAsync();
         };
         dialog.SetContentView(shell);
-        dialog.Show();
+        ShowSafely(dialog);
         if (dialog.Window is { } window)
         {
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -2349,7 +2432,7 @@ public class MainActivity : Activity
             else
                 StartActivityForResult(new Intent(this, typeof(EditCopyActivity)).PutExtra("repository_id", record.Id), 30);
         });
-        dialog.Show();
+        ShowSafely(dialog);
     }
 
     void ShowWarehouseDetail(StoredPokemon record)
@@ -2616,7 +2699,7 @@ public class MainActivity : Activity
         }
         root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(10) });
         dialog.SetContentView(root);
-        dialog.Show();
+        ShowSafely(dialog);
         if (dialog.Window is { } window)
         {
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -2659,7 +2742,7 @@ public class MainActivity : Activity
         close.Click += (_, _) => dialog.Dismiss();
         panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(14) });
         dialog.SetContentView(panel);
-        dialog.Show();
+        ShowSafely(dialog);
         if (dialog.Window is { } window)
         {
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -2903,7 +2986,7 @@ public class MainActivity : Activity
             cancel.Click += (_, _) => dialog.Dismiss();
             root.AddView(cancel, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(8) });
             dialog.SetContentView(root);
-            dialog.Show();
+            ShowSafely(dialog);
             if (dialog.Window is { } window)
             {
                 window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
@@ -3026,8 +3109,7 @@ public class MainActivity : Activity
             return;
         if (!value)
         {
-            transferAnimator?.Cancel();
-            transferAnimator = null;
+            StopTransferAnimation();
             transferVisual.Visibility = global::Android.Views.ViewStates.Gone;
             transferCaption.Visibility = global::Android.Views.ViewStates.Gone;
             return;
@@ -3038,7 +3120,10 @@ public class MainActivity : Activity
         mainScroll?.Post(() => mainScroll.SmoothScrollTo(0, Math.Max(0, transferVisual.Top - Dp(18))));
         transferVisual.Post(() =>
         {
-            transferAnimator?.Cancel();
+            // Post runs later, so the Activity may already be gone by the time it fires.
+            if (!CanTouchUi)
+                return;
+            StopTransferAnimation();
             var distance = Math.Max(40, transferVisual.Width - 120);
             transferAnimator = ObjectAnimator.OfFloat(transferPacket, "translationX", 0f, distance);
             transferAnimator!.SetDuration(900);
@@ -3081,6 +3166,22 @@ public class MainActivity : Activity
         intent.SetType("application/octet-stream");
         intent.PutExtra(Intent.ExtraTitle, "heartgold-transfer.sav");
         StartActivityForResult(intent, 12);
+    }
+
+    /// <summary>
+    /// Adopts the recovery point the target writer created for a completed write and
+    /// enables "导出最近备份" so the copy the app promises the user is actually reachable.
+    /// </summary>
+    void AdoptRecoveryPoint(string? backupPath)
+    {
+        if (string.IsNullOrWhiteSpace(backupPath) || !File.Exists(backupPath))
+            return;
+        lastBackupPath = backupPath;
+        if (exportBackupButton is not null)
+        {
+            exportBackupButton.Visibility = global::Android.Views.ViewStates.Visible;
+            exportBackupButton.Enabled = true;
+        }
     }
 
     string CreateTargetBackup(byte[] bytes)

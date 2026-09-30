@@ -11,3 +11,10 @@ fixtures/private/
 apk-inspect/
 artifacts/
 .superpowers/
+.verify-tmp/
+
+# Signing material must never be committed; inject it via CI environment or a local props file.
+*.jks
+*.keystore
+keystore.properties
+local.properties

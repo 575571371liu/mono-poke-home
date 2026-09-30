@@ -1,3 +1,4 @@
+using MonoHome.Core.Storage;
 using System.Text.Json;
 
 namespace MonoHome.Core.Transfers;
@@ -41,6 +42,10 @@ public static class TransferJournal
     public static TransferRecord MarkExported(string root, string id, string outputName)
     {
         var record = Read(Path.Combine(root, $"{id}.json")) ?? throw new InvalidDataException("Transfer record is missing.");
+        // The SAF export acknowledgement can be retried after a process death, so re-marking
+        // an already-exported record must be a no-op rather than an error.
+        if (record.Status == "succeeded")
+            return record;
         if (record.Status != "prepared")
             throw new InvalidOperationException("Only a prepared transfer can be exported.");
         var completed = record with { Status = "succeeded", OutputName = outputName, CompletedAt = DateTimeOffset.UtcNow };
@@ -60,18 +65,11 @@ public static class TransferJournal
             .ToArray();
     }
 
-    static TransferRecord? Read(string path)
-    {
-        try { return JsonSerializer.Deserialize<TransferRecord>(File.ReadAllText(path), Json); }
-        catch (JsonException) { return null; }
-    }
+    static TransferRecord? Read(string path) => AtomicFile.TryReadJson<TransferRecord>(path, Json);
 
     static void Write(string root, TransferRecord record)
     {
         Directory.CreateDirectory(root);
-        var path = Path.Combine(root, $"{record.Id}.json");
-        var temporary = $"{path}.{Guid.NewGuid():N}.tmp";
-        File.WriteAllBytes(temporary, JsonSerializer.SerializeToUtf8Bytes(record, Json));
-        File.Move(temporary, path, true);
+        AtomicFile.WriteJson(Path.Combine(root, $"{record.Id}.json"), record, Json);
     }
 }

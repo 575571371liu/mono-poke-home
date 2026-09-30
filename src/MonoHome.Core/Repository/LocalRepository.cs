@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MonoHome.Core.Storage;
 using PKHeX.Core;
 
 namespace MonoHome.Core.Repository;
@@ -111,11 +112,17 @@ public static class LocalRepository
         }
         if (edit.Shiny is { } shiny)
         {
-            if (shiny && !pokemon.IsShiny) pokemon.SetShiny();
-            if (!shiny && pokemon.IsShiny) pokemon.SetShinySID(Shiny.Never);
+            if (shiny)
+                EnsureShiny(pokemon);
+            else
+                EnsureNotShiny(pokemon);
         }
-        else if ((edit.Nature is not null || edit.Gender is not null) && originalShiny && !pokemon.IsShiny)
-            pokemon.SetShiny();
+        else if ((edit.Nature is not null || edit.Gender is not null) && originalShiny)
+        {
+            // Rerolling the PID for a new nature or gender can drop shininess, so re-apply
+            // the state the entity started with.
+            EnsureShiny(pokemon);
+        }
         if (edit.Egg is { } egg)
             pokemon.IsEgg = egg;
         if (edit.HeldItem is { } item)
@@ -154,6 +161,28 @@ public static class LocalRepository
             pokemon.SetEVs(evs.ToArray());
         }
         return pokemon;
+    }
+
+    /// <summary>Makes an entity shiny without disturbing its nature or gender.</summary>
+    static void EnsureShiny(PKM pokemon)
+    {
+        if (!pokemon.IsShiny)
+            pokemon.SetShiny();
+    }
+
+    /// <summary>
+    /// Makes an entity not shiny.
+    ///
+    /// This must reroll the PID rather than nudge the trainer SID: <c>PKM.SetShinySID</c>
+    /// targets a shiny XOR within [0,7], which is shiny by definition, so it can never
+    /// clear shininess — it only corrupts the original trainer identity.
+    /// </summary>
+    static void EnsureNotShiny(PKM pokemon)
+    {
+        // Bounded so a fixed-gender species whose PID space offers no non-shiny value
+        // cannot spin forever; leaving the entity shiny is better than hanging.
+        for (var attempt = 0; attempt < 64 && pokemon.IsShiny; attempt++)
+            pokemon.SetPIDGender(pokemon.Gender);
     }
 
     public static StoredPokemon SaveWorking(StoredPokemon stored, PKM pokemon)
@@ -361,8 +390,14 @@ public static class LocalRepository
         foreach (var path in new[] { stored.ManifestPath, stored.WorkingPath, stored.OriginalPath })
             if (File.Exists(path))
                 File.Delete(path);
-        if (Directory.Exists(directory))
-            Directory.Delete(directory);
+        if (!Directory.Exists(directory))
+            return;
+        // The record's own files are gone, so the directory only holds leftovers such as an
+        // interrupted atomic write. Failing here would report a completed transfer as
+        // failed, so remove the directory recursively and tolerate a locked leftover.
+        try { Directory.Delete(directory, true); }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     public static StoredPokemon? GetLatest(string root)
@@ -380,28 +415,18 @@ public static class LocalRepository
             .ToArray();
     }
 
-    static StoredPokemon? ReadRecord(string path)
-    {
-        try { return JsonSerializer.Deserialize<StoredPokemon>(File.ReadAllText(path), Json); }
-        catch (JsonException) { return null; }
-    }
+    static StoredPokemon? ReadRecord(string path) => AtomicFile.TryReadJson<StoredPokemon>(path, Json);
 
     static void WritePokemon(string path, PKM pokemon)
     {
         var data = new byte[pokemon.SIZE_STORED];
         pokemon.WriteEncryptedDataStored(data);
-        WriteAtomic(path, data);
+        // Verify before committing: moving an unreadable payload into place would destroy
+        // the previous working copy with nothing left to fall back to.
         if (EntityFormat.GetFromBytes(data) is null)
             throw new InvalidDataException("Working copy verification failed.");
+        AtomicFile.Write(path, data);
     }
 
-    static void WriteRecord(StoredPokemon stored) =>
-        WriteAtomic(stored.ManifestPath, JsonSerializer.SerializeToUtf8Bytes(stored, Json));
-
-    static void WriteAtomic(string path, byte[] data)
-    {
-        var temporary = $"{path}.{Guid.NewGuid():N}.tmp";
-        File.WriteAllBytes(temporary, data);
-        File.Move(temporary, path, true);
-    }
+    static void WriteRecord(StoredPokemon stored) => AtomicFile.WriteJson(stored.ManifestPath, stored, Json);
 }

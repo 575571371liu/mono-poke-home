@@ -1,4 +1,5 @@
 using MonoHome.Core.Repository;
+using MonoHome.Core.Storage;
 using PKHeX.Core;
 
 namespace MonoHome.Core.Transfers;
@@ -13,30 +14,46 @@ public enum TransferMode { Conversion, Fidelity }
 
 public static class EmeraldHgssTransfer
 {
-    public static TransferReport TransferStored(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion, int destinationSlot = -1) =>
-        Transfer(pokemon, heartGoldPath, outputPath, mode, destinationSlot);
+    public static TransferReport TransferStored(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion, int destinationSlot = -1, bool allowOverwrite = true) =>
+        Transfer(pokemon, heartGoldPath, outputPath, mode, destinationSlot, allowOverwrite);
 
     public static TransferBatchReport TransferStoredMany(IReadOnlyList<PKM> pokemon, string heartGoldPath, string outputPath, TransferMode mode = TransferMode.Conversion, int destinationSlot = -1)
     {
         if (pokemon.Count == 0)
             return new(false, outputPath, "未选择宝可梦。", []);
+
+        // Writing "into" the target would start by deleting it, so refuse before touching
+        // anything. Callers stage to a cache path and write the real save separately.
+        if (PathsEqual(outputPath, heartGoldPath))
+            return new(false, outputPath, "批量输出路径不能与目标存档相同。", []);
+
+        // Stage every intermediate next to the requested output so the whole operation
+        // stays on one volume and never depends on the ambient system temp directory,
+        // which is not reliably writable in confined environments.
+        var stagingRoot = Path.GetDirectoryName(Path.GetFullPath(outputPath));
+        if (string.IsNullOrEmpty(stagingRoot))
+            return new(false, outputPath, "批量传送输出路径无效。", []);
+
         var reports = new List<TransferReport>();
         var insertedSlots = new List<int>();
-        try { File.Delete(outputPath); } catch { }
-        var currentPath = Path.Combine(Path.GetTempPath(), $"mono-home-batch-{Guid.NewGuid():N}.sav");
-        File.Copy(heartGoldPath, currentPath, true);
+        AtomicFile.TryDelete(outputPath);
+
+        Directory.CreateDirectory(stagingRoot);
+        var runId = Guid.NewGuid().ToString("N");
+        var currentPath = Path.Combine(stagingRoot, $"mono-home-batch-{runId}.sav");
         var temporaryPaths = new List<string> { currentPath };
         try
         {
+            File.Copy(heartGoldPath, currentPath, true);
             foreach (var (entity, index) in pokemon.Select((entity, index) => (entity, index)))
             {
-                var nextPath = Path.Combine(Path.GetTempPath(), $"mono-home-batch-{Guid.NewGuid():N}-{index}.sav");
+                var nextPath = Path.Combine(stagingRoot, $"mono-home-batch-{runId}-{index}.sav");
                 temporaryPaths.Add(nextPath);
                 var report = Transfer(entity, currentPath, nextPath, mode, destinationSlot >= 0 ? destinationSlot + index : -1);
                 reports.Add(report);
                 if (!report.Succeeded)
                 {
-                    try { File.Delete(outputPath); } catch { }
+                    AtomicFile.TryDelete(outputPath);
                     return new(false, outputPath, $"第 {index + 1} 只宝可梦未通过合法性检查：{report.Message}", reports);
                 }
                 insertedSlots.Add(report.Slot);
@@ -46,7 +63,7 @@ public static class EmeraldHgssTransfer
             var persisted = SaveUtil.GetSaveFile(outputPath) as SAV4HGSS;
             if (persisted is null || insertedSlots.Any(slot => !new LegalityAnalysis(persisted.GetBoxSlotAtIndex(slot)).Valid))
             {
-                try { File.Delete(outputPath); } catch { }
+                AtomicFile.TryDelete(outputPath);
                 return new(false, outputPath, "批量输出重新读取后未通过合法性检查。", reports);
             }
             return new(true, outputPath, $"已处理 {reports.Count} 只宝可梦。", reports);
@@ -54,11 +71,14 @@ public static class EmeraldHgssTransfer
         finally
         {
             foreach (var temporaryPath in temporaryPaths)
-                try { File.Delete(temporaryPath); } catch { }
+                AtomicFile.TryDelete(temporaryPath);
         }
     }
 
-    static TransferReport Transfer(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode, int destinationSlot = -1)
+    static bool PathsEqual(string left, string right) =>
+        string.Equals(Path.GetFullPath(left), Path.GetFullPath(right), StringComparison.OrdinalIgnoreCase);
+
+    static TransferReport Transfer(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode, int destinationSlot = -1, bool allowOverwrite = true)
     {
         var target = SaveUtil.GetSaveFile(heartGoldPath) as SAV4HGSS ?? throw new InvalidDataException("Invalid HeartGold save.");
         var changes = new List<TransferChange>();
@@ -99,6 +119,7 @@ public static class EmeraldHgssTransfer
             converted.TID16 = target.TID16;
             converted.SID16 = target.SID16;
             converted.OriginalTrainerGender = target.Gender;
+            RestoreShiny(converted, pokemon, changes);
         }
         if (converted.Nickname.Length > target.MaxStringLengthNickname)
         {
@@ -106,7 +127,6 @@ public static class EmeraldHgssTransfer
             converted.Nickname = converted.Nickname[..target.MaxStringLengthNickname];
         }
         changes.Add(new("HeldItem", pokemon.HeldItem.ToString(), converted.HeldItem.ToString()));
-        changes.Add(new("Shiny", pokemon.IsShiny.ToString(), converted.IsShiny.ToString()));
         changes.Add(new("Status", pokemon.Status_Condition.ToString(), converted.Status_Condition.ToString()));
         changes.Add(new("Pokerus", $"{pokemon.PokerusStrain}/{pokemon.PokerusDays}", $"{converted.PokerusStrain}/{converted.PokerusDays}"));
         changes.Add(new("Egg", pokemon.IsEgg.ToString(), converted.IsEgg.ToString()));
@@ -120,6 +140,14 @@ public static class EmeraldHgssTransfer
             : Enumerable.Range(0, target.SlotCount).FirstOrDefault(i => target.GetBoxSlotAtIndex(i).Species == 0, -1);
         if (slot < 0 || slot >= target.SlotCount)
             return new(false, converted.Species, conversionResult.ToString(), false, outputPath, "Target save has no empty slot.", changes);
+        if (destinationSlot >= 0 && !allowOverwrite && target.GetBoxSlotAtIndex(slot).Species != 0)
+            return new(false, converted.Species, conversionResult.ToString(), false, outputPath, "目标仓位已被占用，请选择空仓位。", changes);
+
+        // An explicit destination can replace an occupant, so record what was lost. The UI
+        // asks for confirmation, but the journal is what makes the overwrite auditable.
+        var occupant = target.GetBoxSlotAtIndex(slot).Species;
+        if (occupant != 0)
+            changes.Add(new("Overwritten", SpeciesName.GetSpeciesNameGeneration(occupant, target.Language, (byte)target.Generation), SpeciesName.GetSpeciesNameGeneration(converted.Species, target.Language, (byte)target.Generation)));
 
         target.SetBoxSlotAtIndex(converted, slot);
         var legality = new LegalityAnalysis(target.GetBoxSlotAtIndex(slot));
@@ -154,10 +182,30 @@ public static class EmeraldHgssTransfer
         }
         if (persisted is null || persistedSlot is null || persistedLegality is null || !persistedLegality.Valid)
         {
-            try { File.Delete(outputPath); } catch { }
+            AtomicFile.TryDelete(outputPath);
             return new(false, converted.Species, conversionResult.ToString(), false, outputPath, persistedLegality?.Report() ?? "写出后无法重新读取目标存档。", changes);
         }
         return new(true, converted.Species, conversionResult.ToString(), true, outputPath, $"Written to box slot {slot}.", changes, slot);
+    }
+
+    /// <summary>
+    /// Restores the source's shiny state after the trainer rewrite.
+    ///
+    /// Shininess is derived from the PID and the trainer IDs, so stamping the target's
+    /// TID/SID onto a shiny entity silently un-shinies it even though the PID is carried
+    /// over. The route's declared policy is "preserve-or-reject", so the shiny state is
+    /// re-applied here and the resulting entity is still subject to the legality gate
+    /// below.
+    /// </summary>
+    static void RestoreShiny(PKM converted, PKM source, List<TransferChange> changes)
+    {
+        if (converted.IsShiny == source.IsShiny)
+            return;
+        if (source.IsShiny)
+            converted.SetShiny();
+        else
+            converted.SetPIDGender(converted.Gender);
+        changes.Add(new("Shiny", source.IsShiny.ToString(), converted.IsShiny.ToString()));
     }
 
     static PKM NormalizeGen3Correlation(PKM pokemon, List<TransferChange> changes)

@@ -1,5 +1,6 @@
 using MonoHome.Core.Repository;
 using MonoHome.Core.Saves;
+using MonoHome.Core.Storage;
 
 namespace MonoHome.Core.Transfers;
 
@@ -24,13 +25,21 @@ public sealed record TargetPreparation(
 
 public static class TargetPreparationService
 {
-    public static TargetPreparation Prepare(StoredPokemon stored, RegisteredSave target, string targetSavePath, string cacheRoot, int destinationSlot = -1)
+    public static TargetPreparation Prepare(
+        StoredPokemon stored,
+        RegisteredSave target,
+        string targetSavePath,
+        string cacheRoot,
+        int destinationSlot = -1,
+        TransferMode mode = TransferMode.Conversion)
     {
         Directory.CreateDirectory(cacheRoot);
-        var output = Path.Combine(cacheRoot, $"{stored.Id}-{target.Id}-{stored.Revision}-{destinationSlot}.sav");
+        // The mode is part of the cache key: a Conversion and a Fidelity preparation of the
+        // same entity and slot produce different saves and must not share a path.
+        var output = Path.Combine(cacheRoot, $"{stored.Id}-{target.Id}-{stored.Revision}-{destinationSlot}-{mode}.sav");
         try
         {
-            var report = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(stored), targetSavePath, output, TransferMode.Conversion, destinationSlot);
+            var report = EmeraldHgssTransfer.TransferStored(LocalRepository.LoadWorking(stored), targetSavePath, output, mode, destinationSlot);
             return new(
                 stored.Id,
                 stored.Revision,
@@ -38,16 +47,16 @@ public static class TargetPreparationService
                 target.Hash,
                 report.Succeeded ? TargetPreparationState.Ready : TargetPreparationState.Blocked,
                 report.Message,
-                TransferMode.Conversion,
+                mode,
                 report.Changes,
                 report.Succeeded ? output : null,
                 DateTimeOffset.UtcNow);
         }
         catch (Exception ex)
         {
-            try { File.Delete(output); } catch { }
+            AtomicFile.TryDelete(output);
             return new(stored.Id, stored.Revision, target.Id, target.Hash, TargetPreparationState.Blocked, ex.Message,
-                TransferMode.Conversion, [], null, DateTimeOffset.UtcNow);
+                mode, [], null, DateTimeOffset.UtcNow);
         }
     }
 }

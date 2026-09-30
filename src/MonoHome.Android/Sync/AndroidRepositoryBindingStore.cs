@@ -8,7 +8,7 @@ public sealed class AndroidRepositoryBindingStore(Context context)
 {
     const string Preferences = "remote-save-binding";
     static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    readonly ISharedPreferences preferences = context.ApplicationContext!.GetSharedPreferences(Preferences, FileCreationMode.Private)!;
+    readonly ISharedPreferences preferences = (context.ApplicationContext ?? context).GetSharedPreferences(Preferences, FileCreationMode.Private)!;
 
     public Task SaveRepositoryAsync(RepositoryBinding binding, CancellationToken cancellationToken = default)
     {
@@ -51,9 +51,18 @@ public sealed class AndroidRepositoryBindingStore(Context context)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var serialized = preferences.GetString($"save.{saveKey}", null);
-        return Task.FromResult(string.IsNullOrWhiteSpace(serialized)
-            ? null
-            : JsonSerializer.Deserialize<SaveRemoteBinding>(serialized, Json));
+        if (string.IsNullOrWhiteSpace(serialized))
+            return Task.FromResult<SaveRemoteBinding?>(null);
+        try
+        {
+            return Task.FromResult(JsonSerializer.Deserialize<SaveRemoteBinding>(serialized, Json));
+        }
+        catch (JsonException)
+        {
+            // Callers treat null as "no baseline yet" and re-derive it, so a truncated or
+            // hand-edited value must not surface a raw parser error instead.
+            return Task.FromResult<SaveRemoteBinding?>(null);
+        }
     }
 
     public Task ClearAsync(CancellationToken cancellationToken = default)

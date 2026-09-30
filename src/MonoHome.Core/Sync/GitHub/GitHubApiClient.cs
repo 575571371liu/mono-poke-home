@@ -54,6 +54,7 @@ public sealed class GitHubApiException(HttpStatusCode? statusCode, string messag
 public sealed class GitHubApiClient
 {
     const string ApiVersion = "2022-11-28";
+    const string DefaultBaseAddress = "https://api.github.com/";
     readonly HttpClient client;
     readonly Func<CancellationToken, Task<string>> accessTokenProvider;
     readonly TimeSpan requestTimeout;
@@ -68,7 +69,7 @@ public sealed class GitHubApiClient
         this.requestTimeout = requestTimeout ?? TimeSpan.FromSeconds(30);
         if (this.requestTimeout <= TimeSpan.Zero || this.requestTimeout == Timeout.InfiniteTimeSpan)
             throw new ArgumentOutOfRangeException(nameof(requestTimeout));
-        client.BaseAddress ??= new Uri("https://api.github.com/");
+        client.BaseAddress ??= new Uri(DefaultBaseAddress);
     }
 
     public async Task<GitHubRepositoryInfo> GetRepositoryAsync(string owner, string repository, CancellationToken cancellationToken)
@@ -238,8 +239,8 @@ public sealed class GitHubApiClient
                     return JsonDocument.Parse(body);
 
                 var message = TryGetErrorMessage(body) ?? response.ReasonPhrase ?? "GitHub request failed.";
-                var retryAfter = response.Headers.RetryAfter?.Delta;
-                if (!retryable || attempt >= 2 || !IsTransient(response.StatusCode))
+                var retryAfter = GetRetryAfter(response);
+                if (!retryable || attempt >= 2 || !IsTransient(response.StatusCode, retryAfter))
                     throw new GitHubApiException(response.StatusCode, message, retryAfter);
                 await Task.Delay(GetRetryDelay(attempt, retryAfter), cancellationToken);
             }
@@ -255,11 +256,42 @@ public sealed class GitHubApiClient
         }
     }
 
-    static bool IsTransient(HttpStatusCode statusCode) =>
+    static bool IsTransient(HttpStatusCode statusCode, TimeSpan? retryAfter) =>
         statusCode == (HttpStatusCode)429 ||
         statusCode == HttpStatusCode.BadGateway ||
         statusCode == HttpStatusCode.ServiceUnavailable ||
-        statusCode == HttpStatusCode.GatewayTimeout;
+        statusCode == HttpStatusCode.GatewayTimeout ||
+        // GitHub signals its secondary rate limit with 403 plus Retry-After, so a 403 that
+        // asks us to wait is retryable whereas a plain permission 403 is not.
+        (statusCode == HttpStatusCode.Forbidden && retryAfter is not null);
+
+    /// <summary>
+    /// Reads the wait the server asked for. GitHub usually sends the delta form, but the
+    /// HTTP-date form is equally valid and must not be mistaken for "no delay".
+    /// </summary>
+    static TimeSpan? GetRetryAfter(HttpResponseMessage response)
+    {
+        var header = response.Headers.RetryAfter;
+        if (header?.Delta is { } delta && delta > TimeSpan.Zero)
+            return delta;
+        if (header?.Date is { } date)
+        {
+            var wait = date - DateTimeOffset.UtcNow;
+            if (wait > TimeSpan.Zero)
+                return wait;
+        }
+        // Endpoints that omit the header still publish the reset time.
+        if (response.Headers.TryGetValues("x-ratelimit-remaining", out var remaining) &&
+            remaining.FirstOrDefault() == "0" &&
+            response.Headers.TryGetValues("x-ratelimit-reset", out var reset) &&
+            long.TryParse(reset.FirstOrDefault(), out var epochSeconds))
+        {
+            var wait = DateTimeOffset.FromUnixTimeSeconds(epochSeconds) - DateTimeOffset.UtcNow;
+            if (wait > TimeSpan.Zero)
+                return wait;
+        }
+        return null;
+    }
 
     static TimeSpan GetRetryDelay(int attempt, TimeSpan? retryAfter)
     {

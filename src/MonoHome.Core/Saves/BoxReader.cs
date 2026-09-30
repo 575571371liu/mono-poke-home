@@ -27,6 +27,8 @@ public sealed record StoragePage(string Id, string Name, int Capacity, IReadOnly
 
 public static class BoxReader
 {
+    const int PartyCapacity = 6;
+
     public static IReadOnlyList<PokemonSlot> Read(string path)
     {
         return Read(File.ReadAllBytes(path), Path.GetFileName(path));
@@ -34,10 +36,10 @@ public static class BoxReader
 
     public static IReadOnlyList<PokemonSlot> Read(ReadOnlyMemory<byte> bytes, string displayName)
     {
-        var save = SaveUtil.GetSaveFile(bytes.ToArray(), displayName) ?? throw new InvalidDataException("Unsupported or corrupted Pokémon save.");
+        var save = Open(bytes, displayName);
         var result = new List<PokemonSlot>();
 
-        for (var slot = 0; slot < Math.Min(save.PartyCount, 6); slot++)
+        for (var slot = 0; slot < PartySlotCount(save); slot++)
             Add(save.GetPartySlotAtIndex(slot), "Party", -1, slot, result);
 
         for (var box = 0; box < save.BoxCount; box++)
@@ -49,12 +51,13 @@ public static class BoxReader
 
     public static IReadOnlyList<StoragePage> ReadPages(ReadOnlyMemory<byte> bytes, string displayName)
     {
-        var save = SaveUtil.GetSaveFile(bytes.ToArray(), displayName) ?? throw new InvalidDataException("Unsupported or corrupted Pokémon save.");
+        var save = Open(bytes, displayName);
         var pages = new List<StoragePage>
         {
-            new("party", "随身携带", 6, Enumerable.Range(0, 6)
-                .Select(index => new StorageSlot(index, ToSlot(save.GetPartySlotAtIndex(index), "Party", -1, index)))
-                .ToArray()),
+            new("party", "随身携带", PartyCapacity,
+                Enumerable.Range(0, PartySlotCount(save))
+                    .Select(index => new StorageSlot(index, ToSlot(save.GetPartySlotAtIndex(index), "Party", -1, index)))
+                    .ToArray()),
         };
 
         for (var box = 0; box < save.BoxCount; box++)
@@ -68,9 +71,17 @@ public static class BoxReader
         return pages;
     }
 
+    /// <summary>
+    /// Number of readable party positions.
+    ///
+    /// Storage-only saves (Pokémon Box RS, Stadium, Bank dumps) report a negative party
+    /// offset, so reading a party slot would throw; they expose no party at all.
+    /// </summary>
+    static int PartySlotCount(SaveFile save) => save.HasParty ? Math.Clamp(save.PartyCount, 0, PartyCapacity) : 0;
+
     public static PKM ReadPokemon(string path, PokemonSlot selected)
     {
-        var save = SaveUtil.GetSaveFile(path) ?? throw new InvalidDataException("Unsupported or corrupted Pokémon save.");
+        var save = Open(path);
         var pokemon = selected.Location == "Party"
             ? save.GetPartySlotAtIndex(selected.Slot)
             : selected.Location == "Box"
@@ -80,6 +91,15 @@ public static class BoxReader
             throw new InvalidDataException("Selected Pokémon no longer matches the source save.");
         return pokemon.Clone();
     }
+
+    /// <summary>Parses a save file, with a single place defining the failure message.</summary>
+    public static SaveFile Open(string path) => SaveUtil.GetSaveFile(path) ?? throw new InvalidDataException(UnreadableSave);
+
+    /// <summary>Parses a save from bytes already in memory.</summary>
+    public static SaveFile Open(ReadOnlyMemory<byte> bytes, string displayName) =>
+        SaveUtil.GetSaveFile(bytes.ToArray(), displayName) ?? throw new InvalidDataException(UnreadableSave);
+
+    const string UnreadableSave = "Unsupported or corrupted Pokémon save.";
 
     private static void Add(PKM pk, string location, int box, int slot, List<PokemonSlot> result)
     {

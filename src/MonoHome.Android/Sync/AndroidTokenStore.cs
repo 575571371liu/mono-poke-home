@@ -54,6 +54,25 @@ public sealed class AndroidTokenStore(Context context)
         if (string.IsNullOrWhiteSpace(encoded))
             return Task.FromResult<GitHubAccessToken?>(null);
 
+        GitHubAccessToken? token;
+        try
+        {
+            token = Decrypt(encoded);
+        }
+        catch (Exception ex) when (ex is FormatException or InvalidDataException or Java.Lang.Exception)
+        {
+            // The ciphertext outlives the Keystore key across a restore, a "clear
+            // credentials" reset, or an interrupted write. The stored token is then
+            // unrecoverable by design, so drop it and report "not connected" rather than
+            // throwing out of a dialog callback and taking the process down.
+            ClearTokenAsync(cancellationToken).GetAwaiter().GetResult();
+            return Task.FromResult<GitHubAccessToken?>(null);
+        }
+        return Task.FromResult(token);
+    }
+
+    static GitHubAccessToken? Decrypt(string encoded)
+    {
         var payload = Convert.FromBase64String(encoded);
         const int ivLength = 12;
         if (payload.Length <= ivLength)
@@ -68,20 +87,44 @@ public sealed class AndroidTokenStore(Context context)
         {
             var token = JsonSerializer.Deserialize<GitHubAccessToken>(value, Json);
             if (token is not null && !string.IsNullOrWhiteSpace(token.AccessToken))
-                return Task.FromResult<GitHubAccessToken?>(token);
+                return token;
         }
         catch (JsonException)
         {
             // Migrate the previous encrypted plain-token format on read.
         }
-        return Task.FromResult<GitHubAccessToken?>(new GitHubAccessToken(value, "bearer", null, null));
+
+        // A JSON-looking payload that failed to yield a token is corrupt, not a legacy
+        // token: returning it verbatim would send the JSON text as the bearer token.
+        return value.TrimStart().StartsWith('{') ? null : new GitHubAccessToken(value, "bearer", null, null);
     }
 
     public Task ClearTokenAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        appContext.GetSharedPreferences(Preferences, FileCreationMode.Private)?.Edit()?.Remove(TokenKey)?.Apply();
+        // Commit, not Apply, so "已清除" is durable before the caller reports success.
+        appContext.GetSharedPreferences(Preferences, FileCreationMode.Private)?.Edit()?.Remove(TokenKey)?.Commit();
+        DeleteKey();
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Removes the Keystore key so no retained ciphertext copy stays decryptable after
+    /// the user revokes their PAT.
+    /// </summary>
+    static void DeleteKey()
+    {
+        try
+        {
+            var keyStore = KeyStore.GetInstance(Provider);
+            keyStore?.Load(null);
+            if (keyStore?.ContainsAlias(Alias) == true)
+                keyStore.DeleteEntry(Alias);
+        }
+        catch (Exception ex) when (ex is Java.Lang.Exception or InvalidOperationException)
+        {
+            // A missing Keystore entry is the desired end state anyway.
+        }
     }
 
     static Java.Security.IKey GetOrCreateKey()

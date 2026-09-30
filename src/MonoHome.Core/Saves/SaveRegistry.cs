@@ -1,3 +1,4 @@
+using MonoHome.Core.Storage;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -38,8 +39,8 @@ public static class SaveRegistry
             DateTimeOffset.UtcNow,
             sourceUri,
             sourceFlags);
-        WriteAtomic(record.SnapshotPath, bytes);
-        WriteAtomic(record.ManifestPath, JsonSerializer.SerializeToUtf8Bytes(record, Json));
+        AtomicFile.Write(record.SnapshotPath, bytes);
+        AtomicFile.WriteJson(record.ManifestPath, record, Json);
         return record;
     }
 
@@ -65,21 +66,10 @@ public static class SaveRegistry
             Hash = Convert.ToHexString(SHA256.HashData(bytes)),
             ImportedAt = DateTimeOffset.UtcNow,
         };
-        WriteAtomic(updated.SnapshotPath, bytes);
-        WriteAtomic(updated.ManifestPath, JsonSerializer.SerializeToUtf8Bytes(updated, Json));
+        AtomicFile.Write(updated.SnapshotPath, bytes);
+        AtomicFile.WriteJson(updated.ManifestPath, updated, Json);
         return updated;
     }
 
-    static RegisteredSave? ReadRecord(string path)
-    {
-        try { return JsonSerializer.Deserialize<RegisteredSave>(File.ReadAllText(path), Json); }
-        catch (JsonException) { return null; }
-    }
-
-    static void WriteAtomic(string path, byte[] data)
-    {
-        var temporary = $"{path}.{Guid.NewGuid():N}.tmp";
-        File.WriteAllBytes(temporary, data);
-        File.Move(temporary, path, true);
-    }
+    static RegisteredSave? ReadRecord(string path) => AtomicFile.TryReadJson<RegisteredSave>(path, Json);
 }
