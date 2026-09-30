@@ -39,6 +39,7 @@ public class MainActivity : Activity
     Button? topImportButton;
     Button? refreshSavesButton;
     Button? warehouseFilterButton;
+    Button? sourceFilterButton;
     Button? settingsButton;
     Button? emeraldSyncButton;
     Button? heartGoldSyncButton;
@@ -120,13 +121,8 @@ public class MainActivity : Activity
     readonly HashSet<PokemonSlot> selectedSourceSlots = [];
     List<StoredPokemon> allWarehouse = [];
     List<StoredPokemon> warehouse = [];
-    int? filterMinLevel;
-    int? filterMaxLevel;
-    int filterType = -1;
-    int filterEggGroup = -1;
-    int filterGender = -1;
-    int filterShiny = -1;
-    int filterEgg = -1;
+    PokemonFilter warehouseFilter = new();
+    PokemonFilter sourceFilter = new();
     StoredPokemon? storedPokemon;
     RegisteredSave? emeraldSave;
     RegisteredSave? heartGoldSave;
@@ -171,6 +167,7 @@ public class MainActivity : Activity
         topImportButton = FindViewById<Button>(Resource.Id.top_import_button);
         refreshSavesButton = FindViewById<Button>(Resource.Id.refresh_saves_button);
         warehouseFilterButton = FindViewById<Button>(Resource.Id.warehouse_filter_button);
+        sourceFilterButton = FindViewById<Button>(Resource.Id.source_filter_button);
         settingsButton = FindViewById<Button>(Resource.Id.settings_button);
         emeraldSyncButton = FindViewById<Button>(Resource.Id.emerald_sync_button);
         heartGoldSyncButton = FindViewById<Button>(Resource.Id.heartgold_sync_button);
@@ -269,6 +266,7 @@ public class MainActivity : Activity
         topImportButton!.Click += (_, _) => ShowImportChooser();
         refreshSavesButton!.Click += async (_, _) => await RefreshRegisteredSavesAsync();
         warehouseFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog();
+        sourceFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog(source: true);
         settingsButton!.Click += (_, _) => ShowSettingsDialog();
         emeraldSyncButton!.Click += async (_, _) => await ShowSaveSyncDialogAsync("emerald");
         heartGoldSyncButton!.Click += async (_, _) => await ShowSaveSyncDialogAsync("heartgold");
@@ -1771,8 +1769,8 @@ public class MainActivity : Activity
             return;
         }
 
-        var pages = ActiveSourcePages();
-        sourcePageIndex = Math.Max(0, pages.FindIndex(page => page.Capacity == 30));
+        var pages = VisibleSourcePages();
+        sourcePageIndex = sourceFilter.Count == 0 ? Math.Max(0, pages.FindIndex(page => page.Capacity == 30)) : 0;
         selectedSourceSlots.Clear();
         RenderSourceBoard();
         if (announce && status is not null)
@@ -1791,6 +1789,9 @@ public class MainActivity : Activity
         HeartGoldRequest => heartGoldPages,
         _ => otherPages,
     };
+    List<StoragePage> VisibleSourcePages() => sourceFilter.Count == 0
+        ? ActiveSourcePages()
+        : ActiveSourcePages().Where(page => page.Slots.Any(slot => slot.Pokemon is { } pokemon && sourceFilter.Matches(pokemon))).ToList();
     string ActiveSourceState() => activeSourceRequest switch
     {
         EmeraldRequest => emeraldExternalState,
@@ -1806,7 +1807,7 @@ public class MainActivity : Activity
 
     void CycleSourceBox(int delta)
     {
-        var pages = ActiveSourcePages();
+        var pages = VisibleSourcePages();
         sourcePageIndex = Math.Clamp(sourcePageIndex, 0, Math.Max(0, pages.Count - 1));
         if (pages.Count == 0)
             return;
@@ -1820,18 +1821,23 @@ public class MainActivity : Activity
             return;
 
         sourceBoxGrid.RemoveAllViews();
-        var pages = ActiveSourcePages();
+        var pages = VisibleSourcePages();
         if (pages.Count == 0)
         {
-            sourceBoxTitle.Text = "导入来源存档后显示仓库";
+            sourceBoxTitle.Text = ActiveSourcePages().Count == 0 ? "导入来源存档后显示仓库" : "没有符合条件的宝可梦";
             sourcePreviousBox.Enabled = sourceNextBox.Enabled = false;
+            UpdateButtons();
             return;
         }
 
-        sourcePreviousBox.Enabled = sourceNextBox.Enabled = true;
+        sourcePageIndex = Math.Clamp(sourcePageIndex, 0, pages.Count - 1);
+        sourcePreviousBox.Enabled = sourceNextBox.Enabled = pages.Count > 1;
         var page = pages[sourcePageIndex];
         var occupied = page.Slots.Count(slot => slot.Pokemon is not null);
-        sourceBoxTitle.Text = $"{page.Name}\n{occupied} / {page.Capacity} 槽位";
+        var matched = page.Slots.Count(slot => slot.Pokemon is { } pokemon && sourceFilter.Matches(pokemon));
+        sourceBoxTitle.Text = sourceFilter.Count == 0
+            ? $"{page.Name}\n{occupied} / {page.Capacity} 槽位"
+            : $"{page.Name}\n筛选 {matched} / {pages.Sum(p => p.Slots.Count(slot => slot.Pokemon is { } pokemon && sourceFilter.Matches(pokemon)))} 只";
         var columns = Resources!.DisplayMetrics!.WidthPixels / Resources.DisplayMetrics.Density >= 600 ? 6 : 5;
         sourceBoxGrid.ColumnCount = columns;
         var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - (int)(Resources.DisplayMetrics.Density * 64)) / columns);
@@ -1852,7 +1858,7 @@ public class MainActivity : Activity
                 empty.Background = CreateSlotBackground(false, false, true);
                 tile = empty;
             }
-            else
+            else if (sourceFilter.Matches(slot.Pokemon))
             {
                 var pokemon = slot.Pokemon;
                 var selected = selectedSourceSlots.Contains(pokemon);
@@ -1869,6 +1875,14 @@ public class MainActivity : Activity
                 image.Click += (_, _) => ShowSourceSlotDetail(pokemon);
                 image.LongClick += (_, _) => ShowSourceSlotDetail(pokemon);
                 tile = image;
+            }
+            else
+            {
+                var hidden = new TextView(this) { Text = $"{slot.Index + 1:00}\n筛", Gravity = GravityFlags.Center, TextSize = 10,
+                    ContentDescription = $"槽位 {slot.Index + 1} 的宝可梦不符合筛选条件" };
+                hidden.SetTextColor(Color.Rgb(68, 105, 93));
+                hidden.Background = CreateSlotBackground(false, false, true);
+                tile = hidden;
             }
 
             var parameters = new GridLayout.LayoutParams { Width = width, Height = width };
@@ -2041,26 +2055,11 @@ public class MainActivity : Activity
 
     bool WarehouseRecordMatches(StoredPokemon record)
     {
-        if (filterMinLevel is null && filterMaxLevel is null && filterType < 0 && filterEggGroup < 0 && filterGender < 0 && filterShiny < 0 && filterEgg < 0)
+        if (warehouseFilter.Count == 0)
             return true;
         try
         {
-            var pokemon = LocalRepository.LoadWorking(record);
-            if (filterMinLevel is not null && pokemon.CurrentLevel < filterMinLevel)
-                return false;
-            if (filterMaxLevel is not null && pokemon.CurrentLevel > filterMaxLevel)
-                return false;
-            if (filterType >= 0 && pokemon.PersonalInfo.Type1 != filterType && pokemon.PersonalInfo.Type2 != filterType)
-                return false;
-            if (filterEggGroup >= 0 && pokemon.PersonalInfo.EggGroup1 != filterEggGroup && pokemon.PersonalInfo.EggGroup2 != filterEggGroup)
-                return false;
-            if (filterGender >= 0 && (filterGender == 2 ? pokemon.Gender is 0 or 1 : pokemon.Gender != filterGender))
-                return false;
-            if (filterShiny >= 0 && pokemon.IsShiny != (filterShiny == 1))
-                return false;
-            if (filterEgg >= 0 && pokemon.IsEgg != (filterEgg == 1))
-                return false;
-            return true;
+            return warehouseFilter.Matches(LocalRepository.LoadWorking(record));
         }
         catch
         {
@@ -2070,17 +2069,19 @@ public class MainActivity : Activity
 
     void UpdateWarehouseFilterButton()
     {
-        if (warehouseFilterButton is null)
-            return;
-        var count = (filterMinLevel is not null ? 1 : 0) + (filterMaxLevel is not null ? 1 : 0) +
-            (filterType >= 0 ? 1 : 0) + (filterEggGroup >= 0 ? 1 : 0) + (filterGender >= 0 ? 1 : 0) +
-            (filterShiny >= 0 ? 1 : 0) + (filterEgg >= 0 ? 1 : 0);
-        warehouseFilterButton.Text = count == 0 ? "全部 ⌄" : $"筛选 · {count} ⌄";
-        warehouseFilterButton.SetTextColor(Color.ParseColor(count == 0 ? "#91AAA1" : "#D6FF63"));
+        SetFilterButton(warehouseFilterButton, warehouseFilter);
     }
 
-    void ShowWarehouseFilterDialog()
+    static void SetFilterButton(Button? button, PokemonFilter filter)
     {
+        if (button is null) return;
+        button.Text = filter.Count == 0 ? "全部 ⌄" : $"筛选 · {filter.Count} ⌄";
+        button.SetTextColor(Color.ParseColor(filter.Count == 0 ? "#91AAA1" : "#D6FF63"));
+    }
+
+    void ShowWarehouseFilterDialog(bool source = false)
+    {
+        var filter = source ? sourceFilter : warehouseFilter;
         var strings = GameInfo.GetStrings("zh-Hans");
         var typeValues = Enumerable.Range(0, Math.Min(18, strings.Types.Count)).ToArray();
         var typeOptions = new[] { "全部" }.Concat(typeValues.Select(value => StringAt(strings.Types, value, $"属性 {value}"))).ToArray();
@@ -2089,8 +2090,8 @@ public class MainActivity : Activity
         var root = new LinearLayout(this) { Orientation = Orientation.Vertical };
         root.SetPadding(Dp(18), Dp(2), Dp(18), 0);
 
-        var initialLower = filterMinLevel ?? 1;
-        var initialUpper = filterMaxLevel ?? 100;
+        var initialLower = filter.MinLevel ?? 1;
+        var initialUpper = filter.MaxLevel ?? 100;
         var levelLabel = new TextView(this) { Text = $"等级范围 · {initialLower} - {initialUpper}", TextSize = 10 };
         levelLabel.SetTextColor(Color.ParseColor("#91AAA1"));
         levelLabel.SetIncludeFontPadding(false);
@@ -2108,19 +2109,19 @@ public class MainActivity : Activity
         }
         var typeSpinner = new Spinner(this);
         typeSpinner.Adapter = SpinnerAdapter(typeOptions);
-        typeSpinner.SetSelection(filterType < 0 ? 0 : Array.IndexOf(typeValues, filterType) + 1);
+        typeSpinner.SetSelection(filter.Type < 0 ? 0 : Array.IndexOf(typeValues, filter.Type) + 1);
         var eggSpinner = new Spinner(this);
         eggSpinner.Adapter = SpinnerAdapter(eggOptions);
-        eggSpinner.SetSelection(filterEggGroup < 0 ? 0 : Array.IndexOf(eggValues, (EggGroup)filterEggGroup) + 1);
+        eggSpinner.SetSelection(filter.EggGroup < 0 ? 0 : Array.IndexOf(eggValues, (EggGroup)filter.EggGroup) + 1);
         var genderSpinner = new Spinner(this);
         genderSpinner.Adapter = SpinnerAdapter(["全部", "雄", "雌", "无性别"]);
-        genderSpinner.SetSelection(filterGender < 0 ? 0 : filterGender + 1);
+        genderSpinner.SetSelection(filter.Gender < 0 ? 0 : filter.Gender + 1);
         var shinySpinner = new Spinner(this);
         shinySpinner.Adapter = SpinnerAdapter(["闪光：全部", "普通", "闪光"]);
-        shinySpinner.SetSelection(filterShiny < 0 ? 0 : filterShiny + 1);
+        shinySpinner.SetSelection(filter.Shiny < 0 ? 0 : filter.Shiny + 1);
         var eggStateSpinner = new Spinner(this);
         eggStateSpinner.Adapter = SpinnerAdapter(["孵化状态：全部", "已孵化", "蛋"]);
-        eggStateSpinner.SetSelection(filterEgg < 0 ? 0 : filterEgg + 1);
+        eggStateSpinner.SetSelection(filter.Egg < 0 ? 0 : filter.Egg + 1);
         GradientDrawable Panel(string fill = "#132A25", string stroke = "#315249", float radius = 8)
         {
             var background = new GradientDrawable();
@@ -2147,7 +2148,7 @@ public class MainActivity : Activity
         var shell = new LinearLayout(this) { Orientation = Orientation.Vertical };
         shell.SetPadding(Dp(16), Dp(14), Dp(16), Dp(10));
         shell.Background = Panel("#0F201C", "#315249", 16);
-        var title = new TextView(this) { Text = "筛选仓库", TextSize = 17 };
+        var title = new TextView(this) { Text = source ? "筛选游戏存档" : "筛选中央仓库", TextSize = 17 };
         title.SetTextColor(Color.ParseColor("#E9F4EF"));
         title.SetIncludeFontPadding(false);
         title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
@@ -2175,25 +2176,38 @@ public class MainActivity : Activity
         shell.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(50)) { TopMargin = Dp(8) });
         clear.Click += (_, _) =>
         {
-            filterMinLevel = null;
-            filterMaxLevel = null;
-            filterType = filterEggGroup = filterGender = filterShiny = filterEgg = -1;
             dialog.Dismiss();
-            _ = ApplyWarehouseFilterAsync();
+            ApplyFilter(new PokemonFilter());
         };
         cancel.Click += (_, _) => dialog.Dismiss();
         apply.Click += (_, _) =>
         {
-            filterMinLevel = levelRange.LowerValue == 1 ? null : levelRange.LowerValue;
-            filterMaxLevel = levelRange.UpperValue == 100 ? null : levelRange.UpperValue;
-            filterType = typeSpinner.SelectedItemPosition == 0 ? -1 : typeValues[typeSpinner.SelectedItemPosition - 1];
-            filterEggGroup = eggSpinner.SelectedItemPosition == 0 ? -1 : (int)eggValues[eggSpinner.SelectedItemPosition - 1];
-            filterGender = genderSpinner.SelectedItemPosition - 1;
-            filterShiny = shinySpinner.SelectedItemPosition - 1;
-            filterEgg = eggStateSpinner.SelectedItemPosition - 1;
             dialog.Dismiss();
-            _ = ApplyWarehouseFilterAsync();
+            ApplyFilter(new PokemonFilter(
+                levelRange.LowerValue == 1 ? null : levelRange.LowerValue,
+                levelRange.UpperValue == 100 ? null : levelRange.UpperValue,
+                typeSpinner.SelectedItemPosition == 0 ? -1 : typeValues[typeSpinner.SelectedItemPosition - 1],
+                eggSpinner.SelectedItemPosition == 0 ? -1 : (int)eggValues[eggSpinner.SelectedItemPosition - 1],
+                genderSpinner.SelectedItemPosition - 1,
+                shinySpinner.SelectedItemPosition - 1,
+                eggStateSpinner.SelectedItemPosition - 1));
         };
+        void ApplyFilter(PokemonFilter next)
+        {
+            if (source)
+            {
+                sourceFilter = next;
+                sourcePageIndex = 0;
+                selectedSourceSlots.Clear();
+                SetFilterButton(sourceFilterButton, sourceFilter);
+                RenderSourceBoard();
+            }
+            else
+            {
+                warehouseFilter = next;
+                _ = ApplyWarehouseFilterAsync();
+            }
+        }
         dialog.SetContentView(shell);
         ShowSafely(dialog);
         if (dialog.Window is { } window)

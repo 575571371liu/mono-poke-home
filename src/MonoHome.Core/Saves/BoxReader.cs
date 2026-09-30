@@ -19,7 +19,13 @@ public sealed record PokemonSlot(
     int RibbonCount,
     string Location,
     int Box,
-    int Slot);
+    int Slot)
+{
+    public int Type1 { get; init; }
+    public int Type2 { get; init; }
+    public int EggGroup1 { get; init; }
+    public int EggGroup2 { get; init; }
+}
 
 public sealed record StorageSlot(int Index, PokemonSlot? Pokemon);
 
@@ -129,6 +135,12 @@ public static class BoxReader
             pk is IRibbonSetRibbons ribbons ? ribbons.RibbonCount : 0,
             location,
             box,
-            slot);
+            slot)
+        {
+            Type1 = pk.PersonalInfo.Type1,
+            Type2 = pk.PersonalInfo.Type2,
+            EggGroup1 = pk.PersonalInfo.EggGroup1,
+            EggGroup2 = pk.PersonalInfo.EggGroup2,
+        };
     }
 }

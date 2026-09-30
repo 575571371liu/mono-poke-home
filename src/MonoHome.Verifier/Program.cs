@@ -24,6 +24,26 @@ var emeraldPokemon = BoxReader.Read(emeraldPath);
 var heartGoldPokemon = BoxReader.Read(heartGoldPath);
 var emeraldPages = BoxReader.ReadPages(File.ReadAllBytes(emeraldPath), "emerald.srm");
 var heartGoldPages = BoxReader.ReadPages(File.ReadAllBytes(heartGoldPath), "heartgold.sav");
+var heartGoldSample = heartGoldPages.SelectMany(page => page.Slots).First(slot => slot.Pokemon is not null).Pokemon!;
+var heartGoldEntity = BoxReader.ReadPokemon(heartGoldPath, heartGoldSample);
+AssertTrue(new PokemonFilter(Type: heartGoldEntity.PersonalInfo.Type1, MinLevel: heartGoldEntity.CurrentLevel).Matches(heartGoldSample), "HeartGold save slots support shared type and level filters");
+var sampleSlot = emeraldPages.SelectMany(page => page.Slots).First(slot => slot.Pokemon is not null).Pokemon!;
+var samplePokemon = BoxReader.ReadPokemon(emeraldPath, sampleSlot);
+AssertTrue(new PokemonFilter().Matches(samplePokemon), "empty filter matches warehouse Pokémon");
+AssertTrue(new PokemonFilter().Matches(sampleSlot), "empty filter matches save Pokémon");
+var excludedLevel = samplePokemon.CurrentLevel == 100
+    ? new PokemonFilter(MaxLevel: 99)
+    : new PokemonFilter(MinLevel: samplePokemon.CurrentLevel + 1);
+AssertTrue(!excludedLevel.Matches(samplePokemon) && !excludedLevel.Matches(sampleSlot), "level filter has the same result for warehouse and save slots");
+var wrongType = Enumerable.Range(0, 18).First(type => type != samplePokemon.PersonalInfo.Type1 && type != samplePokemon.PersonalInfo.Type2);
+AssertTrue(!new PokemonFilter(Type: wrongType).Matches(samplePokemon) && !new PokemonFilter(Type: wrongType).Matches(sampleSlot), "type filter has the same result for warehouse and save slots");
+AssertTrue(new PokemonFilter(EggGroup: samplePokemon.PersonalInfo.EggGroup1).Matches(samplePokemon) &&
+    new PokemonFilter(EggGroup: samplePokemon.PersonalInfo.EggGroup1).Matches(sampleSlot), "egg group filter has the same result for warehouse and save slots");
+AssertTrue(new PokemonFilter(Gender: samplePokemon.Gender).Matches(samplePokemon) &&
+    new PokemonFilter(Gender: samplePokemon.Gender).Matches(sampleSlot), "gender filter has the same result for warehouse and save slots");
+AssertTrue(new PokemonFilter(Shiny: samplePokemon.IsShiny ? 1 : 0, Egg: samplePokemon.IsEgg ? 1 : 0).Matches(sampleSlot), "save slot matches shiny and egg state");
+AssertTrue(!new PokemonFilter(Shiny: samplePokemon.IsShiny ? 0 : 1).Matches(sampleSlot), "save slot rejects opposite shiny state");
+AssertTrue(!new PokemonFilter(Egg: samplePokemon.IsEgg ? 0 : 1).Matches(sampleSlot), "save slot rejects opposite egg state");
 AssertEqual("随身携带", emeraldPages[0].Name, "first storage page is party");
 AssertEqual(6, emeraldPages[0].Capacity, "party has six positions");
 AssertEqual(30, emeraldPages[1].Capacity, "standard box has thirty positions");
