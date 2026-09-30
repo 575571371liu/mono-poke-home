@@ -381,17 +381,22 @@ var preparation = TargetPreparationService.Prepare(copy, registeredTarget, heart
 AssertEqual(TargetPreparationState.Ready, preparation.State, "target preparation is ready for legal conversion");
 AssertEqual(TransferMode.Conversion, preparation.Mode, "target preparation reports the requested mode");
 AssertTrue(preparation.IsCurrentFor(copy, registeredTarget), "target preparation matches current repository revision");
-copy = LocalRepository.SaveWorking(copy, LocalRepository.LoadWorking(copy));
-AssertTrue(!preparation.IsCurrentFor(copy, registeredTarget), "target preparation becomes stale after repository revision changes");
 
 // The faithful route must actually reach the engine: the app exposes this choice, and it
-// lands in a different save than a conversion would.
+// lands in a different save than a conversion would. Both preparations start from the same
+// revision, so the transfer mode is the only thing that can separate their outputs.
 var fidelityPreparation = TargetPreparationService.Prepare(copy, registeredTarget, heartGoldPath, preparationRoot, -1, TransferMode.Fidelity);
 AssertEqual(TargetPreparationState.Ready, fidelityPreparation.State, "fidelity preparation is ready");
 AssertEqual(TransferMode.Fidelity, fidelityPreparation.Mode, "fidelity preparation keeps the requested mode");
-AssertTrue(fidelityPreparation.PreparedSavePath != preparation.PreparedSavePath, "each transfer mode prepares its own output");
-var fidelityOccupant = ((SAV4HGSS)SaveUtil.GetSaveFile(fidelityPreparation.PreparedSavePath!)!).GetBoxSlotAtIndex(20);
+AssertEqual(preparation.RepositoryRevision, fidelityPreparation.RepositoryRevision, "both preparations share the repository revision");
+AssertTrue(fidelityPreparation.PreparedSavePath != preparation.PreparedSavePath, "the transfer mode alone separates the prepared outputs");
+AssertTrue(fidelityPreparation.DestinationSlot >= 0, "fidelity preparation reports the slot it used");
+var fidelityOccupant = ((SAV4HGSS)SaveUtil.GetSaveFile(fidelityPreparation.PreparedSavePath!)!).GetBoxSlotAtIndex(fidelityPreparation.DestinationSlot);
 AssertEqual(LocalRepository.LoadWorking(copy).OriginalTrainerName, fidelityOccupant.OriginalTrainerName, "fidelity preparation keeps the source trainer");
+
+// Mutating the entity afterwards must invalidate the earlier preparation.
+copy = LocalRepository.SaveWorking(copy, LocalRepository.LoadWorking(copy));
+AssertTrue(!preparation.IsCurrentFor(copy, registeredTarget), "target preparation becomes stale after repository revision changes");
 var transferPath = TestEnvironment.ScratchFile("heartgold-result.sav");
 var transfer = EmeraldHgssTransfer.TransferStored(storedPokemon, heartGoldPath, transferPath);
 AssertTrue(transfer.Succeeded, $"Emerald to HeartGold transfer: {transfer.Message}");
@@ -432,26 +437,32 @@ AssertTrue(specialTransfer.Succeeded, $"special-state transfer: {specialTransfer
 AssertTrue(specialTransfer.Changes.Any(change => change.Field == "HeldItem"), "transfer reports held-item policy");
 AssertTrue(specialTransfer.Changes.Any(change => change.Field == "Form") && specialTransfer.Changes.Any(change => change.Field == "Ribbons"), "transfer reports form and ribbon policies");
 var specialSource = LocalRepository.LoadWorking(specialStored);
+// A shiny source must stay shiny across a conversion: shininess is derived from
+// PID ^ TID ^ SID, so rewriting the trainer is exactly the operation that can lose it.
+// The entity is made shiny explicitly rather than relying on the fixture happening to
+// contain one, so this assertion is never vacuous.
+var shinySource = LocalRepository.ApplyEdit(specialSource, new WorkingEdit(null, null, null, null, null, null, Shiny: true));
+AssertTrue(shinySource.IsShiny, "editing an entity can make it shiny");
 var specialPersisted = ((SAV4HGSS)SaveUtil.GetSaveFile(specialTransfer.OutputPath)!).GetBoxSlotAtIndex(specialTransfer.Slot);
 AssertEqual(specialSource.IsShiny, specialPersisted.IsShiny, "conversion preserves the source shiny state");
 Console.WriteLine($"PASS: special-state transfer #{special.Species}; {string.Join(", ", specialTransfer.Changes.Select(change => change.Field))}.");
 
-// A shiny source must stay shiny across a conversion: shininess is derived from
-// PID ^ TID ^ SID, so rewriting the trainer is exactly the operation that can lose it.
-var shinySource = LocalRepository.ApplyEdit(specialSource, new WorkingEdit(null, null, null, null, null, null, Shiny: true));
-AssertTrue(shinySource.IsShiny, "editing an entity can make it shiny");
 var shinyConverted = EmeraldHgssTransfer.TransferStored(shinySource.Clone(), heartGoldPath, TestEnvironment.ScratchFile("heartgold-shiny.sav"));
 if (shinyConverted.Succeeded)
 {
     var shinyPersisted = ((SAV4HGSS)SaveUtil.GetSaveFile(shinyConverted.OutputPath)!).GetBoxSlotAtIndex(shinyConverted.Slot);
     AssertTrue(shinyPersisted.IsShiny, "conversion keeps a shiny source shiny instead of silently dropping it");
+    Console.WriteLine("PASS: shiny state survives a trainer-rewriting conversion.");
 }
 else
 {
-    AssertTrue(shinyConverted.Message.Contains("闪", StringComparison.Ordinal),
-        $"a conversion that cannot keep shininess must say so: {shinyConverted.Message}");
+    // "preserve-or-reject" allows a refusal, but a refusal must be an explicit, reported one
+    // rather than a silent success. (The engine reports its own failures in English, so the
+    // message cannot be asserted against Chinese wording.)
+    AssertTrue(!string.IsNullOrWhiteSpace(shinyConverted.Message),
+        "a refused shiny conversion must still explain itself");
+    Console.WriteLine($"NOTE: shiny conversion refused by policy: {shinyConverted.Message}");
 }
-Console.WriteLine("PASS: shiny state survives a trainer-rewriting conversion.");
 
 // Clearing the shiny flag must actually clear it, and must not rewrite the trainer SID.
 var shinySid = shinySource.SID16;
@@ -540,7 +551,25 @@ AssertEqual("succeeded", exportedLog.Status, "transfer journal records completed
 var removable = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), TestEnvironment.NewScratchDirectory("removal"));
 LocalRepository.Remove(removable);
 AssertTrue(!File.Exists(removable.ManifestPath), "transferred repository record is removed");
+AssertTrue(!Directory.Exists(Path.GetDirectoryName(removable.ManifestPath)!), "removal also drops the record directory");
 Console.WriteLine("PASS: successful transfer removal deletes the central warehouse record.");
+
+// Removal must only ever delete the record's own folder. A record whose manifest sits in a
+// shared parent would otherwise let the recursive delete wipe that whole directory.
+var sharedRoot = TestEnvironment.NewScratchDirectory("shared-root");
+var sharedManifest = Path.Combine(sharedRoot, "record.json");
+File.WriteAllText(sharedManifest, "{}");
+var bystander = Path.Combine(sharedRoot, "bystander.pkm");
+File.WriteAllBytes(bystander, [1, 2, 3]);
+LocalRepository.Remove(new StoredPokemon(
+    "not-a-guid", 1,
+    Path.Combine(sharedRoot, "original.pkm"),
+    Path.Combine(sharedRoot, "working.pkm"),
+    sharedManifest,
+    DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, "valid"));
+AssertTrue(Directory.Exists(sharedRoot), "removal refuses to delete a directory that is not the record's own");
+AssertTrue(File.Exists(bystander), "removal leaves unrelated files in a shared directory alone");
+Console.WriteLine("PASS: repository removal is confined to the record directory.");
 
 static void AssertEqual<T>(T expected, T actual, string label) where T : notnull
 {

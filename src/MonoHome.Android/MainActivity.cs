@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.1";
+    const string CurrentVersion = "1.2.2";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -1186,6 +1186,9 @@ public class MainActivity : Activity
             var write = await new TargetSaveWriter(ContentResolver!, SavesPath).WriteAsync(heartGoldSave, prepared);
             if (!write.Succeeded)
             {
+                // The write can fail after the target was already truncated, so surface the
+                // recovery point the writer kept instead of only promising it in the message.
+                AdoptRecoveryPoint(write.BackupPath);
                 status.Text = $"传送未完成：{write.Message}";
                 return;
             }
@@ -1249,6 +1252,7 @@ public class MainActivity : Activity
             var write = await new TargetSaveWriter(ContentResolver!, SavesPath).WriteAsync(heartGoldSave, File.ReadAllBytes(outputPath));
             if (!write.Succeeded)
             {
+                AdoptRecoveryPoint(write.BackupPath);
                 status.Text = $"批量传送未完成：{write.Message}";
                 return;
             }

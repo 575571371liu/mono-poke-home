@@ -186,17 +186,47 @@ public sealed class GitHubDeviceFlowClient
         return result;
     }
 
+    /// <summary>
+    /// Replaces the value of <paramref name="key"/> in either the form-encoded
+    /// (<c>key=value&amp;</c>) or JSON (<c>"key":"value"</c>) shape, so a body echoed into an
+    /// exception message cannot carry a secret in either encoding.
+    /// </summary>
     static string RedactField(string value, string key)
     {
         var index = value.IndexOf(key, StringComparison.OrdinalIgnoreCase);
         if (index < 0)
             return value;
-        var separator = value.IndexOf('=', index);
-        if (separator < 0)
+
+        var cursor = index + key.Length;
+        while (cursor < value.Length && (value[cursor] == '"' || value[cursor] == ' '))
+            cursor++;
+        if (cursor >= value.Length)
             return value;
-        var end = value.IndexOf('&', separator);
-        var tail = end < 0 ? string.Empty : value[end..];
-        return string.Concat(value.AsSpan(0, index), key, "=<redacted>", tail);
+
+        string terminator;
+        if (value[cursor] == '=')
+        {
+            terminator = "&";
+            cursor++;
+        }
+        else if (value[cursor] == ':')
+        {
+            terminator = "\"";
+            cursor++;
+            while (cursor < value.Length && value[cursor] == ' ')
+                cursor++;
+            if (cursor < value.Length && value[cursor] == '"')
+                cursor++;
+        }
+        else
+        {
+            return value;
+        }
+
+        var end = value.IndexOf(terminator, cursor, StringComparison.Ordinal);
+        if (end < 0)
+            end = value.Length;
+        return string.Concat(value.AsSpan(0, cursor), "<redacted>", value.AsSpan(end));
     }
 
     static void ThrowOAuthError(JsonDocument json)

@@ -76,7 +76,12 @@ public static class EmeraldHgssTransfer
     }
 
     static bool PathsEqual(string left, string right) =>
-        string.Equals(Path.GetFullPath(left), Path.GetFullPath(right), StringComparison.OrdinalIgnoreCase);
+        string.Equals(
+            Path.GetFullPath(left),
+            Path.GetFullPath(right),
+            // Android and other Unix hosts have case-sensitive filesystems, so two paths
+            // differing only in case are genuinely different files there.
+            OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
     static TransferReport Transfer(PKM pokemon, string heartGoldPath, string outputPath, TransferMode mode, int destinationSlot = -1, bool allowOverwrite = true)
     {

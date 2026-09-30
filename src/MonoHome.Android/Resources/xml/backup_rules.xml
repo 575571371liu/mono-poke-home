@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup rules for Android 11 and below (API 30), where only fullBackupContent applies.
+
+  Mirrors Resources/xml/data_extraction_rules.xml: keep the user's own data, never back
+  up the GitHub credential or repository binding preferences.
+-->
+<full-backup-content>
+  <exclude domain="sharedpref" path="remote-save-secret.xml" />
+  <exclude domain="sharedpref" path="remote-save-binding.xml" />
+</full-backup-content>

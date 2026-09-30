@@ -16,7 +16,8 @@ public sealed record TargetPreparation(
     TransferMode Mode,
     IReadOnlyList<TransferChange> Changes,
     string? PreparedSavePath,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    int DestinationSlot = -1)
 {
     public bool IsCurrentFor(StoredPokemon stored, RegisteredSave target) =>
         RepositoryId == stored.Id && RepositoryRevision == stored.Revision &&
@@ -50,7 +51,8 @@ public static class TargetPreparationService
                 mode,
                 report.Changes,
                 report.Succeeded ? output : null,
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow,
+                report.Slot);
         }
         catch (Exception ex)
         {

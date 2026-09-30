@@ -55,7 +55,14 @@
 
 7. **`allowBackup="true"` 让令牌密文与私有仓库标识离开设备**（`AndroidManifest.xml`）
    - 成因：Auto Backup 默认包含 `shared_prefs/`；而 Keystore 密钥不随备份走，恢复后密文永远解不开。
-   - 修复：`allowBackup="false"`。另在 `.gitignore` 增加 `*.jks`/`*.keystore`/`keystore.properties`/`local.properties`。
+   - 修复：改为**按文件排除**——`Resources/xml/data_extraction_rules.xml`（API 31+）与
+     `backup_rules.xml`（API 30）把 `remote-save-secret.xml` 与 `remote-save-binding.xml`
+     同时排除出 **cloud-backup 和 device-transfer**，`allowBackup` 保持 `true`，使用户自己的
+     存档与中央仓库仍可随设备迁移。
+   - 注意（初版修复不准确，已修正）：最初只是把 `allowBackup` 设为 `false`。在 Android 12+
+     上这**只关闭云备份，不阻止设备间直传**，因此“令牌不再离开设备”当时并不成立；而且它
+     连用户自己的 `files/saves`、`files/warehouse` 备份也一并关掉了。现方案才真正覆盖两种通道。
+   - 另在 `.gitignore` 增加 `*.jks`/`*.keystore`/`keystore.properties`/`local.properties`。
 
 8. **令牌解不开时直接崩溃**（`AndroidTokenStore`）
    - 成因：`cipher.DoFinal` 的解密失败与 `Convert.FromBase64String` 的 `FormatException` 都没在调用点捕获，而入口是 `async void` 对话框回调，进程必崩。
@@ -63,16 +70,16 @@
 
 ### 中等（正确性、健壮性、可恢复性）
 
-9. **存档写出后校验不一致时丢失恢复点路径**（`TargetSaveWriter`）：`backupPath` 提至 `try` 之外，写入中断也会把恢复点交回调用方；并把“已写入但无法重新识别”与普通失败区分开。
+9. **存档写出后校验不一致时丢失恢复点路径**（`TargetSaveWriter`）：`backupPath` 提至 `try` 之外，写入中断也会把恢复点交回调用方；并把“已写入但无法重新识别”与普通失败区分开。调用方在**成功和失败两条分支**都调用 `AdoptRecoveryPoint(write.BackupPath)`，因此失败时提示的“恢复点已保留”确有导出入口（初版只在成功分支调用，提示是空头支票，已修正）。
 10. **`WritePokemon` 先落盘再校验**（`LocalRepository`）：校验提前到写入之前，避免用不可读的载荷覆盖旧工作副本。
 11. **`ReadRecord` 只捕获 `JsonException`**（`LocalRepository`/`SaveRegistry`/`TransferJournal`）：一并捕获 `IOException`/`UnauthorizedAccessException`，否则单条坏记录会让整个列表查询失败。
-12. **`Remove` 在残留临时文件时抛异常**：改为递归删除并容忍锁定残留，避免把已成功的传送报告成失败。
+12. **`Remove` 在残留临时文件时抛异常**：改为递归删除并容忍锁定残留，避免把已成功的传送报告成失败。删除前校验目标目录确实是该记录自己的 `root/{id}` 目录（`List` 会在任意深度枚举 `record.json`，否则写在仓库根目录的清单会导致整仓被删），三个文件删除也改走 `AtomicFile.TryDelete`。
 13. **`BoxReader.ReadPages` 无条件读取 6 个队伍槽**：像 `Read` 一样先判断 `HasParty`。`Pokémon Box RS`/`Stadium`/`Bank` 导出的队伍偏移为负，原先会抛 `ArgumentOutOfRangeException`，并在导入失败后留下每次启动都报错的孤儿记录。
 14. **app 的“保真传送”选项完全没接进传送调用**：`TargetPreparationService.Prepare` 增加 `TransferMode` 参数并纳入缓存键，`MainActivity` 的单个与批量路径都传入用户选择。
-15. **显式目标仓位会静默覆盖占用者**：新增 `allowOverwrite` 开关；允许覆盖时记录 `Overwritten` 变更，使日志可审计。
+15. **显式目标仓位会静默覆盖占用者**：新增 `allowOverwrite` 开关；允许覆盖时记录 `Overwritten` 变更，使日志可审计。说明：app 自身始终允许覆盖（UI 另有确认弹窗），该开关目前只有验证器使用，因此它保护的是引擎层面的其他调用方，不是现有 UI 流程。
 16. **`MarkExported` 重试会抛异常**：导出确认天然会重试，已导出记录改为幂等返回。
 17. **重试策略漏掉 GitHub 的次限流**：`403 + Retry-After` 现在识别为可重试；`Retry-After` 兼容 HTTP-date 形式，并回退到 `x-ratelimit-reset`。
-18. **备份导出按钮永远不可达**：`lastBackupPath` 只在两个无调用方的方法里赋值。新增 `AdoptRecoveryPoint`，在传送/批量传送写入成功后接管恢复点并启用按钮，使 app 承诺的“恢复点已保留”真正可导出。
+18. **备份导出按钮永远不可达**：`lastBackupPath` 只在两个无调用方的方法里赋值。新增 `AdoptRecoveryPoint`，在传送/批量传送写入后（含**失败**分支）接管恢复点并启用按钮，使 app 承诺的“恢复点已保留”真正可导出。
 
 ### 结构梳理
 
@@ -102,6 +109,8 @@
 刻意采用的验证手法：先写断言、再跑，确认**修复前失败**，然后才修（闪光两项均如此），避免写出“永远不会失败”的断言。
 
 ## 四、Activity 生命周期修复（第二轮）
+
+> 版本说明：审查分支内部曾用 1.2.1 作为版本号，该号未对外发布；首个包含这些修复的正式版本是 **1.2.2**。
 
 优先级最高的遗留项已在本轮修复，因为它是唯一会在真实使用中直接崩进程的问题。
 
@@ -148,7 +157,32 @@ Activity 已销毁时弹窗会抛 `WindowManager.BadTokenException` 并杀死进
 **只经过编译验证和逻辑审查，没有设备端证据**。
 这是本轮唯一未闭合的验证缺口。
 
-## 五、已知遗留（本次未改，附理由）
+## 五、合入前的独立评审与整改
+
+为避免"自己写自己批"，合入前另起了一个**只读、对抗性**的评审子任务，范围是
+`git diff main...HEAD`（50 文件），结论为 **MERGE WITH FIXES，无阻塞项**。
+
+它确认了闪光相关结论（并对照 PKHeX 源码复核了 `SetShiny`/`SetPIDGender`/`SetShinySID`
+的循环语义）、27 处 `ShowSafely` 无遗漏、`AtomicFile` 去重彻底，以及仓库内
+`bin/.../.verify-tmp/` 的产物可佐证"先失败后修复"的过程。同时提出以下问题，本轮全部整改：
+
+| 评审项 | 结论 | 整改 |
+|---|---|---|
+| 恢复点在失败时不可达 | 确认（中） | 两个失败分支补 `AdoptRecoveryPoint(write.BackupPath)`；文档同步更正 |
+| 令牌自愈可能反抛 | 确认（低-中） | 自愈清理改为 best-effort、不传调用方 token、不向外抛 |
+| 闪光测试的失败分支断言不可满足，且 `PASS` 无条件打印 | 确认 | 失败分支改为断言"必须给出说明"；`PASS` 移入成功分支 |
+| 保真缓存键断言被 revision 变更混淆 | 确认 | 两种模式改为同一 revision 下准备，并新增"共享 revision"断言；硬编码槽位改为 `DestinationSlot` |
+| `allowBackup="false"` 在 Android 12+ 不阻止设备间直传 | 确认（安全表述夸大） | 改用 `dataExtractionRules` + `fullBackupContent` 双规则排除两个偏好文件，`allowBackup` 恢复 `true` |
+| `Remove` 的递归删除可能删掉整个仓库根 | 确认（加固） | 删除前校验目录 == `root/{id}`；文件删除走 `TryDelete`；新增回归断言 |
+| `PathsEqual` 在大小写敏感文件系统上误判 | 确认（加固） | 改为按平台选择 `Ordinal` / `OrdinalIgnoreCase` |
+| 脱敏漏掉 JSON 形态的响应体 | 确认（加固） | `RedactField` 同时支持 `key=value` 与 `"key":"value"` |
+| `allowOverwrite` 无生产调用方 | 确认（表述夸大） | 文档据实说明它保护的是引擎层其他调用方，非现有 UI |
+
+评审同时记录了两项**已知遗留**（本次未改）：`AtomicFile` 只 fsync 文件未 fsync 目录
+（重命名本身未做掉电持久化，且 fsync 在主线程）；4 处 `Toast` 未加销毁守卫（不会抛
+`BadTokenException`，仅可能在 Activity 结束后短暂显示）。
+
+## 六、已知遗留（本次未改，附理由）
 
 这些均已核实为真实但非严重，改动收益低于回归风险，留待后续：
 

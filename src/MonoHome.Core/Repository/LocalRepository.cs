@@ -388,17 +388,27 @@ public static class LocalRepository
     {
         var directory = Path.GetDirectoryName(stored.ManifestPath) ?? throw new InvalidDataException("Repository record directory is missing.");
         foreach (var path in new[] { stored.ManifestPath, stored.WorkingPath, stored.OriginalPath })
-            if (File.Exists(path))
-                File.Delete(path);
+            AtomicFile.TryDelete(path);
+
+        // Only the record's own directory may be removed recursively. List() enumerates
+        // record.json at any depth, so a hand-written or legacy manifest placed directly in
+        // the warehouse root would otherwise make this delete the whole warehouse.
+        if (!IsRecordDirectory(directory, stored.Id))
+            return;
         if (!Directory.Exists(directory))
             return;
         // The record's own files are gone, so the directory only holds leftovers such as an
         // interrupted atomic write. Failing here would report a completed transfer as
-        // failed, so remove the directory recursively and tolerate a locked leftover.
+        // failed, so tolerate a locked leftover.
         try { Directory.Delete(directory, true); }
         catch (IOException) { }
         catch (UnauthorizedAccessException) { }
     }
+
+    /// <summary>True when <paramref name="directory"/> is the per-record folder for <paramref name="id"/>.</summary>
+    static bool IsRecordDirectory(string directory, string id) =>
+        !string.IsNullOrEmpty(id) &&
+        string.Equals(Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), id, StringComparison.Ordinal);
 
     public static StoredPokemon? GetLatest(string root)
         => List(root).FirstOrDefault();

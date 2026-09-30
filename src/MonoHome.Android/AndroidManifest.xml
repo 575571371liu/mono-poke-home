@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.INTERNET" />
-  <!-- Backup stays off: the GitHub PAT ciphertext is useless without the device-bound
-       Keystore key, and the plaintext save registry would otherwise leave the device. -->
-  <application android:allowBackup="false" android:icon="@mipmap/appicon" android:label="@string/app_name" android:roundIcon="@mipmap/appicon" android:supportsRtl="true">
+  <!-- Backup stays enabled so the user's own saves and warehouse survive a device change,
+       but the GitHub credential and binding preferences are excluded from cloud backup and
+       from device-to-device transfer (see Resources/xml). allowBackup alone cannot express
+       that: on Android 12+ it disables cloud backup yet still permits device transfer. -->
+  <application
+      android:allowBackup="true"
+      android:dataExtractionRules="@xml/data_extraction_rules"
+      android:fullBackupContent="@xml/backup_rules"
+      android:icon="@mipmap/appicon"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/appicon"
+      android:supportsRtl="true">
   </application>
 </manifest>

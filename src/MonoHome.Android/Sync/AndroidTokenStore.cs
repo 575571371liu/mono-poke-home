@@ -65,7 +65,10 @@ public sealed class AndroidTokenStore(Context context)
             // credentials" reset, or an interrupted write. The stored token is then
             // unrecoverable by design, so drop it and report "not connected" rather than
             // throwing out of a dialog callback and taking the process down.
-            ClearTokenAsync(cancellationToken).GetAwaiter().GetResult();
+            // Cleanup must never turn a recoverable read into a throw, so it is best-effort
+            // and does not take the caller's cancellation token.
+            try { ClearTokenAsync(CancellationToken.None).GetAwaiter().GetResult(); }
+            catch (Exception cleanup) when (cleanup is Java.Lang.Exception or IOException or UnauthorizedAccessException or InvalidOperationException) { }
             return Task.FromResult<GitHubAccessToken?>(null);
         }
         return Task.FromResult(token);
