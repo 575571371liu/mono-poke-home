@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.4";
+    const string CurrentVersion = "1.2.5";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -2512,12 +2512,47 @@ public class MainActivity : Activity
             background.SetStroke(Dp(1), Color.ParseColor(stroke));
             return background;
         }
-        LinearLayout Card(string title, params string[] lines)
+        void ShowMoveDescription(PKM pokemon, int move, int index)
+        {
+            var strings = GameInfo.GetStrings("zh-Hans");
+            var data = GetMoveEffectData(move);
+            var typeId = MoveInfo.GetType((ushort)move, pokemon.Context);
+            var dialog = new Dialog(this);
+            var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            panel.SetPadding(Dp(18), Dp(16), Dp(18), Dp(12));
+            panel.Background = Panel("#0F201C", "#427A68", 16);
+            panel.AddView(Text(StringAt(strings.Move, move, $"招式 #{move}"), 19, "#D6FF63", true));
+            panel.AddView(Text($"{StringAt(strings.Types, typeId, "未知属性")} · {MoveCategoryText(move, typeId, pokemon.Context, data)}", 12, "#8DE4D1"));
+            var power = data?.Power is > 0 ? data.Power.Value.ToString() : "—";
+            var accuracy = data is null ? "未收录" : data.Accuracy is > 0 ? $"{data.Accuracy}%" : "—";
+            var pp = MoveInfo.GetPP(pokemon.Context, (ushort)move);
+            panel.AddView(Text($"威力  {power}    命中率  {accuracy}    基础 PP  {pp}", 12, "#E9F4EF"), new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
+            panel.AddView(Text($"当前 PP  {MoveCurrentPp(pokemon, index)}", 11, "#91AAA1"));
+            panel.AddView(Text("效果", 12, "#D6FF63", true), new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(14) });
+            var effect = Text(string.IsNullOrWhiteSpace(data?.Description) ? "当前未收录该招式的详细效果。" : data.Description, 14, "#E9F4EF");
+            effect.SetLineSpacing(Dp(4), 1f);
+            panel.AddView(effect, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(6) });
+            var close = new Button(this) { Text = "关闭" };
+            close.SetTextColor(Color.ParseColor("#8DE4D1"));
+            close.Background = Panel("#132A25", "#315249", 8);
+            close.Click += (_, _) => dialog.Dismiss();
+            panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(16) });
+            dialog.SetContentView(panel);
+            ShowSafely(dialog);
+            if (dialog.Window is { } window)
+            {
+                window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+                window.SetDimAmount(0.72f);
+                window.AddFlags(WindowManagerFlags.DimBehind);
+                window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.86f), WindowManagerLayoutParams.WrapContent);
+            }
+        }
+
+        LinearLayout Card(params string[] lines)
         {
             var card = new LinearLayout(this) { Orientation = Orientation.Vertical };
             card.SetPadding(Dp(12), Dp(10), Dp(12), Dp(10));
             card.Background = Panel();
-            card.AddView(Text(title, 10, "#D6FF63", true));
             foreach (var line in lines)
             {
                 var row = Text(line, 11, "#DCEBE6");
@@ -2553,34 +2588,38 @@ public class MainActivity : Activity
         scroll.AddView(body);
 
         var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
-        header.SetGravity(GravityFlags.CenterVertical);
+        header.SetGravity(GravityFlags.Top);
+        var identity = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        identity.SetGravity(GravityFlags.CenterHorizontal);
+        identity.SetPadding(Dp(8), Dp(10), Dp(8), Dp(10));
+        identity.Background = Panel("#17312B", "#427A68", 14);
         var icon = new ImageView(this);
         var iconId = Resources.GetIdentifier($"a_{pokemon.Species}", "drawable", PackageName);
         if (iconId != 0)
             icon.SetImageResource(iconId);
-        icon.Background = Panel("#17312B", "#427A68", 14);
         icon.SetPadding(Dp(8), Dp(8), Dp(8), Dp(8));
-        header.AddView(icon, new LinearLayout.LayoutParams(Dp(60), Dp(60)));
+        icon.SetScaleType(ImageView.ScaleType.FitCenter);
+        identity.AddView(icon, new LinearLayout.LayoutParams(-1, Dp(80)));
+        var pokemonName = Text(ChineseSpeciesName(pokemon.Species), 14, "#E9F4EF", true);
+        pokemonName.Gravity = GravityFlags.Center;
+        identity.AddView(pokemonName, new LinearLayout.LayoutParams(-1, -2));
+        var level = Text($"Lv.{pokemon.CurrentLevel}", 11, "#8DE4D1");
+        level.Gravity = GravityFlags.Center;
+        identity.AddView(level, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(3) });
+        header.AddView(identity, new LinearLayout.LayoutParams(0, -2, 0.36f));
         var heading = new LinearLayout(this) { Orientation = Orientation.Vertical };
         heading.SetPadding(Dp(12), 0, 0, 0);
-        heading.AddView(Text($"{ChineseSpeciesName(pokemon.Species)} · Lv.{pokemon.CurrentLevel}", 17, "#E9F4EF", true));
-        heading.AddView(Text($"{(pokemon.IsShiny ? "闪光" : "普通")} · {GenderText(pokemon.Gender)} · {(pokemon.IsEgg ? "蛋" : "已孵化")}", 9, "#8DE4D1"));
-        heading.AddView(Text($"{(pokemon.IsEgg ? "尚未孵化" : "可正常使用")} · 形态 {pokemon.Form}", 9, "#91AAA1"));
-        header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 1));
-        body.AddView(header);
-
-        var trainingLines = new List<string> { $"性格    {nature}", $"特性    {ability}" };
-        var training = Card("训练信息", trainingLines.ToArray());
+        header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 0.64f));
+        var training = Card(
+            $"{(pokemon.IsShiny ? "闪光" : "普通")} · {GenderText(pokemon.Gender)} · {(pokemon.IsEgg ? "蛋" : "已孵化")}",
+            $"{(pokemon.IsEgg ? "尚未孵化" : "可正常使用")} · 形态 {pokemon.Form}",
+            $"性格  {nature} · 特性  {ability}",
+            $"道具  {item} · 状态  {StatusText(pokemon)}");
         var effectLine = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 10, "#8DE4D1");
         effectLine.SetPadding(0, Dp(2), 0, 0);
         training.AddView(effectLine);
-        var equipment = Card("装备与状态", $"道具    {item}", $"状态    {StatusText(pokemon)}");
-        var cards = new LinearLayout(this) { Orientation = Orientation.Horizontal };
-        cards.SetPadding(0, Dp(8), 0, 0);
-        cards.AddView(training, new LinearLayout.LayoutParams(0, -2, 1));
-        cards.AddView(new Space(this), new LinearLayout.LayoutParams(Dp(8), 1));
-        cards.AddView(equipment, new LinearLayout.LayoutParams(0, -2, 1));
-        body.AddView(cards);
+        heading.AddView(training, new LinearLayout.LayoutParams(-1, -2));
+        body.AddView(header);
 
         var moveCard = new LinearLayout(this) { Orientation = Orientation.Vertical };
         moveCard.SetPadding(Dp(9), Dp(6), Dp(9), Dp(6));
@@ -2589,6 +2628,7 @@ public class MainActivity : Activity
         for (var index = 0; index < moves.Length; index++)
         {
             var move = moves[index];
+            var moveSlot = index;
             var row = new LinearLayout(this) { Orientation = Orientation.Horizontal };
             row.SetGravity(GravityFlags.CenterVertical);
             row.SetPadding(0, Dp(3), 0, 0);
@@ -2611,7 +2651,13 @@ public class MainActivity : Activity
             }
             row.AddView(categoryIcon, new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
             row.AddView(move == 0 ? new Space(this) : TypeBadge(typeId, typeName), new LinearLayout.LayoutParams(Dp(30), Dp(24)) { RightMargin = Dp(4) });
-            row.AddView(Text(name, 11, move == 0 ? "#628078" : "#E9F4EF"), new LinearLayout.LayoutParams(0, -2, 1));
+            var moveName = Text(name, 11, move == 0 ? "#628078" : "#E9F4EF");
+            if (move != 0)
+            {
+                moveName.SetPadding(0, Dp(6), 0, Dp(6));
+                moveName.Click += (_, _) => ShowMoveDescription(pokemon, move, moveSlot);
+            }
+            row.AddView(moveName, new LinearLayout.LayoutParams(0, -2, 1));
             var power = move == 0 ? string.Empty : moveData?.Power is not > 0 ? "—" : moveData.Power.Value.ToString();
             row.AddView(Text(power, 10, "#DCEBE6"), new LinearLayout.LayoutParams(Dp(32), -2) { RightMargin = Dp(4) });
             var currentPp = move == 0 ? 0 : MoveCurrentPp(pokemon, index);
@@ -2619,7 +2665,6 @@ public class MainActivity : Activity
             row.AddView(Text(move == 0 ? string.Empty : $"{currentPp}/{maxPp}", 10, "#91AAA1"), new LinearLayout.LayoutParams(Dp(48), -2));
             if (warehouseRecord is not null)
             {
-                var moveSlot = index;
                 var edit = new Button(this) { Text = "编辑" };
                 edit.SetAllCaps(false);
                 edit.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 9);
@@ -2645,7 +2690,6 @@ public class MainActivity : Activity
         stats.AddView(Text("能力数据", 10, "#D6FF63", true));
         var legend = new LinearLayout(this) { Orientation = Orientation.Vertical };
         legend.SetPadding(0, Dp(6), 0, 0);
-        legend.AddView(Text("六维能力图", 10, "#91AAA1"));
         var valueLegend = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         valueLegend.AddView(Text("◆ 个体值", 10, "#8DE4D1"));
         valueLegend.AddView(Text("    ◆ 努力值", 10, "#D6FF63"));
@@ -2661,9 +2705,9 @@ public class MainActivity : Activity
         var statNames = new[] { "HP", "攻击", "防御", "特攻", "特防", "速度" };
         var selectedStat = Text("点击六角图任一维度查看数值", 9, "#628078");
         selectedStat.SetPadding(0, Dp(4), 0, 0);
-        var chart = new StatHexagonView(this, ivs, evs, natureAmps, actualStats);
+        var chart = new StatHexagonView(this, ivs, evs, natureAmps);
         chart.StatSelected += index => selectedStat.Text = $"已选择：{statNames[index]}  ·  能力值 {actualStats[index]}  ·  个体值 {ivs[index]}  ·  努力值 {evs[index]}";
-        stats.AddView(chart, new LinearLayout.LayoutParams(-1, Dp(170)));
+        stats.AddView(chart, new LinearLayout.LayoutParams(-1, Dp(190)));
         stats.AddView(selectedStat);
         body.AddView(stats, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
         var sourceText = Text(footer, 10, "#91AAA1");
@@ -2829,6 +2873,8 @@ public class MainActivity : Activity
 
     static string MoveCategoryText(int move, byte typeId, EntityContext context, MoveEffectData? data)
     {
+        if (data?.Category == "变化")
+            return "变化";
         if (context is EntityContext.Gen1 or EntityContext.Gen2 or EntityContext.Gen3)
             return typeId is 0 or 1 or 2 or 3 or 4 or 5 or 7 or 8 or 9 ? "物理" : "特殊";
         return data?.Category switch
@@ -2854,7 +2900,9 @@ public class MainActivity : Activity
         [property: JsonPropertyName("type")] string Type,
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("power")] int? Power,
-        [property: JsonPropertyName("pp")] int? PP);
+        [property: JsonPropertyName("pp")] int? PP,
+        [property: JsonPropertyName("accuracy")] int? Accuracy,
+        [property: JsonPropertyName("description")] string? Description);
 
     static ushort[] LearnableMoves(PKM pokemon, int slot)
     {
@@ -3502,17 +3550,15 @@ sealed class StatHexagonView : View
 {
     readonly int[] ivs;
     readonly int[] evs;
-    readonly int[] actualStats;
     readonly sbyte[] natureAmps;
     static readonly string[] Names = ["HP", "攻击", "防御", "特攻", "特防", "速度"];
     public event Action<int>? StatSelected;
 
-    public StatHexagonView(Context context, int[] ivs, int[] evs, sbyte[] natureAmps, int[] actualStats) : base(context)
+    public StatHexagonView(Context context, int[] ivs, int[] evs, sbyte[] natureAmps) : base(context)
     {
         this.ivs = ivs;
         this.evs = evs;
         this.natureAmps = natureAmps;
-        this.actualStats = actualStats;
         SetWillNotDraw(false);
         Clickable = true;
     }
@@ -3523,8 +3569,9 @@ sealed class StatHexagonView : View
     {
         base.OnDraw(canvas);
         var centerX = Width * 0.5f;
-        var centerY = Height * 0.48f;
-        var radius = Math.Min(Width * 0.36f, Height * 0.34f);
+        var centerY = Height * 0.5f;
+        // Reserve room for axis labels and the nature arrows below them.
+        var radius = Math.Min(Width * 0.36f, Height * 0.5f - Dp(40));
         var grid = new Paint { AntiAlias = true, Color = Color.ParseColor("#315249") };
         grid.SetStyle(Paint.Style.Stroke);
         grid.StrokeWidth = Dp(1);
@@ -3538,7 +3585,7 @@ sealed class StatHexagonView : View
         DrawData(canvas, centerX, centerY, radius, ivs, 31f, Color.ParseColor("#8DE4D1"), Color.ParseColor("#8DE4D1"));
         DrawData(canvas, centerX, centerY, radius, evs, 252f, Color.ParseColor("#D6FF63"), Color.ParseColor("#D6FF63"));
 
-        var label = new Paint { AntiAlias = true, Color = Color.ParseColor("#91AAA1"), TextSize = Dp(10) };
+        var label = new Paint { AntiAlias = true, Color = Color.ParseColor("#E9F4EF"), TextSize = Dp(12) };
         label.TextAlign = Paint.Align.Center;
         for (var i = 0; i < 6; i++)
         {
@@ -3551,13 +3598,6 @@ sealed class StatHexagonView : View
                 canvas.DrawText(natureAmps[i] > 0 ? "↑" : "↓", point.x, point.y + Dp(18), arrow);
             }
         }
-        if (selectedIndex >= 0)
-        {
-            var point = Point(centerX, centerY, radius + Dp(34), selectedIndex);
-            var value = new Paint { AntiAlias = true, Color = Color.ParseColor("#D6FF63"), TextSize = Dp(9) };
-            value.TextAlign = Paint.Align.Center;
-            canvas.DrawText($"能力 {actualStats[selectedIndex]} · IV {ivs[selectedIndex]} / EV {evs[selectedIndex]}", point.x, point.y + Dp(4), value);
-        }
     }
 
     int selectedIndex = -1;
@@ -3567,7 +3607,7 @@ sealed class StatHexagonView : View
         if (e?.Action == MotionEventActions.Up)
         {
             var centerX = Width * 0.5f;
-            var centerY = Height * 0.48f;
+            var centerY = Height * 0.5f;
             var angle = Math.Atan2(e.GetY() - centerY, e.GetX() - centerX) + Math.PI / 2;
             if (angle < 0)
                 angle += Math.PI * 2;
