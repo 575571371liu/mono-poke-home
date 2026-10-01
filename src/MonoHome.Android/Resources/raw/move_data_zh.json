@@ -5,7 +5,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "使用长长的尾巴或手等拍打对手进行攻击。"
   },
   {
     "id": 2,
@@ -13,7 +15,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 50,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "用锋利的手刀劈向对手进行攻击。容易击中要害。"
   },
   {
     "id": 3,
@@ -21,7 +25,9 @@
     "type": "一般",
     "category": "物理",
     "power": 15,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "用连环巴掌拍打对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 4,
@@ -29,7 +35,9 @@
     "type": "一般",
     "category": "物理",
     "power": 18,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "用拳头怒涛般的殴打对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 5,
@@ -37,7 +45,9 @@
     "type": "一般",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "用充满力量的拳头攻击对手。"
   },
   {
     "id": 6,
@@ -45,7 +55,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手的身体投掷小金币进行攻击。战斗后可以拿到钱。"
   },
   {
     "id": 7,
@@ -53,7 +65,9 @@
     "type": "火",
     "category": "物理",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用充满火焰的拳头攻击对手。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 8,
@@ -61,7 +75,9 @@
     "type": "冰",
     "category": "物理",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用充满寒气的拳头攻击对手。有时会让对手陷入冰冻状态。"
   },
   {
     "id": 9,
@@ -69,7 +85,9 @@
     "type": "电",
     "category": "物理",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用充满电流的拳头攻击对手。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 10,
@@ -77,7 +95,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "用坚硬且无比锋利的爪子抓对手进行攻击。"
   },
   {
     "id": 11,
@@ -85,7 +105,9 @@
     "type": "一般",
     "category": "物理",
     "power": 55,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "将对手从两侧夹住，给予伤害。"
   },
   {
     "id": 12,
@@ -93,7 +115,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 30,
+    "description": "用大钳子或剪刀等夹断对手进行攻击。只要命中就会一击濒死。"
   },
   {
     "id": 13,
@@ -101,7 +125,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "制造风之刃，于第２回合攻击对手。容易击中要害。"
   },
   {
     "id": 14,
@@ -109,7 +135,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "激烈地跳起战舞提高气势。大幅提高自己的攻击。"
   },
   {
     "id": 15,
@@ -117,7 +145,9 @@
     "type": "一般",
     "category": "物理",
     "power": 50,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 95,
+    "description": "用镰刀或爪子等切斩对手进行攻击。"
   },
   {
     "id": 16,
@@ -125,7 +155,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 40,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "用翅膀将刮起的狂风袭向对手进行攻击。"
   },
   {
     "id": 17,
@@ -133,7 +165,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 60,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "大大地展开美丽的翅膀，将其撞向对手进行攻击。"
   },
   {
     "id": 18,
@@ -141,7 +175,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "吹飞对手，强制拉后备宝可梦上场。如果对手为野生宝可梦，战斗将直接结束。"
   },
   {
     "id": 19,
@@ -149,7 +185,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "第１回合飞上天空，第２回合攻击对手。"
   },
   {
     "id": 20,
@@ -157,7 +195,9 @@
     "type": "一般",
     "category": "物理",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "使用长长的身体或藤蔓等，在４～５回合内绑紧对手进行攻击。"
   },
   {
     "id": 21,
@@ -165,7 +205,9 @@
     "type": "一般",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 75,
+    "description": "使用长长的尾巴或藤蔓等摔打对手进行攻击。"
   },
   {
     "id": 22,
@@ -173,7 +215,9 @@
     "type": "草",
     "category": "物理",
     "power": 45,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "用如同鞭子般弯曲而细长的藤蔓摔打对手进行攻击。"
   },
   {
     "id": 23,
@@ -181,7 +225,9 @@
     "type": "一般",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用大脚踩踏对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 24,
@@ -189,7 +235,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 30,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "用２只脚踢飞对手进行攻击。连续２次给予伤害。"
   },
   {
     "id": 25,
@@ -197,7 +245,9 @@
     "type": "一般",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 75,
+    "description": "使出力大无穷的重踢踢飞对手进行攻击。"
   },
   {
     "id": 26,
@@ -205,7 +255,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "使出高高的腾空踢攻击对手。如果踢偏则自己会受到伤害。"
   },
   {
     "id": 27,
@@ -213,7 +265,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "一边使身体快速旋转，一边踢飞对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 28,
@@ -221,7 +275,9 @@
     "type": "地面",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手脸上泼沙子，从而降低命中率。"
   },
   {
     "id": 29,
@@ -229,7 +285,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "将头伸出，笔直地扑向对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 30,
@@ -237,7 +295,9 @@
     "type": "一般",
     "category": "物理",
     "power": 65,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "用尖锐的角攻击对手。"
   },
   {
     "id": 31,
@@ -245,7 +305,9 @@
     "type": "一般",
     "category": "物理",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "用角或喙刺向对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 32,
@@ -253,7 +315,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 30,
+    "description": "用旋转的角刺入对手进行攻击。只要命中就会一击濒死。"
   },
   {
     "id": 33,
@@ -261,7 +325,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "用整个身体撞向对手进行攻击。"
   },
   {
     "id": 34,
@@ -269,7 +335,9 @@
     "type": "一般",
     "category": "物理",
     "power": 85,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用整个身体压住对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 35,
@@ -277,7 +345,9 @@
     "type": "一般",
     "category": "物理",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "使用长长的身体或藤蔓等，在４～５回合内紧束对手进行攻击。"
   },
   {
     "id": 36,
@@ -285,7 +355,9 @@
     "type": "一般",
     "category": "物理",
     "power": 90,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "以惊人的气势撞向对手进行攻击。自己也会受到少许伤害。"
   },
   {
     "id": 37,
@@ -293,7 +365,9 @@
     "type": "一般",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "在２～３回合内，乱打一气地攻击对手。大闹一番后自己会陷入混乱。"
   },
   {
     "id": 38,
@@ -301,7 +375,9 @@
     "type": "一般",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "拼命地猛撞向对手进行攻击。自己也会受到不小的伤害。"
   },
   {
     "id": 39,
@@ -309,7 +385,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "可爱地左右摇晃尾巴，诱使对手疏忽大意。会降低对手的防御。"
   },
   {
     "id": 40,
@@ -317,7 +395,9 @@
     "type": "毒",
     "category": "物理",
     "power": 15,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "将有毒的针刺入对手进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 41,
@@ -325,7 +405,9 @@
     "type": "虫",
     "category": "物理",
     "power": 25,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将２根针刺入对手，连续２次给予伤害。有时会让对手陷入中毒状态。"
   },
   {
     "id": 42,
@@ -333,7 +415,9 @@
     "type": "虫",
     "category": "物理",
     "power": 25,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 95,
+    "description": "向对手发射锐针进行攻击。连续攻击２～５次。"
   },
   {
     "id": 43,
@@ -341,7 +425,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "用犀利的眼神使其害怕，从而降低对手的防御。"
   },
   {
     "id": 44,
@@ -349,7 +435,9 @@
     "type": "恶",
     "category": "物理",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "用尖锐的牙咬住对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 45,
@@ -357,7 +445,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "让对手听可爱的叫声，引开注意力使其疏忽，从而降低对手的攻击。"
   },
   {
     "id": 46,
@@ -365,7 +455,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "放走对手，强制拉后备宝可梦上场。如果对手为野生宝可梦，战斗将直接结束。"
   },
   {
     "id": 47,
@@ -373,7 +465,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 55,
+    "description": "让对手听舒适、美妙的歌声，从而陷入睡眠状态。"
   },
   {
     "id": 48,
@@ -381,7 +475,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 55,
+    "description": "从身体发出特殊的音波，从而使对手混乱。"
   },
   {
     "id": 49,
@@ -389,7 +485,9 @@
     "type": "一般",
     "category": "特殊",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "将冲击波撞向对手进行攻击。必定会给予20的伤害。"
   },
   {
     "id": 50,
@@ -397,7 +495,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "阻碍对手行动，之前使出的招式将在４回合内无法使用。"
   },
   {
     "id": 51,
@@ -405,7 +505,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "将强酸泼向对手进行攻击。有时会降低对手的特防。"
   },
   {
     "id": 52,
@@ -413,7 +515,9 @@
     "type": "火",
     "category": "特殊",
     "power": 40,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "向对手发射小型火焰进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 53,
@@ -421,7 +525,9 @@
     "type": "火",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手发射烈焰进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 54,
@@ -429,7 +535,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "用白雾覆盖身体。在５回合内不会让对手降低自己的能力。"
   },
   {
     "id": 55,
@@ -437,7 +545,9 @@
     "type": "水",
     "category": "特殊",
     "power": 40,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "向对手猛烈地喷射水流进行攻击。"
   },
   {
     "id": 56,
@@ -445,7 +555,9 @@
     "type": "水",
     "category": "特殊",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": "向对手猛烈地喷射大量水流进行攻击。"
   },
   {
     "id": 57,
@@ -453,7 +565,9 @@
     "type": "水",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "利用大浪攻击自己周围所有的宝可梦。"
   },
   {
     "id": 58,
@@ -461,7 +575,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手发射冰冻光束进行攻击。有时会让对手陷入冰冻状态。"
   },
   {
     "id": 59,
@@ -469,7 +585,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 70,
+    "description": "将猛烈的暴风雪刮向对手进行攻击。有时会让对手陷入冰冻状态。"
   },
   {
     "id": 60,
@@ -477,7 +595,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手发射神奇的光线进行攻击。有时会使对手混乱。"
   },
   {
     "id": 61,
@@ -485,7 +605,9 @@
     "type": "水",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手猛烈地喷射泡沫进行攻击。有时会降低对手的速度。"
   },
   {
     "id": 62,
@@ -493,7 +615,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手发射虹色光束进行攻击。有时会降低对手的攻击。"
   },
   {
     "id": 63,
@@ -501,7 +625,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "向对手发射强烈的光线进行攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 64,
@@ -509,7 +635,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 35,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "用尖锐的喙或角刺向对手进行攻击。"
   },
   {
     "id": 65,
@@ -517,7 +645,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "一边旋转，一边将尖喙刺入对手进行攻击。"
   },
   {
     "id": 66,
@@ -525,7 +655,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 80,
+    "description": "将对手连同自己一起摔向地面进行攻击。自己也会受到少许伤害。"
   },
   {
     "id": 67,
@@ -533,7 +665,9 @@
     "type": "格斗",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用力踢对手的脚，使其摔倒进行攻击。对手越重，威力越大。"
   },
   {
     "id": 68,
@@ -541,7 +675,9 @@
     "type": "格斗",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "从对手那里受到物理攻击的伤害将以２倍返还给同一个对手。"
   },
   {
     "id": 69,
@@ -549,7 +685,9 @@
     "type": "格斗",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "利用引力将对手甩飞出去。给予对手和自己等级相同的伤害。"
   },
   {
     "id": 70,
@@ -557,7 +695,9 @@
     "type": "一般",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "使出浑身力气殴打对手进行攻击。"
   },
   {
     "id": 71,
@@ -565,7 +705,9 @@
     "type": "草",
     "category": "特殊",
     "power": 20,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "吸取对手的养分进行攻击。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 72,
@@ -573,7 +715,9 @@
     "type": "草",
     "category": "特殊",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "吸取对手的养分进行攻击。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 73,
@@ -581,7 +725,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "植入寄生种子后，将在每回合一点一点吸取对手的ＨＰ，从而用来回复自己的ＨＰ。"
   },
   {
     "id": 74,
@@ -589,7 +735,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "让身体一下子长大，从而提高攻击和特攻。"
   },
   {
     "id": 75,
@@ -597,7 +745,9 @@
     "type": "草",
     "category": "物理",
     "power": 55,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 95,
+    "description": "飞出叶片，切斩对手进行攻击。容易击中要害。"
   },
   {
     "id": 76,
@@ -605,7 +755,9 @@
     "type": "草",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合收集满满的日光，第２回合发射光束进行攻击。"
   },
   {
     "id": 77,
@@ -613,7 +765,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 75,
+    "description": "撒出毒粉，从而让对手陷入中毒状态。"
   },
   {
     "id": 78,
@@ -621,7 +775,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 75,
+    "description": "撒出麻痹粉，从而让对手陷入麻痹状态。"
   },
   {
     "id": 79,
@@ -629,7 +785,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 75,
+    "description": "撒出催眠粉，从而让对手陷入睡眠状态。"
   },
   {
     "id": 80,
@@ -637,7 +795,9 @@
     "type": "草",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "在２～３回合内，散落花瓣攻击对手。之后自己会陷入混乱。"
   },
   {
     "id": 81,
@@ -645,7 +805,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 95,
+    "description": "用口中吐出的丝缠绕对手，从而大幅降低对手的速度。"
   },
   {
     "id": 82,
@@ -653,7 +815,9 @@
     "type": "龙",
     "category": "特殊",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将愤怒的冲击波撞向对手进行攻击。必定会给予40的伤害。"
   },
   {
     "id": 83,
@@ -661,7 +825,9 @@
     "type": "火",
     "category": "特殊",
     "power": 35,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "将对手困在激烈的火焰旋涡中，在４～５回合内进行攻击。"
   },
   {
     "id": 84,
@@ -669,7 +835,9 @@
     "type": "电",
     "category": "特殊",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "发出电流刺激对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 85,
@@ -677,7 +845,9 @@
     "type": "电",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手发出强力电击进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 86,
@@ -685,7 +855,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "向对手发出微弱的电击，从而让对手陷入麻痹状态。"
   },
   {
     "id": 87,
@@ -693,7 +865,9 @@
     "type": "电",
     "category": "特殊",
     "power": 110,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 70,
+    "description": "向对手劈下暴雷进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 88,
@@ -701,7 +875,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "拿起小岩石，投掷对手进行攻击。"
   },
   {
     "id": 89,
@@ -709,7 +885,9 @@
     "type": "地面",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "利用地震的冲击，攻击自己周围所有的宝可梦。"
   },
   {
     "id": 90,
@@ -717,7 +895,9 @@
     "type": "地面",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 30,
+    "description": "让对手掉落于地裂的裂缝中进行攻击。只要命中就会一击濒死。"
   },
   {
     "id": 91,
@@ -725,7 +905,9 @@
     "type": "地面",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合钻入，第２回合攻击对手。"
   },
   {
     "id": 92,
@@ -733,7 +915,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "让对手陷入剧毒状态。随着回合的推进，中毒伤害会增加。"
   },
   {
     "id": 93,
@@ -741,7 +925,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 50,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "向对手发送微弱的念力进行攻击。有时会使对手混乱。"
   },
   {
     "id": 94,
@@ -749,7 +935,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手发送强大的念力进行攻击。有时会降低对手的特防。"
   },
   {
     "id": 95,
@@ -757,7 +945,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 60,
+    "description": "施以诱导睡意的暗示，让对手陷入睡眠状态。"
   },
   {
     "id": 96,
@@ -765,7 +955,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "唤醒身体深处沉睡的力量，从而提高自己的攻击。"
   },
   {
     "id": 97,
@@ -773,7 +965,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "让身体放松变得轻盈，以便高速移动。大幅提高自己的速度。"
   },
   {
     "id": 98,
@@ -781,7 +975,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "以迅雷不及掩耳之势扑向对手。必定能够先制攻击。"
   },
   {
     "id": 99,
@@ -789,7 +985,9 @@
     "type": "一般",
     "category": "物理",
     "power": 20,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "如果在使出招式后受到攻击的话，会因愤怒的力量而提高攻击。"
   },
   {
     "id": 100,
@@ -797,7 +995,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "当有后备宝可梦在时，如果使用就可以进行替换。野生的宝可梦会逃走。"
   },
   {
     "id": 101,
@@ -805,7 +1005,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "显示恐怖幻影，只给予对手和自己等级相同的伤害。"
   },
   {
     "id": 102,
@@ -813,7 +1015,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "可以将对手最后使用的招式，在战斗内变成自己的招式。"
   },
   {
     "id": 103,
@@ -821,7 +1025,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 85,
+    "description": "发出不由自主想要捂起耳朵的刺耳声，从而大幅降低对手的防御。"
   },
   {
     "id": 104,
@@ -829,7 +1035,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "通过快速移动来制造分身，扰乱对手，从而提高闪避率。"
   },
   {
     "id": 105,
@@ -837,7 +1045,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "让细胞再生，从而回复自己最大ＨＰ的一半。"
   },
   {
     "id": 106,
@@ -845,7 +1055,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "全身使劲，让身体变硬，从而提高自己的防御。"
   },
   {
     "id": 107,
@@ -853,7 +1065,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "蜷缩身体显得很小，从而大幅提高自己的闪避率。"
   },
   {
     "id": 108,
@@ -861,7 +1075,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手喷出烟或墨汁等，从而降低对手的命中率。"
   },
   {
     "id": 109,
@@ -869,7 +1085,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "显示奇怪的光，扰乱对手。使对手混乱。"
   },
   {
     "id": 110,
@@ -877,7 +1095,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "缩入壳里保护身体，从而提高自己的防御。"
   },
   {
     "id": 111,
@@ -885,7 +1105,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "将身体蜷曲变圆，从而提高自己的防御。"
   },
   {
     "id": 112,
@@ -893,7 +1115,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "制造坚固的壁障，从而大幅提高自己的防御。"
   },
   {
     "id": 113,
@@ -901,7 +1125,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "利用神奇的墙壁，在５回合内减弱从对手那里受到的特殊攻击的伤害。"
   },
   {
     "id": 114,
@@ -909,7 +1135,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "升起黑雾，将正在场上战斗的全体宝可梦的能力变回原点。"
   },
   {
     "id": 115,
@@ -917,7 +1145,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "利用神奇的墙壁，在５回合内减弱从对手那里受到的物理攻击的伤害。"
   },
   {
     "id": 116,
@@ -925,7 +1155,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "深深地吸口气，集中精神。自己的攻击会变得容易击中要害。"
   },
   {
     "id": 117,
@@ -933,7 +1165,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在２回合内忍受攻击，受到的伤害会２倍返还给对手。"
   },
   {
     "id": 118,
@@ -941,7 +1175,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "挥动手指刺激自己的大脑，从所有的招式中任意使出１个。"
   },
   {
     "id": 119,
@@ -949,7 +1185,9 @@
     "type": "飞行",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "模仿对手使用的招式，自己也使用相同招式。"
   },
   {
     "id": 120,
@@ -957,7 +1195,9 @@
     "type": "一般",
     "category": "物理",
     "power": 200,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "引发爆炸，攻击自己周围所有的宝可梦。使用后陷入濒死。"
   },
   {
     "id": 121,
@@ -965,7 +1205,9 @@
     "type": "一般",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 75,
+    "description": "向对手用力投掷大大的蛋进行攻击。"
   },
   {
     "id": 122,
@@ -973,7 +1215,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 30,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "用长长的舌头，舔遍对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 123,
@@ -981,7 +1225,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 30,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 70,
+    "description": "将肮脏的浓雾吹向对手进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 124,
@@ -989,7 +1235,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用污泥投掷对手进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 125,
@@ -997,7 +1245,9 @@
     "type": "地面",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "用手中的骨头殴打对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 126,
@@ -1005,7 +1255,9 @@
     "type": "火",
     "category": "特殊",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 85,
+    "description": "用大字形状的火焰烧尽对手。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 127,
@@ -1013,7 +1265,9 @@
     "type": "水",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "以惊人的气势扑向对手。有时会使对手畏缩。"
   },
   {
     "id": 128,
@@ -1021,7 +1275,9 @@
     "type": "水",
     "category": "物理",
     "power": 35,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "用非常坚固且厚实的贝壳，在４～５回合内夹住对手进行攻击。"
   },
   {
     "id": 129,
@@ -1029,7 +1285,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "发射星形的光攻击对手。攻击必定会命中。"
   },
   {
     "id": 130,
@@ -1037,7 +1295,9 @@
     "type": "一般",
     "category": "物理",
     "power": 130,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合把头缩进去，从而提高防御。第２回合攻击对手。"
   },
   {
     "id": 131,
@@ -1045,7 +1305,9 @@
     "type": "一般",
     "category": "物理",
     "power": 20,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手发射锐针进行攻击。连续攻击２～５次。"
   },
   {
     "id": 132,
@@ -1053,7 +1315,9 @@
     "type": "一般",
     "category": "物理",
     "power": 10,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 100,
+    "description": "用触手或青藤等缠绕进行攻击。有时会降低对手的速度。"
   },
   {
     "id": 133,
@@ -1061,7 +1325,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "将头脑清空，瞬间忘记某事，从而大幅提高自己的特防。"
   },
   {
     "id": 134,
@@ -1069,7 +1335,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 80,
+    "description": "折弯汤匙引开注意，从而降低对手的命中率。"
   },
   {
     "id": 135,
@@ -1077,7 +1345,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己最大ＨＰ的一半。"
   },
   {
     "id": 136,
@@ -1085,7 +1355,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 130,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "跳起后用膝盖撞对手进行攻击。如果撞偏则自己会受到伤害。"
   },
   {
     "id": 137,
@@ -1093,7 +1365,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "用腹部的花纹使对手害怕，从而让其陷入麻痹状态。"
   },
   {
     "id": 138,
@@ -1101,7 +1375,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 100,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "吃掉正在睡觉的对手的梦进行攻击。回复对手所受到伤害的一半ＨＰ。"
   },
   {
     "id": 139,
@@ -1109,7 +1385,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 90,
+    "description": "将毒瓦斯吹到对手的脸上，从而让对手陷入中毒状态。"
   },
   {
     "id": 140,
@@ -1117,7 +1395,9 @@
     "type": "一般",
     "category": "物理",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "向对手投掷圆形物体进行攻击。连续攻击２～５次。"
   },
   {
     "id": 141,
@@ -1125,7 +1405,9 @@
     "type": "虫",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "吸取血液攻击对手。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 142,
@@ -1133,7 +1415,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 75,
+    "description": "用恐怖的脸强吻对手。让对手陷入睡眠状态。"
   },
   {
     "id": 143,
@@ -1141,7 +1425,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "第２回合攻击对手。偶尔使对手畏缩。也容易击中要害。"
   },
   {
     "id": 144,
@@ -1149,7 +1435,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "变身成对手宝可梦的样子，能够使用和对手完全相同的招式。"
   },
   {
     "id": 145,
@@ -1157,7 +1445,9 @@
     "type": "水",
     "category": "特殊",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "向对手用力吹起无数泡泡进行攻击。有时会降低对手的速度。"
   },
   {
     "id": 146,
@@ -1165,7 +1455,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "有节奏地出拳攻击对手。有时会使对手混乱。"
   },
   {
     "id": 147,
@@ -1173,7 +1465,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "沙沙沙地撒满具有催眠效果的孢子，从而让对手陷入睡眠状态。"
   },
   {
     "id": 148,
@@ -1181,7 +1475,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "使出耀眼光芒，从而降低对手的命中率。"
   },
   {
     "id": 149,
@@ -1189,7 +1485,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手发射神奇的念波进行攻击。每次使用，伤害都会改变。"
   },
   {
     "id": 150,
@@ -1197,7 +1495,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "也不攻击只是一蹦一蹦地跳，什么都不会发生……"
   },
   {
     "id": 151,
@@ -1205,7 +1505,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "通过细胞的变化进行液化，从而大幅提高自己的防御。"
   },
   {
     "id": 152,
@@ -1213,7 +1515,9 @@
     "type": "水",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用大钳子敲打对手进行攻击。容易击中要害。"
   },
   {
     "id": 153,
@@ -1221,7 +1525,9 @@
     "type": "一般",
     "category": "物理",
     "power": 250,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "引发大爆炸，攻击自己周围所有的宝可梦。使用后自己会陷入濒死。"
   },
   {
     "id": 154,
@@ -1229,7 +1535,9 @@
     "type": "一般",
     "category": "物理",
     "power": 18,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 80,
+    "description": "用爪子或镰刀等抓对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 155,
@@ -1237,7 +1545,9 @@
     "type": "地面",
     "category": "物理",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用手中的骨头投掷对手，来回连续２次给予伤害。"
   },
   {
     "id": 156,
@@ -1245,7 +1555,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "连续睡上２回合。回复自己的全部ＨＰ以及治愈所有异常状态。"
   },
   {
     "id": 157,
@@ -1253,7 +1565,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "将大岩石猛烈地撞向对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 158,
@@ -1261,7 +1575,9 @@
     "type": "一般",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "用锋利的门牙牢牢地咬住对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 159,
@@ -1269,7 +1585,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "增加身体的角，变得棱棱角角，从而提高自己的攻击。"
   },
   {
     "id": 160,
@@ -1277,7 +1595,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "将自己的属性转换成和已学会的招式中第一个招式相同的属性。"
   },
   {
     "id": 161,
@@ -1285,7 +1605,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用３种光线进行攻击。有时会让对手陷入麻痹、灼伤或冰冻的状态。"
   },
   {
     "id": 162,
@@ -1293,7 +1615,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用锋利的门牙猛烈地咬住对手进行攻击。对手的ＨＰ减半。"
   },
   {
     "id": 163,
@@ -1301,7 +1625,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用爪子或镰刀等劈开对手进行攻击。容易击中要害。"
   },
   {
     "id": 164,
@@ -1309,7 +1635,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "削减少许自己的ＨＰ，制造分身。分身将成为自己的替身。"
   },
   {
     "id": 165,
@@ -1317,7 +1645,9 @@
     "type": "一般",
     "category": "物理",
     "power": 50,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "当自己的ＰＰ耗尽时，努力挣扎攻击对手。自己也会受到少许伤害。"
   },
   {
     "id": 166,
@@ -1325,7 +1655,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "将对手使用的招式变成自己的招式。使用１次后写生消失。"
   },
   {
     "id": 167,
@@ -1333,7 +1665,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 10,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "连续３次踢对手进行攻击。每踢中一次，威力就会提高。"
   },
   {
     "id": 168,
@@ -1341,7 +1675,9 @@
     "type": "恶",
     "category": "物理",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "攻击的同时盗取道具。当自己携带道具时，不会去盗取。"
   },
   {
     "id": 169,
@@ -1349,7 +1685,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将黏糊糊的细丝一层一层缠住对手，使其不能从战斗中逃走。"
   },
   {
     "id": 170,
@@ -1357,7 +1695,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "用心感受对手的行动，下次攻击必定会击中对手。"
   },
   {
     "id": 171,
@@ -1365,7 +1705,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让在睡眠状态下的对手做恶梦，每回合会缓缓减少HP。"
   },
   {
     "id": 172,
@@ -1373,7 +1715,9 @@
     "type": "火",
     "category": "物理",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "让火焰覆盖全身，猛撞向对手进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 173,
@@ -1381,7 +1725,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "在自己睡觉时，发出噪音进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 174,
@@ -1389,7 +1735,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "使用该招式的宝可梦，其属性是幽灵属性或其他属性时，效果会不一样。"
   },
   {
     "id": 175,
@@ -1397,7 +1745,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "抓狂般乱打进行攻击。自己的ＨＰ越少，招式的威力越大。"
   },
   {
     "id": 176,
@@ -1405,7 +1755,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "为了可以抵抗对手最后使用的招式，从而使自己的属性发生变化。"
   },
   {
     "id": 177,
@@ -1413,7 +1765,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "发射空气旋涡进行攻击。容易击中要害。"
   },
   {
     "id": 178,
@@ -1421,7 +1775,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "将棉花般柔软的孢子紧贴对手，从而大幅降低对手的速度。"
   },
   {
     "id": 179,
@@ -1429,7 +1785,9 @@
     "type": "格斗",
     "category": "物理",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "竭尽全力进行攻击。自己的ＨＰ越少，招式的威力越大。"
   },
   {
     "id": 180,
@@ -1437,7 +1795,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "对对手最后使用的招式怀有怨恨，减少４ＰＰ该招式。"
   },
   {
     "id": 181,
@@ -1445,7 +1805,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 40,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "将冰冷的细雪吹向对手进行攻击。有时会让对手陷入冰冻状态。"
   },
   {
     "id": 182,
@@ -1453,7 +1815,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "完全抵挡对手的攻击。连续使出则容易失败。"
   },
   {
     "id": 183,
@@ -1461,7 +1825,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "以迅雷不及掩耳之势出拳。必定能够先制攻击。"
   },
   {
     "id": 184,
@@ -1469,7 +1835,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用恐怖的表情瞪着对手，使其害怕，从而大幅降低对手的速度。"
   },
   {
     "id": 185,
@@ -1477,7 +1845,9 @@
     "type": "恶",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "悄悄地靠近对手，趁其不备进行殴打。攻击必定会命中。"
   },
   {
     "id": 186,
@@ -1485,7 +1855,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 75,
+    "description": "像天使般可爱地亲吻对手，从而使对手混乱。"
   },
   {
     "id": 187,
@@ -1493,7 +1865,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将自己的ＨＰ减少到最大ＨＰ的一半，从而最大限度提高自己的攻击。"
   },
   {
     "id": 188,
@@ -1501,7 +1875,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用污泥投掷对手进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 189,
@@ -1509,7 +1885,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 20,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手的脸等投掷泥块进行攻击。会降低对手的命中率。"
   },
   {
     "id": 190,
@@ -1517,7 +1895,9 @@
     "type": "水",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "向对手的脸等喷出墨汁进行攻击。有时会降低对手的命中率。"
   },
   {
     "id": 191,
@@ -1525,7 +1905,9 @@
     "type": "地面",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在对手的脚下扔撒菱。对替换出场的对手的宝可梦给予伤害。"
   },
   {
     "id": 192,
@@ -1533,7 +1915,9 @@
     "type": "电",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 50,
+    "description": "发射大炮一样的电流进行攻击。让对手陷入麻痹状态。"
   },
   {
     "id": 193,
@@ -1541,7 +1925,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "使出后对幽灵属性宝可梦没有效果的招式以及闪避率高的对手，变得能够打中。"
   },
   {
     "id": 194,
@@ -1549,7 +1935,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "使出招式后，当受到对手攻击陷入濒死时，对手也会一同濒死。连续使出则会失败。"
   },
   {
     "id": 195,
@@ -1557,7 +1945,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "倾听歌声的宝可梦经过３回合陷入濒死。替换后效果消失。"
   },
   {
     "id": 196,
@@ -1565,7 +1955,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 55,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "将结冰的冷气吹向对手进行攻击。会降低对手的速度。"
   },
   {
     "id": 197,
@@ -1573,7 +1965,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "完全抵挡对手的攻击。连续使出则容易失败。"
   },
   {
     "id": 198,
@@ -1581,7 +1975,9 @@
     "type": "地面",
     "category": "物理",
     "power": 25,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用坚硬的骨头殴打对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 199,
@@ -1589,7 +1985,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "紧紧瞄准对手，下次攻击必定会打中。"
   },
   {
     "id": 200,
@@ -1597,7 +1995,9 @@
     "type": "龙",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "在２～３回合内，乱打一气地进行攻击。大闹一番后自己会陷入混乱。"
   },
   {
     "id": 201,
@@ -1605,7 +2005,9 @@
     "type": "岩石",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内扬起沙暴，除岩石、地面和钢属性以外的宝可梦，都会受到伤害。岩石属性的特防还会提高。"
   },
   {
     "id": 202,
@@ -1613,7 +2015,9 @@
     "type": "草",
     "category": "特殊",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "吸取对手的养分进行攻击。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 203,
@@ -1621,7 +2025,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "即使受到攻击，也至少会留下１ＨＰ。连续使出则容易失败。"
   },
   {
     "id": 204,
@@ -1629,7 +2035,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "可爱地凝视，诱使对手疏忽大意，从而大幅降低对手的攻击。"
   },
   {
     "id": 205,
@@ -1637,7 +2045,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 30,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "在５回合内连续滚动攻击对手。招式每次击中，威力就会提高。"
   },
   {
     "id": 206,
@@ -1645,7 +2055,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "对手的ＨＰ至少会留下１ＨＰ，如此般手下留情地攻击。"
   },
   {
     "id": 207,
@@ -1653,7 +2065,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "激怒对手，使其混乱。因为愤怒，对手的攻击会大幅提高。"
   },
   {
     "id": 208,
@@ -1661,7 +2075,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己最大ＨＰ的一半。"
   },
   {
     "id": 209,
@@ -1669,7 +2085,9 @@
     "type": "电",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "让电流覆盖全身，猛撞向对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 210,
@@ -1677,7 +2095,9 @@
     "type": "虫",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 95,
+    "description": "用镰刀或爪子等切斩对手进行攻击。连续击中，威力就会提高。"
   },
   {
     "id": 211,
@@ -1685,7 +2105,9 @@
     "type": "钢",
     "category": "物理",
     "power": 70,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 90,
+    "description": "用坚硬的翅膀敲打对手进行攻击。有时会提高自己的防御。"
   },
   {
     "id": 212,
@@ -1693,7 +2115,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "用好似要勾人心魂的黑色目光一动不动地凝视对手，使其不能从战斗中逃走。"
   },
   {
     "id": 213,
@@ -1701,7 +2125,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "♂诱惑♀或♀诱惑♂，让对手着迷。对手将很难使出招式。"
   },
   {
     "id": 214,
@@ -1709,7 +2135,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "从自己已学会的招式中任意使出１个。只能在自己睡觉时使用。"
   },
   {
     "id": 215,
@@ -1717,7 +2145,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "让同伴听舒适的铃音，从而治愈我方全员的异常状态。"
   },
   {
     "id": 216,
@@ -1725,7 +2155,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "为了训练家而全力攻击对手。亲密度越高，威力越大。"
   },
   {
     "id": 217,
@@ -1733,7 +2165,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "递给对手设有圈套的盒子进行攻击。也有可能回复对手ＨＰ。"
   },
   {
     "id": 218,
@@ -1741,7 +2175,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "为了发泄不满而全力攻击对手。亲密度越低，威力越大。"
   },
   {
     "id": 219,
@@ -1749,7 +2185,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 25
+    "pp": 25,
+    "accuracy": null,
+    "description": "在５回合内被神奇的力量守护，从而不会陷入异常状态。"
   },
   {
     "id": 220,
@@ -1757,7 +2195,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "将自己的ＨＰ和对手的ＨＰ相加，然后自己和对手友好地平分。"
   },
   {
     "id": 221,
@@ -1765,7 +2205,9 @@
     "type": "火",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "用神秘的火焰烧尽对手进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 222,
@@ -1773,7 +2215,9 @@
     "type": "地面",
     "category": "物理",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "晃动地面，攻击自己周围所有的宝可梦。招式的威力会有各种变化。"
   },
   {
     "id": 223,
@@ -1781,7 +2225,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 50,
+    "description": "使出浑身力气出拳进行攻击。必定会使对手混乱。"
   },
   {
     "id": 224,
@@ -1789,7 +2235,9 @@
     "type": "虫",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "用坚硬且华丽的角狠狠地刺入对手进行攻击。"
   },
   {
     "id": 225,
@@ -1797,7 +2245,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将强烈的气息吹向对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 226,
@@ -1805,7 +2255,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "和后备宝可梦进行替换。换上的宝可梦能直接继承其能力的变化。"
   },
   {
     "id": 227,
@@ -1813,7 +2265,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "让对手接受再来一次，连续３次使出最后使用的招式。"
   },
   {
     "id": 228,
@@ -1821,7 +2275,9 @@
     "type": "恶",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "当对手替换宝可梦上场时使出此招式的话，能够以２倍的威力进行攻击。"
   },
   {
     "id": 229,
@@ -1829,7 +2285,9 @@
     "type": "一般",
     "category": "物理",
     "power": 50,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "通过旋转来攻击对手。可以摆脱绑紧、紧束、寄生种子等招式。还能提高自己的速度。"
   },
   {
     "id": 230,
@@ -1837,7 +2295,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用香气大幅降低对手的闪避率。"
   },
   {
     "id": 231,
@@ -1845,7 +2305,9 @@
     "type": "钢",
     "category": "物理",
     "power": 100,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 75,
+    "description": "使用坚硬的尾巴摔打对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 232,
@@ -1853,7 +2315,9 @@
     "type": "钢",
     "category": "物理",
     "power": 50,
-    "pp": 35
+    "pp": 35,
+    "accuracy": 95,
+    "description": "用钢铁之爪劈开对手进行攻击。有时会提高自己的攻击。"
   },
   {
     "id": 233,
@@ -1861,7 +2325,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "会在对手之后进行攻击。但是自己的攻击必定会命中。"
   },
   {
     "id": 234,
@@ -1869,7 +2335,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己的ＨＰ。根据天气的不同，回复量也会有所变化。"
   },
   {
     "id": 235,
@@ -1877,7 +2345,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己的ＨＰ。根据天气的不同，回复量也会有所变化。"
   },
   {
     "id": 236,
@@ -1885,7 +2355,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己的ＨＰ。根据天气的不同，回复量也会有所变化。"
   },
   {
     "id": 237,
@@ -1893,7 +2365,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "招式的属性会随着使用此招式的宝可梦而改变。"
   },
   {
     "id": 238,
@@ -1901,7 +2375,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": "用两手呈十字劈打对手进行攻击。容易击中要害。"
   },
   {
     "id": 239,
@@ -1909,7 +2385,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "兴起龙卷风，将对手卷入进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 240,
@@ -1917,7 +2395,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "在５回合内一直降雨，从而提高水属性的招式威力。火属性的招式威力则降低。"
   },
   {
     "id": 241,
@@ -1925,7 +2405,9 @@
     "type": "火",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "在５回合内让日照变得强烈，从而提高火属性的招式威力。水属性的招式威力则降低。"
   },
   {
     "id": 242,
@@ -1933,7 +2415,9 @@
     "type": "恶",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用利牙咬碎对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 243,
@@ -1941,7 +2425,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "从对手那里受到特殊攻击的伤害将以２倍返还给同一个对手。"
   },
   {
     "id": 244,
@@ -1949,7 +2435,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "向自己施以自我暗示，将能力变化的状态变得和对手一样。"
   },
   {
     "id": 245,
@@ -1957,7 +2445,9 @@
     "type": "一般",
     "category": "物理",
     "power": 80,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "以迅雷不及掩耳之势猛撞向对手进行攻击。必定能够先制攻击。"
   },
   {
     "id": 246,
@@ -1965,7 +2455,9 @@
     "type": "岩石",
     "category": "特殊",
     "power": 60,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用原始之力进行攻击。有时会提高自己所有的能力。"
   },
   {
     "id": 247,
@@ -1973,7 +2465,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "投掷一团黑影进行攻击。有时会降低对手的特防。"
   },
   {
     "id": 248,
@@ -1981,7 +2475,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "在使用招式２回合后，向对手发送一团念力进行攻击。"
   },
   {
     "id": 249,
@@ -1989,7 +2485,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用拳头进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 250,
@@ -1997,7 +2495,9 @@
     "type": "水",
     "category": "特殊",
     "power": 35,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "将对手困在激烈的水流旋涡中，在４～５回合内进行攻击。"
   },
   {
     "id": 251,
@@ -2005,7 +2505,9 @@
     "type": "恶",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "我方全员进行攻击。同行的宝可梦越多，招式的攻击次数越多。"
   },
   {
     "id": 252,
@@ -2013,7 +2515,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "进行先制攻击，使对手畏缩。要在出场后立刻使出才能成功。"
   },
   {
     "id": 253,
@@ -2021,7 +2525,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "在３回合内用骚乱攻击对手。在此期间谁都不能入眠。"
   },
   {
     "id": 254,
@@ -2029,7 +2535,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "积蓄力量，提高自己的防御和特防。最多积蓄３次。"
   },
   {
     "id": 255,
@@ -2037,7 +2545,9 @@
     "type": "一般",
     "category": "特殊",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将积蓄的力量撞向对手进行攻击。积蓄得越多，威力越大。"
   },
   {
     "id": 256,
@@ -2045,7 +2555,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将积蓄的力量吞下，从而回复自己的ＨＰ。积蓄得越多，回复越大。"
   },
   {
     "id": 257,
@@ -2053,7 +2565,9 @@
     "type": "火",
     "category": "特殊",
     "power": 95,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "将炎热的气息吹向对手进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 258,
@@ -2061,7 +2575,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内一直降冰雹，除冰属性的宝可梦以外，给予全体宝可梦伤害。"
   },
   {
     "id": 259,
@@ -2069,7 +2585,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手无理取闹，令其不能连续２次使出相同招式。"
   },
   {
     "id": 260,
@@ -2077,7 +2595,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "吹捧对手，使其混乱。同时还会提高对手的特攻。"
   },
   {
     "id": 261,
@@ -2085,7 +2605,9 @@
     "type": "火",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "放出怪异的火焰，从而让对手陷入灼伤状态。"
   },
   {
     "id": 262,
@@ -2093,7 +2615,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "虽然会使自己陷入濒死，但是能够大幅降低对手的攻击和特攻。"
   },
   {
     "id": 263,
@@ -2101,7 +2625,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "当自己处于中毒、麻痹、灼伤状态时，向对手使出此招式的话，威力会变成２倍。"
   },
   {
     "id": 264,
@@ -2109,7 +2635,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 150,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "集中精神出拳。在招式使出前若受到攻击则会失败。"
   },
   {
     "id": 265,
@@ -2117,7 +2645,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "对于麻痹状态下的对手，威力会变成２倍。但相反对手的麻痹也会被治愈。"
   },
   {
     "id": 266,
@@ -2125,7 +2655,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "引起对手的注意，将对手的攻击全部转移到自己身上。"
   },
   {
     "id": 267,
@@ -2133,7 +2665,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "用自然之力进行攻击。根据所使用场所的不同，使出的招式也会有所变化。"
   },
   {
     "id": 268,
@@ -2141,7 +2675,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "提高下一回合使出的电属性的招式威力。自己的特防也会提高。"
   },
   {
     "id": 269,
@@ -2149,7 +2685,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "使对手愤怒。在３回合内让对手只能使出给予伤害的招式。"
   },
   {
     "id": 270,
@@ -2157,7 +2695,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "帮助伙伴。被帮助的宝可梦，其招式威力变得比平时大。"
   },
   {
     "id": 271,
@@ -2165,7 +2705,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "抓住对手的空隙，交换自己和对手的持有物。"
   },
   {
     "id": 272,
@@ -2173,7 +2715,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "扮演对手，让自己的特性变得和对手相同。"
   },
   {
     "id": 273,
@@ -2181,7 +2725,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在下一回合回复自己或是替换出场的宝可梦最大ＨＰ的一半。"
   },
   {
     "id": 274,
@@ -2189,7 +2735,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "向同伴紧急求助，从我方宝可梦已学会的招式中随机使用１个。"
   },
   {
     "id": 275,
@@ -2197,7 +2745,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在大地上扎根，每回合回复自己的ＨＰ。因为扎根了，所以不能替换宝可梦。"
   },
   {
     "id": 276,
@@ -2205,7 +2755,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "发挥惊人的力量攻击对手。自己的攻击和防御会降低。"
   },
   {
     "id": 277,
@@ -2213,7 +2765,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "当对手使出会变成异常状态的招式或寄生种子等时，会将对手的招式反射回去。"
   },
   {
     "id": 278,
@@ -2221,7 +2775,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "使战斗中已经消耗掉的自己的持有物再生，并可以再次使用。"
   },
   {
     "id": 279,
@@ -2229,7 +2785,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "如果受到对手的招式攻击，就能给予对手２倍的伤害。"
   },
   {
     "id": 280,
@@ -2237,7 +2795,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "将手刀猛烈地挥下攻击对手。还可以破坏光墙和反射壁等。"
   },
   {
     "id": 281,
@@ -2245,7 +2805,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "打个大哈欠引起睡意。在下一回合让对手陷入睡眠状态。"
   },
   {
     "id": 282,
@@ -2253,7 +2815,9 @@
     "type": "恶",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "拍落对手的持有物，直到战斗结束都不能使用。对手携带道具时会增加伤害。"
   },
   {
     "id": 283,
@@ -2261,7 +2825,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "给予伤害，使对手的ＨＰ变得和自己的ＨＰ一样。"
   },
   {
     "id": 284,
@@ -2269,7 +2835,9 @@
     "type": "火",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "爆发怒火攻击对手。自己的ＨＰ越少，招式的威力越小。"
   },
   {
     "id": 285,
@@ -2277,7 +2845,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力互换自己和对手的特性。"
   },
   {
     "id": 286,
@@ -2285,7 +2855,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "如果对手有和自己相同的招式，那么只有对手无法使用该招式。"
   },
   {
     "id": 287,
@@ -2293,7 +2865,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "让身体休息，治愈自己身上所中的毒、麻痹、灼伤的异常状态。"
   },
   {
     "id": 288,
@@ -2301,7 +2875,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "因对手的招式而陷入濒死时给对手施加怨念，让该招式的ＰＰ变成０。"
   },
   {
     "id": 289,
@@ -2309,7 +2885,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将对手打算使用的回复招式或能力变化招式夺为己用。"
   },
   {
     "id": 290,
@@ -2317,7 +2895,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "根据使用场所不同，该招式的追加效果也会有所变化。"
   },
   {
     "id": 291,
@@ -2325,7 +2905,9 @@
     "type": "水",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合潜入，第２回合浮上来进行攻击。"
   },
   {
     "id": 292,
@@ -2333,7 +2915,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用张开着的双手猛推对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 293,
@@ -2341,7 +2925,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "根据所在场所不同，如水边、草丛和洞窟等，可以改变自己的属性。"
   },
   {
     "id": 294,
@@ -2349,7 +2935,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "凝视闪烁的光芒，集中自己的精神，从而巨幅提高特攻。"
   },
   {
     "id": 295,
@@ -2357,7 +2945,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 95,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "释放耀眼的光芒进行攻击。有时会降低对手的特防。"
   },
   {
     "id": 296,
@@ -2365,7 +2955,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 95,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用围绕着雾状羽毛的球进行攻击。有时会降低对手的特攻。"
   },
   {
     "id": 297,
@@ -2373,7 +2965,9 @@
     "type": "飞行",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "撒出羽毛，笼罩在对手的周围。大幅降低对手的攻击。"
   },
   {
     "id": 298,
@@ -2381,7 +2975,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "摇摇晃晃地跳起舞蹈，让自己周围的宝可梦陷入混乱状态。"
   },
   {
     "id": 299,
@@ -2389,7 +2985,9 @@
     "type": "火",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "攻击对手后，有时会使其陷入灼伤状态。也容易击中要害。"
   },
   {
     "id": 300,
@@ -2397,7 +2995,9 @@
     "type": "地面",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "一旦使用此招式，周围就会弄得到处是泥。在５回合内减弱电属性的招式。"
   },
   {
     "id": 301,
@@ -2405,7 +3005,9 @@
     "type": "冰",
     "category": "物理",
     "power": 30,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "在５回合内攻击对手。招式每次击中，威力就会提高。"
   },
   {
     "id": 302,
@@ -2413,7 +3015,9 @@
     "type": "草",
     "category": "物理",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用带刺的手臂猛烈地挥舞进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 303,
@@ -2421,7 +3025,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "偷懒休息。回复自己最大ＨＰ的一半。"
   },
   {
     "id": 304,
@@ -2429,7 +3035,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "给予对手又吵又响的巨大震动进行攻击。"
   },
   {
     "id": 305,
@@ -2437,7 +3045,9 @@
     "type": "毒",
     "category": "物理",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用有毒的牙齿咬住对手进行攻击。有时会使对手中剧毒。"
   },
   {
     "id": 306,
@@ -2445,7 +3055,9 @@
     "type": "一般",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "用坚硬的锐爪劈开对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 307,
@@ -2453,7 +3065,9 @@
     "type": "火",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "用爆炸的火焰烧尽对手进行攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 308,
@@ -2461,7 +3075,9 @@
     "type": "水",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "向对手喷射水炮进行攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 309,
@@ -2469,7 +3085,9 @@
     "type": "钢",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "使出彗星般的拳头攻击对手。有时会提高自己的攻击。"
   },
   {
     "id": 310,
@@ -2477,7 +3095,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 30,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用尖叫声等突然惊吓对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 311,
@@ -2485,7 +3105,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "根据使用时的天气，招式属性和威力会改变。"
   },
   {
     "id": 312,
@@ -2493,7 +3115,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "让同伴闻沁人心脾的香气，从而治愈我方全员的异常状态。"
   },
   {
     "id": 313,
@@ -2501,7 +3125,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "装哭流泪。使对手不知所措，从而大幅降低对手的特防。"
   },
   {
     "id": 314,
@@ -2509,7 +3135,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 95,
+    "description": "用锐利的风切斩对手进行攻击。容易击中要害。"
   },
   {
     "id": 315,
@@ -2517,7 +3145,9 @@
     "type": "火",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "使出全部力量攻击对手。使用之后会因为反作用力，自己的特攻大幅降低。"
   },
   {
     "id": 316,
@@ -2525,7 +3155,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "使出后对幽灵属性宝可梦没有效果的招式以及闪避率高的对手，变得能够打中。"
   },
   {
     "id": 317,
@@ -2533,7 +3165,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "投掷岩石进行攻击。封住对手的行动，从而降低速度。"
   },
   {
     "id": 318,
@@ -2541,7 +3175,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 60,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "在风中掺入鳞粉攻击对手。有时会提高自己的全部能力。"
   },
   {
     "id": 319,
@@ -2549,7 +3185,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 85,
+    "description": "让对手听摩擦金属般讨厌的声音。大幅降低对手的特防。"
   },
   {
     "id": 320,
@@ -2557,7 +3195,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 55,
+    "description": "让对手听舒适的笛声，从而陷入睡眠状态。"
   },
   {
     "id": 321,
@@ -2565,7 +3205,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "给对手挠痒，使其发笑，从而降低对手的攻击和防御。"
   },
   {
     "id": 322,
@@ -2573,7 +3215,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "汲取宇宙中神秘的力量，从而提高自己的防御和特防。"
   },
   {
     "id": 323,
@@ -2581,7 +3225,9 @@
     "type": "水",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "掀起潮水进行攻击。自己的ＨＰ越少，招式的威力越小。"
   },
   {
     "id": 324,
@@ -2589,7 +3235,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "发射神奇的光线进行攻击。有时会使对手混乱。"
   },
   {
     "id": 325,
@@ -2597,7 +3245,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "使出混影之拳。攻击必定会命中。"
   },
   {
     "id": 326,
@@ -2605,7 +3255,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "发出看不见的神奇力量进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 327,
@@ -2613,7 +3265,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 85,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "用冲向天空般高高的上勾拳顶起对手进行攻击。"
   },
   {
     "id": 328,
@@ -2621,7 +3275,9 @@
     "type": "地面",
     "category": "物理",
     "power": 35,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "将对手困在铺天盖地的沙暴中，在４～５回合内进行攻击。"
   },
   {
     "id": 329,
@@ -2629,7 +3285,9 @@
     "type": "冰",
     "category": "特殊",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 30,
+    "description": "给对手一击濒死。如果是冰属性以外的宝可梦使用，就会难以打中。"
   },
   {
     "id": 330,
@@ -2637,7 +3295,9 @@
     "type": "水",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "向对手喷射浑浊的水进行攻击。有时会降低对手的命中率。"
   },
   {
     "id": 331,
@@ -2645,7 +3305,9 @@
     "type": "草",
     "category": "物理",
     "power": 25,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "向对手猛烈地发射种子进行攻击。连续攻击２～５次。"
   },
   {
     "id": 332,
@@ -2653,7 +3315,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "以敏捷的动作戏弄对手后进行切斩。攻击必定会命中。"
   },
   {
     "id": 333,
@@ -2661,7 +3325,9 @@
     "type": "冰",
     "category": "物理",
     "power": 25,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "向对手发射锋利的冰柱进行攻击。连续攻击２～５次。"
   },
   {
     "id": 334,
@@ -2669,7 +3335,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "将皮肤变得坚硬如铁，从而大幅提高自己的防御。"
   },
   {
     "id": 335,
@@ -2677,7 +3345,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "张开双手进行阻挡，封住对手的退路，使其不能逃走。"
   },
   {
     "id": 336,
@@ -2685,7 +3355,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "大声吼叫提高气势，从而提高自己和同伴的攻击。"
   },
   {
     "id": 337,
@@ -2693,7 +3365,9 @@
     "type": "龙",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用尖锐的巨爪劈开对手进行攻击。"
   },
   {
     "id": 338,
@@ -2701,7 +3375,9 @@
     "type": "草",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "用大树摔打对手进行攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 339,
@@ -2709,7 +3385,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "使出全身力气绷紧肌肉，从而提高自己的攻击和防御。"
   },
   {
     "id": 340,
@@ -2717,7 +3395,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 85,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 85,
+    "description": "弹跳到高高的空中，第２回合攻击对手。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 341,
@@ -2725,7 +3405,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 55,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "向对手投掷泥块进行攻击。同时降低对手的速度。"
   },
   {
     "id": 342,
@@ -2733,7 +3415,9 @@
     "type": "毒",
     "category": "物理",
     "power": 50,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "用尾巴拍打。有时会让对手陷入中毒状态，也容易击中要害。"
   },
   {
     "id": 343,
@@ -2741,7 +3425,9 @@
     "type": "一般",
     "category": "物理",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "一边可爱地撒娇，一边靠近对手进行攻击，还能夺取对手携带的道具。"
   },
   {
     "id": 344,
@@ -2749,7 +3435,9 @@
     "type": "电",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让电流覆盖全身猛撞向对手。自己也会受到不小的伤害。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 345,
@@ -2757,7 +3445,9 @@
     "type": "草",
     "category": "特殊",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "散落可以追踪对手的神奇叶片。攻击必定会命中。"
   },
   {
     "id": 346,
@@ -2765,7 +3455,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "用水湿透周围。在５回合内减弱火属性的招式。"
   },
   {
     "id": 347,
@@ -2773,7 +3465,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "静心凝神，从而提高自己的特攻和特防。"
   },
   {
     "id": 348,
@@ -2781,7 +3475,9 @@
     "type": "草",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "像用剑一般操纵叶片切斩对手进行攻击。容易击中要害。"
   },
   {
     "id": 349,
@@ -2789,7 +3485,9 @@
     "type": "龙",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "激烈地跳起神秘且强有力的舞蹈。从而提高自己的攻击和速度。"
   },
   {
     "id": 350,
@@ -2797,7 +3495,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 25,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "向对手发射坚硬的岩石进行攻击。连续攻击２～５次。"
   },
   {
     "id": 351,
@@ -2805,7 +3505,9 @@
     "type": "电",
     "category": "特殊",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "向对手快速发出电击。攻击必定会命中。"
   },
   {
     "id": 352,
@@ -2813,7 +3515,9 @@
     "type": "水",
     "category": "特殊",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用水的震动攻击对手。有时会使对手混乱。"
   },
   {
     "id": 353,
@@ -2821,7 +3525,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "使用招式２回合后，会用无数道光束攻击对手。"
   },
   {
     "id": 354,
@@ -2829,7 +3535,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "使出全部力量攻击对手。使用之后会因为反作用力，自己的特攻大幅降低。"
   },
   {
     "id": 355,
@@ -2837,7 +3545,9 @@
     "type": "飞行",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "降到地面，使身体休息。回复自己最大ＨＰ的一半。"
   },
   {
     "id": 356,
@@ -2845,7 +3555,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "在５回合内，飘浮特性和飞行属性的宝可梦会被地面属性的招式击中。飞向空中的招式也将无法使用。"
   },
   {
     "id": 357,
@@ -2853,7 +3565,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "使出后对恶属性宝可梦没有效果的招式以及闪避率高的对手，变得能够打中。"
   },
   {
     "id": 358,
@@ -2861,7 +3575,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "给予睡眠状态下的对手较大的伤害。但相反对手会从睡眠中醒过来。"
   },
   {
     "id": 359,
@@ -2869,7 +3585,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "挥舞强力而沉重的拳头，给予对手伤害。自己的速度会降低。"
   },
   {
     "id": 360,
@@ -2877,7 +3595,9 @@
     "type": "钢",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "让身体高速旋转并撞击对手。速度比对手越慢，威力越大。"
   },
   {
     "id": 361,
@@ -2885,7 +3605,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "虽然自己陷入濒死，但可以治愈后备上场的宝可梦的异常状态以及回复ＨＰ。"
   },
   {
     "id": 362,
@@ -2893,7 +3615,9 @@
     "type": "水",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "当对手的ＨＰ负伤到一半左右时，招式威力会变成２倍。"
   },
   {
     "id": 363,
@@ -2901,7 +3625,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "从树果上获得力量进行攻击。根据携带的树果，招式属性和威力会改变。"
   },
   {
     "id": 364,
@@ -2909,7 +3635,9 @@
     "type": "一般",
     "category": "物理",
     "power": 30,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "能够攻击正在使用守住或看穿等招式的对手。解除其守护效果。"
   },
   {
     "id": 365,
@@ -2917,7 +3645,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用喙进行攻击。当对手携带树果时，可以食用并获得其效果。"
   },
   {
     "id": 366,
@@ -2925,7 +3655,9 @@
     "type": "飞行",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "刮起猛烈的旋风，在４回合内提高我方全员的速度。"
   },
   {
     "id": 367,
@@ -2933,7 +3665,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "通过点穴让身体舒筋活络。大幅提高某１项能力。"
   },
   {
     "id": 368,
@@ -2941,7 +3675,9 @@
     "type": "钢",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "使出招式前，将最后受到的招式的伤害大力返还给对手。"
   },
   {
     "id": 369,
@@ -2949,7 +3685,9 @@
     "type": "虫",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "在攻击之后急速返回，和后备宝可梦进行替换。"
   },
   {
     "id": 370,
@@ -2957,7 +3695,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "放弃守护，向对手的怀里突击。自己的防御和特防会降低。"
   },
   {
     "id": 371,
@@ -2965,7 +3705,9 @@
     "type": "恶",
     "category": "物理",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "蓄力攻击。如果能在对手之后攻击，招式的威力会变成２倍。"
   },
   {
     "id": 372,
@@ -2973,7 +3715,9 @@
     "type": "恶",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "如果此回合内对手已经受到伤害的话，招式威力会变成２倍。"
   },
   {
     "id": 373,
@@ -2981,7 +3725,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让对手在５回合内不能使用宝可梦携带的道具。训练家也不能给那只宝可梦使用道具。"
   },
   {
     "id": 374,
@@ -2989,7 +3735,9 @@
     "type": "恶",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "快速投掷携带的道具进行攻击。根据道具不同，威力和效果会改变。"
   },
   {
     "id": 375,
@@ -2997,7 +3745,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "利用超能力施以暗示，从而将自己受到的异常状态转移给对手。"
   },
   {
     "id": 376,
@@ -3005,7 +3755,9 @@
     "type": "一般",
     "category": "特殊",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "王牌招式的剩余PP越少，招式的威力越大。"
   },
   {
     "id": 377,
@@ -3013,7 +3765,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "在５回合内无法通过招式、特性或携带的道具来回复HP。"
   },
   {
     "id": 378,
@@ -3021,7 +3775,9 @@
     "type": "一般",
     "category": "特殊",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用力勒紧对手进行攻击。对手的HP越多，威力越大。"
   },
   {
     "id": 379,
@@ -3029,7 +3785,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力交换自己的攻击和防御的力量。"
   },
   {
     "id": 380,
@@ -3037,7 +3795,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将胃液吐向对手的身体。沾上的胃液会消除对手的特性效果。"
   },
   {
     "id": 381,
@@ -3045,7 +3805,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "向天许愿，从而在５回合内不会被对手的攻击打中要害。"
   },
   {
     "id": 382,
@@ -3053,7 +3815,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "提高威力，抢先使出对手想要使出的招式。如果不先使出则会失败。"
   },
   {
     "id": 383,
@@ -3061,7 +3825,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "模仿对手刚才使出的招式，并使出相同招式。如果对手还没出招则会失败。"
   },
   {
     "id": 384,
@@ -3069,7 +3835,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力互换自己和对手的攻击以及特攻的能力变化。"
   },
   {
     "id": 385,
@@ -3077,7 +3845,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力互换自己和对手的防御以及特防的能力变化。"
   },
   {
     "id": 386,
@@ -3085,7 +3855,9 @@
     "type": "恶",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "根据能力变化，对手提高的力量越大，招式的威力越大。"
   },
   {
     "id": 387,
@@ -3093,7 +3865,9 @@
     "type": "一般",
     "category": "物理",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "当战斗中已学会的招式全部使用过后，才能开始使出珍藏的招式。"
   },
   {
     "id": 388,
@@ -3101,7 +3875,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "种植心神不宁的种子。使对手不能入眠，并将特性变成不眠。"
   },
   {
     "id": 389,
@@ -3109,7 +3885,9 @@
     "type": "恶",
     "category": "物理",
     "power": 70,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "可以比对手先攻击。对手使出的招式如果不是攻击招式则会失败。"
   },
   {
     "id": 390,
@@ -3117,7 +3895,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在对手的脚下撒毒菱。使对手替换出场的宝可梦中毒。"
   },
   {
     "id": 391,
@@ -3125,7 +3905,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力互换自己和对手之间的能力变化。"
   },
   {
     "id": 392,
@@ -3133,7 +3915,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在自己身体的周围覆盖用水制造的幕。每回合回复ＨＰ。"
   },
   {
     "id": 393,
@@ -3141,7 +3925,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用电气产生的磁力浮在空中。在５回合内可以飘浮。"
   },
   {
     "id": 394,
@@ -3149,7 +3935,9 @@
     "type": "火",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让火焰覆盖全身猛撞向对手。自己也会受到不小的伤害。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 395,
@@ -3157,7 +3945,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手的身体发出冲击波进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 396,
@@ -3165,7 +3955,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "从体内产生出波导之力，然后向对手发出。攻击必定会命中。"
   },
   {
     "id": 397,
@@ -3173,7 +3965,9 @@
     "type": "岩石",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "打磨自己的身体，减少空气阻力。可以大幅提高自己的速度。"
   },
   {
     "id": 398,
@@ -3181,7 +3975,9 @@
     "type": "毒",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用带毒的触手或手臂刺入对手。有时会让对手陷入中毒状态。"
   },
   {
     "id": 399,
@@ -3189,7 +3985,9 @@
     "type": "恶",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "从体内发出充满恶意的恐怖气场。有时会使对手畏缩。"
   },
   {
     "id": 400,
@@ -3197,7 +3995,9 @@
     "type": "恶",
     "category": "物理",
     "power": 70,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "抓住瞬间的空隙切斩对手。容易击中要害。"
   },
   {
     "id": 401,
@@ -3205,7 +4005,9 @@
     "type": "水",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "如惊涛骇浪般挥动大尾巴攻击对手。"
   },
   {
     "id": 402,
@@ -3213,7 +4015,9 @@
     "type": "草",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "将外壳坚硬的大种子，从上方砸下攻击对手。"
   },
   {
     "id": 403,
@@ -3221,7 +4025,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "用连天空也能劈开的空气之刃进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 404,
@@ -3229,7 +4035,9 @@
     "type": "虫",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "将镰刀或爪子像剪刀般地交叉，顺势劈开对手。"
   },
   {
     "id": 405,
@@ -3237,7 +4045,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "利用振动发出音波进行攻击。有时会降低对手的特防。"
   },
   {
     "id": 406,
@@ -3245,7 +4055,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从大大的口中掀起冲击波攻击对手。"
   },
   {
     "id": 407,
@@ -3253,7 +4065,9 @@
     "type": "龙",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 75,
+    "description": "释放出骇人的杀气，一边威慑一边撞击对手。有时会使对手畏缩。"
   },
   {
     "id": 408,
@@ -3261,7 +4075,9 @@
     "type": "岩石",
     "category": "特殊",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "发射如宝石般闪耀的光芒攻击对手。"
   },
   {
     "id": 409,
@@ -3269,7 +4085,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用拳头吸取对手的力量。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 410,
@@ -3277,7 +4095,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "挥动拳头，掀起真空波。必定能够先制攻击。"
   },
   {
     "id": 411,
@@ -3285,7 +4105,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 70,
+    "description": "提高气势，释放出全部力量。有时会降低对手的特防。"
   },
   {
     "id": 412,
@@ -3293,7 +4115,9 @@
     "type": "草",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "发射从自然收集的生命力量。有时会降低对手的特防。"
   },
   {
     "id": 413,
@@ -3301,7 +4125,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "收拢翅膀，通过低空飞行突击对手。自己也会受到不小的伤害。"
   },
   {
     "id": 414,
@@ -3309,7 +4135,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手脚下释放出大地之力。有时会降低对手的特防。"
   },
   {
     "id": 415,
@@ -3317,7 +4145,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用一闪而过的速度交换自己和对手的持有物。"
   },
   {
     "id": 416,
@@ -3325,7 +4155,9 @@
     "type": "一般",
     "category": "物理",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "使出自己浑身力量突击对手。下一回合自己将无法动弹。"
   },
   {
     "id": 417,
@@ -3333,7 +4165,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "谋划诡计，激活头脑。大幅提高自己的特攻。"
   },
   {
     "id": 418,
@@ -3341,7 +4175,9 @@
     "type": "钢",
     "category": "物理",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "向对手使出如子弹般快速而坚硬的拳头。必定能够先制攻击。"
   },
   {
     "id": 419,
@@ -3349,7 +4185,9 @@
     "type": "冰",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "如果受到对手的招式攻击，就能给予该对手２倍威力的攻击。"
   },
   {
     "id": 420,
@@ -3357,7 +4195,9 @@
     "type": "冰",
     "category": "物理",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "瞬间制作冰块，快速地扔向对手。必定能够先制攻击。"
   },
   {
     "id": 421,
@@ -3365,7 +4205,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 70,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "以影子做成的锐爪，劈开对手。容易击中要害。"
   },
   {
     "id": 422,
@@ -3373,7 +4215,9 @@
     "type": "电",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "用蓄满电流的牙齿咬住对手。有时会使对手畏缩或陷入麻痹状态。"
   },
   {
     "id": 423,
@@ -3381,7 +4225,9 @@
     "type": "冰",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "用藏有冷气的牙齿咬住对手。有时会使对手畏缩或陷入冰冻状态。"
   },
   {
     "id": 424,
@@ -3389,7 +4235,9 @@
     "type": "火",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "用覆盖着火焰的牙齿咬住对手。有时会使对手畏缩或陷入灼伤状态。"
   },
   {
     "id": 425,
@@ -3397,7 +4245,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "伸长影子，从对手的背后进行攻击。必定能够先制攻击。"
   },
   {
     "id": 426,
@@ -3405,7 +4255,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "向对手发射坚硬的泥弹进行攻击。有时会降低对手的命中率。"
   },
   {
     "id": 427,
@@ -3413,7 +4265,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用实体化的心之利刃劈开对手。容易击中要害。"
   },
   {
     "id": 428,
@@ -3421,7 +4275,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "将思念的力量集中在前额进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 429,
@@ -3429,7 +4285,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "抛光自己的身体，向对手释放出闪光之力。有时会降低对手的命中率。"
   },
   {
     "id": 430,
@@ -3437,7 +4295,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将身体的光芒聚集在一点释放出去。有时会降低对手的特防。"
   },
   {
     "id": 431,
@@ -3445,7 +4305,9 @@
     "type": "一般",
     "category": "物理",
     "power": 90,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 85,
+    "description": "用尽全力扑向对手进行攻击。有时会使对手混乱。"
   },
   {
     "id": 432,
@@ -3453,7 +4315,9 @@
     "type": "飞行",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "用强风吹开对手的反射壁或光墙等。也会降低对手的闪避率。"
   },
   {
     "id": 433,
@@ -3461,7 +4325,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "制造出离奇的空间。在５回合内速度慢的宝可梦可以先行动。"
   },
   {
     "id": 434,
@@ -3469,7 +4335,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "从天空中向对手落下陨石。使用之后因为反作用力，自己的特攻会大幅降低。"
   },
   {
     "id": 435,
@@ -3477,7 +4345,9 @@
     "type": "电",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用耀眼的电击攻击自己周围所有的宝可梦。有时会陷入麻痹状态。"
   },
   {
     "id": 436,
@@ -3485,7 +4355,9 @@
     "type": "火",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用熊熊烈火攻击自己周围所有的宝可梦。有时会陷入灼伤状态。"
   },
   {
     "id": 437,
@@ -3493,7 +4365,9 @@
     "type": "草",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "用尖尖的叶片向对手卷起风暴。使用之后因为反作用力自己的特攻会大幅降低。"
   },
   {
     "id": 438,
@@ -3501,7 +4375,9 @@
     "type": "草",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "激烈地挥舞青藤或触手摔打对手进行攻击。"
   },
   {
     "id": 439,
@@ -3509,7 +4385,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "向对手发射巨大的岩石进行攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 440,
@@ -3517,7 +4395,9 @@
     "type": "毒",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用毒刃劈开对手。有时会让对手陷入中毒状态，也容易击中要害。"
   },
   {
     "id": 441,
@@ -3525,7 +4405,9 @@
     "type": "毒",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": "用肮脏的垃圾撞向对手进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 442,
@@ -3533,7 +4415,9 @@
     "type": "钢",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用钢铁般坚硬的头部进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 443,
@@ -3541,7 +4425,9 @@
     "type": "钢",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "发射吸住对手的钢铁炸弹。攻击必定会命中。"
   },
   {
     "id": 444,
@@ -3549,7 +4435,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": "用尖尖的岩石刺入对手进行攻击。容易击中要害。"
   },
   {
     "id": 445,
@@ -3557,7 +4445,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "♂诱惑♀或♀诱惑♂，从而大幅降低对手的特攻。"
   },
   {
     "id": 446,
@@ -3565,7 +4455,9 @@
     "type": "岩石",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "将无数岩石悬浮在对手的周围，从而对替换出场的对手的宝可梦给予伤害。"
   },
   {
     "id": 447,
@@ -3573,7 +4465,9 @@
     "type": "草",
     "category": "特殊",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用草缠住并绊倒对手。对手越重，威力越大。"
   },
   {
     "id": 448,
@@ -3581,7 +4475,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用非常烦人的，喋喋不休的音波攻击对手。使对手混乱。"
   },
   {
     "id": 449,
@@ -3589,7 +4485,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手放出无数的光弹。属性会根据自己携带的石板不同而改变。"
   },
   {
     "id": 450,
@@ -3597,7 +4495,9 @@
     "type": "虫",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "咬住进行攻击。当对手携带树果时，可以食用并获得其效果。"
   },
   {
     "id": 451,
@@ -3605,7 +4505,9 @@
     "type": "电",
     "category": "特殊",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "向对手发射电击光束。由于蓄满电流，有时会提高自己的特攻。"
   },
   {
     "id": 452,
@@ -3613,7 +4515,9 @@
     "type": "草",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用坚硬的躯体撞击对手进行攻击。自己也会受到不小的伤害。"
   },
   {
     "id": 453,
@@ -3621,7 +4525,9 @@
     "type": "水",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "以迅雷不及掩耳之势扑向对手。必定能够先制攻击。"
   },
   {
     "id": 454,
@@ -3629,7 +4535,9 @@
     "type": "虫",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "召唤手下，让其朝对手发起攻击。容易击中要害。"
   },
   {
     "id": 455,
@@ -3637,7 +4545,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "召唤手下，让其附在自己的身体上。可以提高自己的防御和特防。"
   },
   {
     "id": 456,
@@ -3645,7 +4555,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "召唤手下疗伤。回复自己最大HP的一半。"
   },
   {
     "id": 457,
@@ -3653,7 +4565,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": "拼命使出浑身力气，向对手进行头锤攻击。自己也会受到非常大的伤害。"
   },
   {
     "id": 458,
@@ -3661,7 +4575,9 @@
     "type": "一般",
     "category": "物理",
     "power": 35,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "使用尾巴等拍打对手进行攻击。连续２次给予伤害。"
   },
   {
     "id": 459,
@@ -3669,7 +4585,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "释放出扭曲时间般的强大力量攻击对手。下一回合自己将无法动弹。"
   },
   {
     "id": 460,
@@ -3677,7 +4595,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "将对手连同周围的空间一起撕裂并给予伤害。容易击中要害。"
   },
   {
     "id": 461,
@@ -3685,7 +4605,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "虽然自己陷入濒死，但可以治愈后备上场的宝可梦的全部状态。"
   },
   {
     "id": 462,
@@ -3693,7 +4615,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用骇人的力量捏碎对手。对手剩余的ＨＰ越多，威力越大。"
   },
   {
     "id": 463,
@@ -3701,7 +4625,9 @@
     "type": "火",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 75,
+    "description": "将对手困在熊熊燃烧的火焰中，在４～５回合内进行攻击。"
   },
   {
     "id": 464,
@@ -3709,7 +4635,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 50,
+    "description": "将对手强制拖入黑暗的世界，从而让对手陷入睡眠状态。"
   },
   {
     "id": 465,
@@ -3717,7 +4645,9 @@
     "type": "草",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 85,
+    "description": "从身体里产生冲击波。有时会大幅降低对手的特防。"
   },
   {
     "id": 466,
@@ -3725,7 +4655,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 60,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "突然刮起毛骨悚然的暴风攻击对手。有时会提高自己的全部能力。"
   },
   {
     "id": 467,
@@ -3733,7 +4665,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "第１回合消失踪影，第２回合攻击对手。即使对手正受保护，也能击中。"
   },
   {
     "id": 468,
@@ -3741,7 +4675,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "将爪子磨得更加锋利。提高自己的攻击和命中率。"
   },
   {
     "id": 469,
@@ -3749,7 +4685,9 @@
     "type": "岩石",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在１回合内防住击打我方全员的攻击。"
   },
   {
     "id": 470,
@@ -3757,7 +4695,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力将自己和对手的防御和特防相加，再进行平分。"
   },
   {
     "id": 471,
@@ -3765,7 +4705,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "利用超能力将自己和对手的攻击和特攻相加，再进行平分。"
   },
   {
     "id": 472,
@@ -3773,7 +4715,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "制造出离奇的空间。在５回合内互换所有宝可梦的防御和特防。"
   },
   {
     "id": 473,
@@ -3781,7 +4725,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将神奇的念波实体化攻击对手。给予物理伤害。"
   },
   {
     "id": 474,
@@ -3789,7 +4735,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将特殊的毒液泼向对手。对处于中毒状态的对手，威力会变成２倍。"
   },
   {
     "id": 475,
@@ -3797,7 +4745,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "削掉身体上没用的部分。大幅提高自己的速度，同时体重也会变轻。"
   },
   {
     "id": 476,
@@ -3805,7 +4755,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "将令人烦躁的粉末撒在自己身上，用以吸引对手的注意。使对手的攻击全部指向自己。"
   },
   {
     "id": 477,
@@ -3813,7 +4765,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "利用超能力使对手浮起来。在３回合内攻击会变得容易打中对手。"
   },
   {
     "id": 478,
@@ -3821,7 +4775,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "制造出离奇的空间。在５回合内所有宝可梦携带道具的效果都会消失。"
   },
   {
     "id": 479,
@@ -3829,7 +4785,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "扔石头或炮弹，攻击飞行的对手。对手会被击落，掉到地面。"
   },
   {
     "id": 480,
@@ -3837,7 +4795,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手使出强烈的一击。攻击必定会击中要害。"
   },
   {
     "id": 481,
@@ -3845,7 +4805,9 @@
     "type": "火",
     "category": "特殊",
     "power": 70,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "如果击中，爆裂的火焰会攻击到对手。爆裂出的火焰还会飞溅到旁边的对手。"
   },
   {
     "id": 482,
@@ -3853,7 +4815,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 95,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用污泥波攻击自己周围所有的宝可梦。有时会陷入中毒状态。"
   },
   {
     "id": 483,
@@ -3861,7 +4825,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "轻巧地跳起神秘而又美丽的舞蹈。提高自己的特攻、特防和速度。"
   },
   {
     "id": 484,
@@ -3869,7 +4835,9 @@
     "type": "钢",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用沉重的身体撞向对手进行攻击。自己比对手越重，威力越大。"
   },
   {
     "id": 485,
@@ -3877,7 +4845,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用神奇电波对周围所有和自己属性相同的宝可梦给予伤害。"
   },
   {
     "id": 486,
@@ -3885,7 +4855,9 @@
     "type": "电",
     "category": "特殊",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用电气团撞向对手。自己比对手速度越快，威力越大。"
   },
   {
     "id": 487,
@@ -3893,7 +4865,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将大量的水泼向对手，从而使其变成水属性。"
   },
   {
     "id": 488,
@@ -3901,7 +4875,9 @@
     "type": "火",
     "category": "物理",
     "power": 50,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "让火焰覆盖全身，攻击对手。积蓄力量并提高自己的速度。"
   },
   {
     "id": 489,
@@ -3909,7 +4885,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "盘蜷着集中精神。提高自己的攻击、防御和命中率。"
   },
   {
     "id": 490,
@@ -3917,7 +4895,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "以敏捷的动作瞄准对手的脚进行攻击。降低对手的速度。"
   },
   {
     "id": 491,
@@ -3925,7 +4905,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "喷出能溶化对手的液体进行攻击。大幅降低对手的特防。"
   },
   {
     "id": 492,
@@ -3933,7 +4915,9 @@
     "type": "恶",
     "category": "物理",
     "power": 95,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "利用对手的力量进行攻击。正和自己战斗的对手，其攻击越高，伤害越大。"
   },
   {
     "id": 493,
@@ -3941,7 +4925,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手发送谜之念波。接收到念波的对手，其特性会变为单纯。"
   },
   {
     "id": 494,
@@ -3949,7 +4935,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用神奇的节奏跳舞。使对手模仿自己的动作，从而将特性变成一样。"
   },
   {
     "id": 495,
@@ -3957,7 +4945,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "支援我方或对手的行动，使其紧接着此招式之后行动。"
   },
   {
     "id": 496,
@@ -3965,7 +4955,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用歌声攻击对手。同伴还可以接着使出轮唱招式，威力也会提高。"
   },
   {
     "id": 497,
@@ -3973,7 +4965,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用回声攻击对手。如果每回合都有宝可梦接着使用该招式，威力就会提高。"
   },
   {
     "id": 498,
@@ -3981,7 +4975,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "看准机会稳步攻击。无视对手的能力变化，直接给予伤害。"
   },
   {
     "id": 499,
@@ -3989,7 +4985,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "向对手投掷特殊的泥块进行攻击。使其能力变回原点。"
   },
   {
     "id": 500,
@@ -3997,7 +4995,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 20,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用蓄积起来的力量攻击对手。自己的能力提高得越多，威力就越大。"
   },
   {
     "id": 501,
@@ -4005,7 +5005,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "守护自己和同伴，以防对手的先制攻击。"
   },
   {
     "id": 502,
@@ -4013,7 +5015,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "用神奇的力量瞬间移动，互换自己和同伴所在的位置。"
   },
   {
     "id": 503,
@@ -4021,7 +5025,9 @@
     "type": "水",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手喷射煮得翻滚的开水进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 504,
@@ -4029,7 +5035,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "打破外壳，降低自己的防御和特防，但大幅提高攻击、特攻和速度。"
   },
   {
     "id": 505,
@@ -4037,7 +5045,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "放出治愈波动，从而回复对手最大ＨＰ的一半。"
   },
   {
     "id": 506,
@@ -4045,7 +5055,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "接二连三地进行攻击。对处于异常状态的对手给予较大的伤害。"
   },
   {
     "id": 507,
@@ -4053,7 +5065,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合将对手带到空中，第２回合将其摔下进行攻击。被带到空中的对手不能动弹。"
   },
   {
     "id": 508,
@@ -4061,7 +5075,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "转动齿轮，不仅提高自己的攻击，还会大幅提高速度。"
   },
   {
     "id": 509,
@@ -4069,7 +5085,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "扔飞对手，强制拉后备宝可梦上场。如果对手为野生宝可梦，战斗将直接结束。"
   },
   {
     "id": 510,
@@ -4077,7 +5095,9 @@
     "type": "火",
     "category": "特殊",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用火焰攻击对手。对手携带树果等时，会烧掉，使其不能使用。"
   },
   {
     "id": 511,
@@ -4085,7 +5105,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "压制对手，从而将其行动顺序放到最后。"
   },
   {
     "id": 512,
@@ -4093,7 +5115,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 55,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "轻巧地攻击对手。自己没有携带道具时，会给予较大的伤害。"
   },
   {
     "id": 513,
@@ -4101,7 +5125,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "反射对手的属性，让自己也变成一样的属性。"
   },
   {
     "id": 514,
@@ -4109,7 +5135,9 @@
     "type": "一般",
     "category": "物理",
     "power": 70,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "为倒下的同伴报仇。如果上一回合有同伴倒下，威力就会提高。"
   },
   {
     "id": 515,
@@ -4117,7 +5145,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "拼命攻击对手。虽然自己陷入濒死，但会给予对手和自己目前ＨＰ等量的伤害。"
   },
   {
     "id": 516,
@@ -4125,7 +5155,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "当对手未携带道具时，能够将自己携带的道具交给对手。"
   },
   {
     "id": 517,
@@ -4133,7 +5165,9 @@
     "type": "火",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 50,
+    "description": "用烈焰包裹住对手进行攻击。让对手陷入灼伤状态。"
   },
   {
     "id": 518,
@@ -4141,7 +5175,9 @@
     "type": "水",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用水柱进行攻击。如果和火组合，威力就会提高，天空中会挂上彩虹。"
   },
   {
     "id": 519,
@@ -4149,7 +5185,9 @@
     "type": "火",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用火柱进行攻击。如果和草组合，威力就会提高，周围会变成火海。"
   },
   {
     "id": 520,
@@ -4157,7 +5195,9 @@
     "type": "草",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用草柱进行攻击。如果和水组合，威力就会提高，周围会变成湿地。"
   },
   {
     "id": 521,
@@ -4165,7 +5205,9 @@
     "type": "电",
     "category": "特殊",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "在攻击之后急速返回，和后备宝可梦进行替换。"
   },
   {
     "id": 522,
@@ -4173,7 +5215,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 50,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "抵抗并攻击对手。降低对手的特攻。"
   },
   {
     "id": 523,
@@ -4181,7 +5225,9 @@
     "type": "地面",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用力踩踏地面并攻击自己周围所有的宝可梦。降低对方的速度。"
   },
   {
     "id": 524,
@@ -4189,7 +5235,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "将冰冷的气息吹向对手进行攻击。必定会击中要害。"
   },
   {
     "id": 525,
@@ -4197,7 +5245,9 @@
     "type": "龙",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "弹飞对手，强制拉后备宝可梦上场。如果对手为野生宝可梦，战斗将直接结束。"
   },
   {
     "id": 526,
@@ -4205,7 +5255,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "激励自己，从而提高攻击和特攻。"
   },
   {
     "id": 527,
@@ -4213,7 +5265,9 @@
     "type": "电",
     "category": "特殊",
     "power": 55,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "用电网捉住对手进行攻击。降低对手的速度。"
   },
   {
     "id": 528,
@@ -4221,7 +5275,9 @@
     "type": "电",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让电流覆盖全身，撞向对手进行攻击。自己也会受到少许伤害。"
   },
   {
     "id": 529,
@@ -4229,7 +5285,9 @@
     "type": "地面",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "像钢钻一样，一边旋转身体一边撞击对手。容易击中要害。"
   },
   {
     "id": 530,
@@ -4237,7 +5295,9 @@
     "type": "龙",
     "category": "物理",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "用身体坚硬的部分拍打对手进行攻击。连续２次给予伤害。"
   },
   {
     "id": 531,
@@ -4245,7 +5305,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 60,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "以可爱的动作使对手疏忽，乘机给出强烈的一击。有时会使对手畏缩。"
   },
   {
     "id": 532,
@@ -4253,7 +5315,9 @@
     "type": "草",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将角刺入，吸取对手的养分。可以回复给予对手伤害的一半ＨＰ。"
   },
   {
     "id": 533,
@@ -4261,7 +5325,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用长角切斩对手进行攻击。无视对手的能力变化，直接给予伤害。"
   },
   {
     "id": 534,
@@ -4269,7 +5335,9 @@
     "type": "水",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "用锋利的贝壳切斩对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 535,
@@ -4277,7 +5345,9 @@
     "type": "火",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用燃烧的身体撞向对手进行攻击。自己比对手越重，威力越大。"
   },
   {
     "id": 536,
@@ -4285,7 +5355,9 @@
     "type": "草",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用锋利的叶片包裹住对手进行攻击。有时会降低对手的命中率。"
   },
   {
     "id": 537,
@@ -4293,7 +5365,9 @@
     "type": "虫",
     "category": "物理",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "旋转揉成团的身体压扁对手。有时会使对手畏缩。"
   },
   {
     "id": 538,
@@ -4301,7 +5375,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "用软绵绵的绒毛包裹住自己的身体进行守护。巨幅提高自己的防御。"
   },
   {
     "id": 539,
@@ -4309,7 +5385,9 @@
     "type": "恶",
     "category": "特殊",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "放出黑暗的冲击波攻击对手。有时会降低对手的命中率。"
   },
   {
     "id": 540,
@@ -4317,7 +5395,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将神奇的念波实体化攻击对手。给予物理伤害。"
   },
   {
     "id": 541,
@@ -4325,7 +5405,9 @@
     "type": "一般",
     "category": "物理",
     "power": 25,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "用坚硬的尾巴拍打对手进行攻击。连续攻击２～５次。"
   },
   {
     "id": 542,
@@ -4333,7 +5415,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 110,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 70,
+    "description": "用强烈的风席卷对手进行攻击。有时会使对手混乱。"
   },
   {
     "id": 543,
@@ -4341,7 +5425,9 @@
     "type": "一般",
     "category": "物理",
     "power": 120,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用厉害的爆炸头猛撞向对手进行攻击。自己也会受到少许伤害。"
   },
   {
     "id": 544,
@@ -4349,7 +5435,9 @@
     "type": "钢",
     "category": "物理",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "向对手投掷钢铁齿轮进行攻击。连续２次给予伤害。"
   },
   {
     "id": 545,
@@ -4357,7 +5445,9 @@
     "type": "火",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用熊熊烈火攻击自己周围所有的宝可梦。有时会陷入灼伤状态。"
   },
   {
     "id": 546,
@@ -4365,7 +5455,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "向对手放出光弹。属性会根据自己携带的卡带不同而改变。"
   },
   {
     "id": 547,
@@ -4373,7 +5465,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "让对手听古老之歌，打动对手的内心进行攻击。有时会让对手陷入睡眠状态。"
   },
   {
     "id": 548,
@@ -4381,7 +5475,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用长角切斩对手进行攻击。角上拥有的神奇力量将给予物理伤害。"
   },
   {
     "id": 549,
@@ -4389,7 +5485,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 65,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "将冰冻的冷气吹向对手进行攻击。会降低对手的速度。"
   },
   {
     "id": 550,
@@ -4397,7 +5495,9 @@
     "type": "电",
     "category": "物理",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 85,
+    "description": "让强大的电流覆盖全身，猛撞向对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 551,
@@ -4405,7 +5505,9 @@
     "type": "火",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 85,
+    "description": "用美丽而激烈的青焰包裹住对手进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 552,
@@ -4413,7 +5515,9 @@
     "type": "火",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "让火焰覆盖全身，振翅攻击对手。有时会提高自己的特攻。"
   },
   {
     "id": 553,
@@ -4421,7 +5525,9 @@
     "type": "冰",
     "category": "物理",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "用覆盖着电流的冰块，在第２回合撞向对手。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 554,
@@ -4429,7 +5535,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "用能够冻结一切的强烈冷气，在第２回合包裹住对手。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 555,
@@ -4437,7 +5545,9 @@
     "type": "恶",
     "category": "特殊",
     "power": 55,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "没完没了地大声斥责，从而降低对手的特攻。"
   },
   {
     "id": 556,
@@ -4445,7 +5555,9 @@
     "type": "冰",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "用大冰柱激烈地撞向对手进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 557,
@@ -4453,7 +5565,9 @@
     "type": "火",
     "category": "物理",
     "power": 180,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "从前额产生灼热的火焰，舍身撞击对手。防御、特防和速度会降低。"
   },
   {
     "id": 558,
@@ -4461,7 +5575,9 @@
     "type": "火",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "释放出巨大的火焰。受到巨大的闪电影响时，招式威力会提高。"
   },
   {
     "id": 559,
@@ -4469,7 +5585,9 @@
     "type": "电",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "释放出巨大的闪电。受到巨大的火焰影响时，招式威力会提高。"
   },
   {
     "id": 560,
@@ -4477,7 +5595,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "从空中俯冲向对手。此招式同时带有格斗属性和飞行属性。"
   },
   {
     "id": 561,
@@ -4485,7 +5605,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将掀起来的榻榻米当作盾牌，防住自己和同伴免受招式伤害。变化招式无法防住。"
   },
   {
     "id": 562,
@@ -4493,7 +5615,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "朝着对手打嗝，并给予伤害。如果不吃树果则无法使出。"
   },
   {
     "id": 563,
@@ -4501,7 +5625,9 @@
     "type": "地面",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "翻耕土地，使草木更容易成长。会提高草属性宝可梦的攻击和特攻。"
   },
   {
     "id": 564,
@@ -4509,7 +5635,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在对手周围围上黏黏的网，降低替换出场的对手的速度。"
   },
   {
     "id": 565,
@@ -4517,7 +5645,9 @@
     "type": "虫",
     "category": "物理",
     "power": 50,
-    "pp": 25
+    "pp": 25,
+    "accuracy": 100,
+    "description": "如果使用此招式打倒对手，攻击会巨幅提高。"
   },
   {
     "id": 566,
@@ -4525,7 +5655,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合消失在某处，第２回合攻击对手。可以无视守护进行攻击。"
   },
   {
     "id": 567,
@@ -4533,7 +5665,9 @@
     "type": "幽灵",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "邀请对手参加万圣夜。使对手被追加幽灵属性。"
   },
   {
     "id": 568,
@@ -4541,7 +5675,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "发出战吼威吓对手，从而降低对手的攻击和特攻。"
   },
   {
     "id": 569,
@@ -4549,7 +5685,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 25
+    "pp": 25,
+    "accuracy": null,
+    "description": "将带电粒子扩散开来，使一般属性的招式变成电属性。"
   },
   {
     "id": 570,
@@ -4557,7 +5695,9 @@
     "type": "电",
     "category": "特殊",
     "power": 65,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "给周围全体宝可梦造成伤害。可以回复给予伤害的一半HP。"
   },
   {
     "id": 571,
@@ -4565,7 +5705,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手施加森林诅咒。中了诅咒的对手会被追加草属性。"
   },
   {
     "id": 572,
@@ -4573,7 +5715,9 @@
     "type": "草",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "猛烈地刮起飞雪般的落花，攻击周围所有的宝可梦，并给予伤害。"
   },
   {
     "id": 573,
@@ -4581,7 +5725,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "急剧冷冻对手，有时会让对手陷入冰冻状态。对于水属性宝可梦也是效果绝佳。"
   },
   {
     "id": 574,
@@ -4589,7 +5735,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "发出魅惑的叫声，给予对手精神上的伤害。攻击必定会命中。"
   },
   {
     "id": 575,
@@ -4597,7 +5745,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "抛下狠话威吓对手，降低攻击和特攻后，和后备宝可梦进行替换。"
   },
   {
     "id": 576,
@@ -4605,7 +5755,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "颠倒对手身上的所有能力变化，变成和原来相反的状态。"
   },
   {
     "id": 577,
@@ -4613,7 +5765,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用一个吻吸取对手的ＨＰ。回复给予对手伤害的一半以上的ＨＰ。"
   },
   {
     "id": 578,
@@ -4621,7 +5775,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "使用神奇的力量防住攻击我方的变化招式。但无法防住伤害招式的攻击。"
   },
   {
     "id": 579,
@@ -4629,7 +5785,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "使用神奇的力量提高在场的所有草属性宝可梦的防御。"
   },
   {
     "id": 580,
@@ -4637,7 +5795,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内变成青草场地。地面上的宝可梦每回合都能回复。草属性的招式威力还会提高。"
   },
   {
     "id": 581,
@@ -4645,7 +5805,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内，地面上的宝可梦不会陷入异常状态。龙属性招式的伤害也会减半。"
   },
   {
     "id": 582,
@@ -4653,7 +5815,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "对手使出招式前，如果输电，则该回合对手的招式变成电属性。"
   },
   {
     "id": 583,
@@ -4661,7 +5825,9 @@
     "type": "妖精",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "与对手嬉闹并攻击。有时会降低对手的攻击。"
   },
   {
     "id": 584,
@@ -4669,7 +5835,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 40,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "刮起妖精之风，吹向对手进行攻击。"
   },
   {
     "id": 585,
@@ -4677,7 +5845,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 95,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "借用月亮的力量攻击对手。有时会降低对手的特攻。"
   },
   {
     "id": 586,
@@ -4685,7 +5855,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 140,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "通过震耳欲聋的爆炸声产生的破坏力，攻击自己周围所有的宝可梦。"
   },
   {
     "id": 587,
@@ -4693,7 +5865,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "通过封锁，下一回合所有的宝可梦都无法逃走。"
   },
   {
     "id": 588,
@@ -4701,7 +5875,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "防住对手攻击的同时，自己变为防御姿态。能够降低所接触到的对手的攻击。"
   },
   {
     "id": 589,
@@ -4709,7 +5885,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "和对手和睦相处，使其失去战斗的气力，从而降低对手的攻击。"
   },
   {
     "id": 590,
@@ -4717,7 +5895,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "和对手进行密语，使其失去集中力，从而降低对手的特攻。"
   },
   {
     "id": 591,
@@ -4725,7 +5905,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "掀起钻石风暴给予伤害。有时会大幅提高自己的防御。"
   },
   {
     "id": 592,
@@ -4733,7 +5915,9 @@
     "type": "水",
     "category": "特殊",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "将滚烫的蒸汽喷向对手。有时会让对手灼伤。"
   },
   {
     "id": 593,
@@ -4741,7 +5925,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "通过异次元洞，突然出现在对手的侧面进行攻击。还可以无视守住和看穿等招式。"
   },
   {
     "id": 594,
@@ -4749,7 +5935,9 @@
     "type": "水",
     "category": "特殊",
     "power": 15,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用粘液制成的手里剑，连续攻击２～５次。必定能够先制攻击。"
   },
   {
     "id": 595,
@@ -4757,7 +5945,9 @@
     "type": "火",
     "category": "特殊",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从口中喷出特别灼热的火焰进行攻击。降低对手的特攻。"
   },
   {
     "id": 596,
@@ -4765,7 +5955,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "防住对手攻击的同时，削减接触到自己的对手的体力。"
   },
   {
     "id": 597,
@@ -4773,7 +5965,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "通过神奇的芳香，提高我方宝可梦的特防。"
   },
   {
     "id": 598,
@@ -4781,7 +5975,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "从身体放射出怪异电波，让对手沐浴其中，从而大幅降低其特攻。"
   },
   {
     "id": 599,
@@ -4789,7 +5985,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将特殊的毒液泼向对手。对处于中毒状态的对手，其攻击、特攻和速度都会降低。"
   },
   {
     "id": 600,
@@ -4797,7 +5995,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "如果被撒到粉尘的对手使用火招式，则会爆炸并给予伤害。"
   },
   {
     "id": 601,
@@ -4805,7 +6005,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "第１回合吸收能量，第２回合大幅提高特攻、特防和速度。"
   },
   {
     "id": 602,
@@ -4813,7 +6015,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "通过操控磁场，会提高特性为正电和负电的宝可梦的防御和特防。"
   },
   {
     "id": 603,
@@ -4821,7 +6025,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "如果使用欢乐时光，战斗后得到的钱会翻倍。"
   },
   {
     "id": 604,
@@ -4829,7 +6035,9 @@
     "type": "电",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内变成电气场地。地面上的宝可梦将无法入眠。电属性的招式威力还会提高。"
   },
   {
     "id": 605,
@@ -4837,7 +6045,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "向对手发射强光，并给予伤害。"
   },
   {
     "id": 606,
@@ -4845,7 +6055,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "宝可梦为十分开心的你庆祝。"
   },
   {
     "id": 607,
@@ -4853,7 +6065,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": null,
+    "description": "我方宝可梦之间牵手。能带来非常幸福的心情。"
   },
   {
     "id": 608,
@@ -4861,7 +6075,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": 100,
+    "description": "用圆瞳凝视对手，从而降低其攻击。必定能够先制攻击。"
   },
   {
     "id": 609,
@@ -4869,7 +6085,9 @@
     "type": "电",
     "category": "物理",
     "power": 20,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将带电的脸颊蹭蹭对手进行攻击。让对手陷入麻痹状态。"
   },
   {
     "id": 610,
@@ -4877,7 +6095,9 @@
     "type": "一般",
     "category": "物理",
     "power": 40,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "在攻击的时候手下留情，从而使对手的ＨＰ至少会留下１ＨＰ。"
   },
   {
     "id": 611,
@@ -4885,7 +6105,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 20,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "在４～５回合内死缠烂打地进行攻击。在此期间对手将无法逃走。"
   },
   {
     "id": 612,
@@ -4893,7 +6115,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "通过反复击打对手，使自己的拳头慢慢变硬。打中对手攻击就会提高。"
   },
   {
     "id": 613,
@@ -4901,7 +6125,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从锁定的对手身上吸取ＨＰ。回复给予对手伤害的一半以上的ＨＰ。"
   },
   {
     "id": 614,
@@ -4909,7 +6135,9 @@
     "type": "地面",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "可以击中浮在空中的宝可梦。空中的对手被击落后，会掉到地面。"
   },
   {
     "id": 615,
@@ -4917,7 +6145,9 @@
     "type": "地面",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从地面掀起波浪进行攻击。被掀入波浪中的对手，将无法从战斗中逃走。"
   },
   {
     "id": 616,
@@ -4925,7 +6155,9 @@
     "type": "地面",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "聚集大地的力量，将此力量集中攻击对手，并给予伤害。"
   },
   {
     "id": 617,
@@ -4933,7 +6165,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "借用永恒之花的力量，发射出强力光线。自己也会受到不小的伤害。"
   },
   {
     "id": 618,
@@ -4941,7 +6175,9 @@
     "type": "水",
     "category": "特殊",
     "power": 110,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "用无数青白色且闪耀的光线攻击对手。"
   },
   {
     "id": 619,
@@ -4949,7 +6185,9 @@
     "type": "地面",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": "将大地的力量变化为利刃攻击对手。"
   },
   {
     "id": 620,
@@ -4957,7 +6195,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "从天空中急速下降攻击对手。自己的防御和特防会降低。"
   },
   {
     "id": 621,
@@ -4965,7 +6205,9 @@
     "type": "恶",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "用许多手臂，无视对手的守住或看穿等招式进行连续攻击，自己的防御会降低。"
   },
   {
     "id": 622,
@@ -4973,7 +6215,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量气势猛烈地全力撞上对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 623,
@@ -4981,7 +6225,9 @@
     "type": "一般",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 624,
@@ -4989,7 +6235,9 @@
     "type": "格斗",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量制造出能量弹，全力撞向对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 625,
@@ -4997,7 +6245,9 @@
     "type": "格斗",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 626,
@@ -5005,7 +6255,9 @@
     "type": "飞行",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量猛烈地飞向天空，朝对手全力落下。威力会根据原来的招式而改变。"
   },
   {
     "id": 627,
@@ -5013,7 +6265,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 628,
@@ -5021,7 +6275,9 @@
     "type": "毒",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量使毒沼涌起，全力让对手沉下去。威力会根据原来的招式而改变。"
   },
   {
     "id": 629,
@@ -5029,7 +6285,9 @@
     "type": "毒",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 630,
@@ -5037,7 +6295,9 @@
     "type": "地面",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量潜入地里最深处，全力撞上对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 631,
@@ -5045,7 +6305,9 @@
     "type": "地面",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 632,
@@ -5053,7 +6315,9 @@
     "type": "岩石",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量召唤大大的岩山，全力撞向对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 633,
@@ -5061,7 +6325,9 @@
     "type": "岩石",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 634,
@@ -5069,7 +6335,9 @@
     "type": "虫",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量将吐出的丝线全力束缚对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 635,
@@ -5077,7 +6345,9 @@
     "type": "虫",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 636,
@@ -5085,7 +6355,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量召唤强烈的怨念，全力降临到对手身上。威力会根据原来的招式而改变。"
   },
   {
     "id": 637,
@@ -5093,7 +6365,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 638,
@@ -5101,7 +6375,9 @@
     "type": "钢",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量进行高速旋转，全力撞上对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 639,
@@ -5109,7 +6385,9 @@
     "type": "钢",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 640,
@@ -5117,7 +6395,9 @@
     "type": "火",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量喷出熊熊烈火，全力撞向对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 641,
@@ -5125,7 +6405,9 @@
     "type": "火",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 642,
@@ -5133,7 +6415,9 @@
     "type": "水",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量制造大大的潮旋，全力吞没对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 643,
@@ -5141,7 +6425,9 @@
     "type": "水",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 644,
@@ -5149,7 +6435,9 @@
     "type": "草",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量借助花草的能量，全力攻击对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 645,
@@ -5157,7 +6445,9 @@
     "type": "草",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 646,
@@ -5165,7 +6455,9 @@
     "type": "电",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量将蓄积的强大电流全力撞向对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 647,
@@ -5173,7 +6465,9 @@
     "type": "电",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 648,
@@ -5181,7 +6475,9 @@
     "type": "超能力",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量操纵对手，全力使其感受到痛苦。威力会根据原来的招式而改变。"
   },
   {
     "id": 649,
@@ -5189,7 +6485,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 650,
@@ -5197,7 +6495,9 @@
     "type": "冰",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量急剧降低气温，全力冰冻对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 651,
@@ -5205,7 +6505,9 @@
     "type": "冰",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 652,
@@ -5213,7 +6515,9 @@
     "type": "龙",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量将气场实体化，向对手全力发动袭击。威力会根据原来的招式而改变。"
   },
   {
     "id": 653,
@@ -5221,7 +6525,9 @@
     "type": "龙",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 654,
@@ -5229,7 +6535,9 @@
     "type": "恶",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量收集恶能量，全力将对手吸入。威力会根据原来的招式而改变。"
   },
   {
     "id": 655,
@@ -5237,7 +6545,9 @@
     "type": "恶",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 656,
@@ -5245,7 +6555,9 @@
     "type": "妖精",
     "category": "物理",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量制造魅惑空间，全力捉弄对手。威力会根据原来的招式而改变。"
   },
   {
     "id": 657,
@@ -5253,7 +6565,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "ダミーデータ"
   },
   {
     "id": 658,
@@ -5261,7 +6575,9 @@
     "type": "电",
     "category": "物理",
     "power": 210,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量，皮卡丘全身覆盖最强电力，全力猛扑对手。"
   },
   {
     "id": 659,
@@ -5269,7 +6585,9 @@
     "type": "地面",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "回复自己最大ＨＰ的一半。在沙暴中回复得更多。"
   },
   {
     "id": 660,
@@ -5277,7 +6595,9 @@
     "type": "虫",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "威力很高的招式，但只有在出场战斗时，立刻使出才能成功。"
   },
   {
     "id": 661,
@@ -5285,7 +6605,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "防住对手攻击的同时，让接触到自己的对手中毒。"
   },
   {
     "id": 662,
@@ -5293,7 +6615,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "攻击的同时，缝住对手的影子，使其无法逃走。"
   },
   {
     "id": 663,
@@ -5301,7 +6625,9 @@
     "type": "恶",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "旋转双臂打向对手。无视对手的能力变化，直接给予伤害。"
   },
   {
     "id": 664,
@@ -5309,7 +6635,9 @@
     "type": "水",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "随着唱歌会放出很多气球。受到此招式攻击时，灼伤会被治愈。"
   },
   {
     "id": 665,
@@ -5317,7 +6645,9 @@
     "type": "冰",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "挥舞强力而沉重的拳头，给予对手伤害。自己的速度会降低。"
   },
   {
     "id": 666,
@@ -5325,7 +6655,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "回复对手最大ＨＰ的一半。在青草场地时，效果会提高。"
   },
   {
     "id": 667,
@@ -5333,7 +6665,9 @@
     "type": "地面",
     "category": "物理",
     "power": 95,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "使出全身力量，猛攻对手。"
   },
   {
     "id": 668,
@@ -5341,7 +6675,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "给自己回复和对手攻击力相同数值的ＨＰ，然后降低对手的攻击。"
   },
   {
     "id": 669,
@@ -5349,7 +6685,9 @@
     "type": "草",
     "category": "物理",
     "power": 125,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "第１回合收集满满的日光，第２回合将此力量集中在剑上进行攻击。"
   },
   {
     "id": 670,
@@ -5357,7 +6695,9 @@
     "type": "草",
     "category": "物理",
     "power": 40,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "将叶片打向对手，进行攻击。"
   },
   {
     "id": 671,
@@ -5365,7 +6705,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "给宝可梦打上聚光灯，该回合只能瞄准该宝可梦。"
   },
   {
     "id": 672,
@@ -5373,7 +6715,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将混有毒的丝吐向对手。使其中毒，从而降低对手的速度。"
   },
   {
     "id": 673,
@@ -5381,7 +6725,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 30
+    "pp": 30,
+    "accuracy": null,
+    "description": "集中精神，下次攻击必定会击中要害。"
   },
   {
     "id": 674,
@@ -5389,7 +6735,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "启动齿轮，提高特性为正电和负电的宝可梦的攻击和特攻。"
   },
   {
     "id": 675,
@@ -5397,7 +6745,9 @@
     "type": "恶",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "受到此招式攻击的对手，会因为地狱般的痛苦，在２回合内，变得无法使出声音类招式。"
   },
   {
     "id": 676,
@@ -5405,7 +6755,9 @@
     "type": "虫",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "对敌人使用是会爆炸的团子。对我方使用则是给予回复的团子。"
   },
   {
     "id": 677,
@@ -5413,7 +6765,9 @@
     "type": "钢",
     "category": "物理",
     "power": 80,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "将锚缠住对手进行攻击。使对手无法逃走。"
   },
   {
     "id": 678,
@@ -5421,7 +6775,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "在５回合内，地面上的宝可梦不会受到先制招式的攻击。超能力属性的招式威力会提高。"
   },
   {
     "id": 679,
@@ -5429,7 +6785,9 @@
     "type": "虫",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "全力猛扑对手进行攻击。从而降低对手的攻击。"
   },
   {
     "id": 680,
@@ -5437,7 +6795,9 @@
     "type": "火",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用燃烧的鞭子抽打对手。受到攻击的对手防御会降低。"
   },
   {
     "id": 681,
@@ -5445,7 +6805,9 @@
     "type": "恶",
     "category": "物理",
     "power": 20,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "耀武扬威地攻击对手，自己的能力提高得越多，威力就越大。"
   },
   {
     "id": 682,
@@ -5453,7 +6815,9 @@
     "type": "火",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "将自己全身燃烧起火焰来，给予对手大大的伤害。自己的火属性将会消失。"
   },
   {
     "id": 683,
@@ -5461,7 +6825,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "将对手和自己的速度进行互换。"
   },
   {
     "id": 684,
@@ -5469,7 +6835,9 @@
     "type": "钢",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "用尖尖的角刺入对手进行攻击。攻击必定会命中。"
   },
   {
     "id": 685,
@@ -5477,7 +6845,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "治愈对手的异常状态。治愈后可以回复自己的ＨＰ。"
   },
   {
     "id": 686,
@@ -5485,7 +6855,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "全力跳舞进行攻击。此招式的属性将变得和自己的属性相同。"
   },
   {
     "id": 687,
@@ -5493,7 +6865,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "如果给予过伤害的对手已经结束行动，其特性就会被消除。"
   },
   {
     "id": 688,
@@ -5501,7 +6875,9 @@
     "type": "草",
     "category": "物理",
     "power": 70,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "向对手使出来自南国的火热脚踢。从而降低对手的攻击。"
   },
   {
     "id": 689,
@@ -5509,7 +6885,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "向对手下达指示，让其再次使出刚才的招式。"
   },
   {
     "id": 690,
@@ -5517,7 +6895,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 100,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "先加热鸟嘴后再进行攻击。鸟嘴在加热时对手触碰的话，就会使其灼伤。"
   },
   {
     "id": 691,
@@ -5525,7 +6905,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "摩擦全身鳞片，发出响亮的声音进行攻击。攻击后自己的防御会降低。"
   },
   {
     "id": 692,
@@ -5533,7 +6915,9 @@
     "type": "龙",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "将身体当作锤子，向对手发动袭击，给予伤害。"
   },
   {
     "id": 693,
@@ -5541,7 +6925,9 @@
     "type": "恶",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用自己的身体狂舞挥打，给予对手伤害。"
   },
   {
     "id": 694,
@@ -5549,7 +6935,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "在５回合内减弱物理和特殊的伤害。只有冰雹时才能使出。"
   },
   {
     "id": 695,
@@ -5557,7 +6945,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 180,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量制造出无数箭的狙射树枭将全力射穿对手进行攻击。"
   },
   {
     "id": 696,
@@ -5565,7 +6955,9 @@
     "type": "恶",
     "category": "物理",
     "power": 180,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量得到强壮肉体的炽焰咆哮虎将全力撞向对手进行攻击。"
   },
   {
     "id": 697,
@@ -5573,7 +6965,9 @@
     "type": "水",
     "category": "特殊",
     "power": 195,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量召唤大量水的西狮海壬将全力攻击对手。"
   },
   {
     "id": 698,
@@ -5581,7 +6975,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量得到阿罗拉之力的土地神宝可梦将全力进行攻击。对手的剩余HP会减少很多。"
   },
   {
     "id": 699,
@@ -5589,7 +6985,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 195,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的玛夏多将全力使出拳头和脚踢的连续招式叩打对手。"
   },
   {
     "id": 700,
@@ -5597,7 +6995,9 @@
     "type": "电",
     "category": "特殊",
     "power": 175,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的阿罗拉地区的雷丘将全力进行攻击。从而让对手陷入麻痹状态。"
   },
   {
     "id": 701,
@@ -5605,7 +7005,9 @@
     "type": "一般",
     "category": "物理",
     "power": 210,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "通过Ｚ力量使得认真起来的卡比兽跃动巨大身躯，全力向对手发动袭击。"
   },
   {
     "id": 702,
@@ -5613,7 +7015,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的伊布将借助进化后伙伴们的力量，大幅提高能力。"
   },
   {
     "id": 703,
@@ -5621,7 +7025,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 185,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的梦幻将全力攻击对手。脚下会变成精神场地。"
   },
   {
     "id": 704,
@@ -5629,7 +7035,9 @@
     "type": "火",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "设下甲壳陷阱。如果对手使出物理招式，陷阱就会爆炸并给予对手伤害。"
   },
   {
     "id": 705,
@@ -5637,7 +7045,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "放出强力光束后，自己的特攻会大幅降低。"
   },
   {
     "id": 706,
@@ -5645,7 +7055,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "利用精神力量咬住对手进行攻击。还可以破坏光墙和反射壁等。"
   },
   {
     "id": 707,
@@ -5653,7 +7065,9 @@
     "type": "地面",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "化悔恨为力量进行攻击。如果上一回合招式没有打中，威力就会翻倍。"
   },
   {
     "id": 708,
@@ -5661,7 +7075,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用附有灵魂的骨头殴打对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 709,
@@ -5669,7 +7085,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 40,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "迅速撞向对手进行攻击。必定能够先制攻击。"
   },
   {
     "id": 710,
@@ -5677,7 +7095,9 @@
     "type": "水",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用水之力量撞向对手进行攻击。有时会降低对手的防御。"
   },
   {
     "id": 711,
@@ -5685,7 +7105,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 160,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用棱镜的力量发射强烈光线。下一回合自己将无法动弹。"
   },
   {
     "id": 712,
@@ -5693,7 +7115,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "潜入对手的影子进行攻击。会夺取对手的能力提升。"
   },
   {
     "id": 713,
@@ -5701,7 +7125,9 @@
     "type": "钢",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "以流星般的气势猛撞对手。可以无视对手的特性进行攻击。"
   },
   {
     "id": 714,
@@ -5709,7 +7135,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "放出奇怪的光线攻击对手。可以无视对手的特性进行攻击。"
   },
   {
     "id": 715,
@@ -5717,7 +7145,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "变得泪眼汪汪，让对手丧失斗志。从而降低对手的攻击和特攻。"
   },
   {
     "id": 716,
@@ -5725,7 +7155,9 @@
     "type": "电",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "撞向对手，并发出强电，使其感到麻麻刺刺的。有时会使对手畏缩。"
   },
   {
     "id": 717,
@@ -5733,7 +7165,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "向对手释放自然之怒。对手的ＨＰ会减半。"
   },
   {
     "id": 718,
@@ -5741,7 +7175,9 @@
     "type": "一般",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "一边覆盖高能量，一边撞向对手进行攻击。根据存储碟不同，属性会改变。"
   },
   {
     "id": 719,
@@ -5749,7 +7185,9 @@
     "type": "电",
     "category": "特殊",
     "power": 195,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "戴着帽子的皮卡丘将通过Ｚ力量增强的电击全力释放给对手。容易击中要害。"
   },
   {
     "id": 720,
@@ -5757,7 +7195,9 @@
     "type": "火",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "让自己的头爆炸，来攻击周围的一切。自己也会受到伤害。"
   },
   {
     "id": 721,
@@ -5765,7 +7205,9 @@
     "type": "电",
     "category": "物理",
     "power": 100,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用覆盖着电流的拳头进行攻击。使一般属性的招式变成电属性。"
   },
   {
     "id": 722,
@@ -5773,7 +7215,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用光柱来进行攻击。比较自己的攻击和特攻，用数值相对较高的一项给予对方伤害。"
   },
   {
     "id": 723,
@@ -5781,7 +7225,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 185,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "奈克洛兹玛会无视对手的特性效果，在攻击和特攻之间，用数值相对较高的一项给予对方伤害。"
   },
   {
     "id": 724,
@@ -5789,7 +7235,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 190,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的索尔迦雷欧将全力进行攻击。可以无视对手的特性效果。"
   },
   {
     "id": 725,
@@ -5797,7 +7245,9 @@
     "type": "妖精",
     "category": "物理",
     "power": 190,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的露奈雅拉将全力进行攻击。可以无视对手的特性效果。"
   },
   {
     "id": 726,
@@ -5805,7 +7255,9 @@
     "type": "钢",
     "category": "物理",
     "power": 200,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的谜拟Ｑ将全力进行乱揍攻击。"
   },
   {
     "id": 727,
@@ -5813,7 +7265,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 200,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的鬃岩狼人将全力进行攻击。而且会消除场地状态。"
   },
   {
     "id": 728,
@@ -5821,7 +7275,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 200,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": "得到Ｚ力量的杖尾鳞甲龙将全力攻击对手。并且自己的能力会提高。"
   },
   {
     "id": 729,
@@ -5829,7 +7285,9 @@
     "type": "电",
     "category": "物理",
     "power": 50,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "迅猛无比的电击。必定能够先制攻击，击中对方的要害。"
   },
   {
     "id": 730,
@@ -5837,7 +7295,9 @@
     "type": "水",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "往巨浪中注入电能后冲撞对手进行攻击。有时会让对手陷入麻痹状态。"
   },
   {
     "id": 731,
@@ -5845,7 +7305,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "轻飘飘地浮起来后，再猛地俯冲下去进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 732,
@@ -5853,7 +7315,9 @@
     "type": "电",
     "category": "特殊",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "皮卡丘越喜欢训练家，电击的威力就越强。攻击必定会命中。"
   },
   {
     "id": 733,
@@ -5861,7 +7325,9 @@
     "type": "水",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "投掷水球进行攻击。吸水后能回复等同于造成的伤害一半的HP。"
   },
   {
     "id": 734,
@@ -5869,7 +7335,9 @@
     "type": "电",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "放出电击攻击对手。让对手陷入麻痹状态。"
   },
   {
     "id": 735,
@@ -5877,7 +7345,9 @@
     "type": "火",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用燃起大火的身体猛烈地冲撞对手。让对手陷入灼伤状态。"
   },
   {
     "id": 736,
@@ -5885,7 +7355,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "利用念力强攻，粉碎对方信心。制造一道能减弱对手特殊攻击的神奇墙壁。"
   },
   {
     "id": 737,
@@ -5893,7 +7365,9 @@
     "type": "恶",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": "恶行恶相地进行攻击。制造一道能减弱对手物理攻击的神奇墙壁。"
   },
   {
     "id": 738,
@@ -5901,7 +7375,9 @@
     "type": "草",
     "category": "物理",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "长出巨大的藤蔓，播撒种子进行攻击。种子每回合都会吸取对手的HP。"
   },
   {
     "id": 739,
@@ -5909,7 +7385,9 @@
     "type": "冰",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "利用冰冷的黑雾结晶进行攻击。使全体宝可梦的能力变回原点。"
   },
   {
     "id": 740,
@@ -5917,7 +7395,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 90,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 85,
+    "description": "利用芬芳刺鼻的龙卷风吞噬对方。能治愈我方宝可梦的异常状态。"
   },
   {
     "id": 741,
@@ -5925,7 +7405,9 @@
     "type": "一般",
     "category": "物理",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": null,
+    "description": "伊布越喜欢训练家，冲撞的威力就越强。攻击必定会命中。"
   },
   {
     "id": 742,
@@ -5933,7 +7415,9 @@
     "type": "钢",
     "category": "物理",
     "power": 60,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "以胸口的螺帽为中心旋转，并连续２次挥动手臂打击对手。有时会使对手畏缩。"
   },
   {
     "id": 743,
@@ -5941,7 +7425,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "完全抵挡对手的攻击。连续使出则容易失败。"
   },
   {
     "id": 744,
@@ -5949,7 +7435,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "从核心放出光束进行攻击。如果对手正处于极巨化状态，则造成的伤害会变为２倍。"
   },
   {
     "id": 745,
@@ -5957,7 +7445,9 @@
     "type": "水",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "能无视具有吸引对手招式效果的特性或招式的影响。可以向选定的对手进行攻击。"
   },
   {
     "id": 746,
@@ -5965,7 +7455,9 @@
     "type": "恶",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "使双方直到一方濒死为止无法替换宝可梦。其中一方退场则可以解除效果。"
   },
   {
     "id": 747,
@@ -5973,7 +7465,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "吃掉携带的树果，大幅提高防御。"
   },
   {
     "id": 748,
@@ -5981,7 +7475,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": "提高自己的所有能力，但无法替换或逃走。"
   },
   {
     "id": 749,
@@ -5989,7 +7485,9 @@
     "type": "岩石",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "泼洒黏糊糊的沥青，降低对手的速度，并且使对手的弱点变为火。"
   },
   {
     "id": 750,
@@ -5997,7 +7495,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "向对手喷洒魔法粉，使对手变为超能力属性。"
   },
   {
     "id": 751,
@@ -6005,7 +7505,9 @@
     "type": "龙",
     "category": "物理",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "让多龙梅西亚进行２次攻击。如果对手有２只宝可梦，则对它们各进行１次攻击。"
   },
   {
     "id": 752,
@@ -6013,7 +7515,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "举办一场茶会，场上的所有宝可梦都会吃掉自己携带的树果。"
   },
   {
     "id": 753,
@@ -6021,7 +7525,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "让对手无法逃走。对手被固定后，每回合都会降低防御和特防。"
   },
   {
     "id": 754,
@@ -6029,7 +7535,9 @@
     "type": "电",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用带电的喙啄刺对手。如果比对手先出手攻击，招式的威力会变成２倍。"
   },
   {
     "id": 755,
@@ -6037,7 +7545,9 @@
     "type": "水",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用坚硬的腮咬住对手。如果比对手先出手攻击，招式的威力会变成２倍。"
   },
   {
     "id": 756,
@@ -6045,7 +7555,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用神奇的力量交换双方的场地效果。"
   },
   {
     "id": 757,
@@ -6053,7 +7565,9 @@
     "type": "火",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的火属性攻击。可在５回合内让日照变得强烈。"
   },
   {
     "id": 758,
@@ -6061,7 +7575,9 @@
     "type": "虫",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的虫属性攻击。会降低对手的特攻。"
   },
   {
     "id": 759,
@@ -6069,7 +7585,9 @@
     "type": "电",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的电属性攻击。可在５回合内将脚下变成电气场地。"
   },
   {
     "id": 760,
@@ -6077,7 +7595,9 @@
     "type": "一般",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的一般属性攻击。会降低对手的速度。"
   },
   {
     "id": 761,
@@ -6085,7 +7605,9 @@
     "type": "格斗",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的格斗属性攻击。会提高我方的攻击。"
   },
   {
     "id": 762,
@@ -6093,7 +7615,9 @@
     "type": "幽灵",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的幽灵属性攻击。会降低对手的防御。"
   },
   {
     "id": 763,
@@ -6101,7 +7625,9 @@
     "type": "冰",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦才能使出的冰属性攻击。在５回合内会降下冰雹。"
   },
   {
     "id": 764,
@@ -6109,7 +7635,9 @@
     "type": "毒",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的毒属性攻击。会提高我方的特攻。"
   },
   {
     "id": 765,
@@ -6117,7 +7645,9 @@
     "type": "水",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的水属性攻击。可在５回合内降下大雨。"
   },
   {
     "id": 766,
@@ -6125,7 +7655,9 @@
     "type": "飞行",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的飞行属性攻击。会提高我方的速度。"
   },
   {
     "id": 767,
@@ -6133,7 +7665,9 @@
     "type": "妖精",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的妖精属性攻击。可在５回合内将脚下变成薄雾场地。"
   },
   {
     "id": 768,
@@ -6141,7 +7675,9 @@
     "type": "龙",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的龙属性攻击。会降低对手的攻击。"
   },
   {
     "id": 769,
@@ -6149,7 +7685,9 @@
     "type": "超能力",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的超能力属性攻击。可在５回合内将脚下变成精神场地。"
   },
   {
     "id": 770,
@@ -6157,7 +7695,9 @@
     "type": "岩石",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的岩石属性攻击。可在５回合内卷起沙暴。"
   },
   {
     "id": 771,
@@ -6165,7 +7705,9 @@
     "type": "地面",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的地面属性攻击。会提高我方的特防。"
   },
   {
     "id": 772,
@@ -6173,7 +7715,9 @@
     "type": "恶",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的恶属性攻击。会降低对手的特防。"
   },
   {
     "id": 773,
@@ -6181,7 +7725,9 @@
     "type": "草",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的草属性攻击。可在５回合内将脚下变成青草场地。"
   },
   {
     "id": 774,
@@ -6189,7 +7735,9 @@
     "type": "钢",
     "category": "极巨",
     "power": null,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": "极巨化宝可梦使出的钢属性攻击。会提高我方的防御。"
   },
   {
     "id": 775,
@@ -6197,7 +7745,9 @@
     "type": "龙",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "削减少许自己的ＨＰ，使所有能力都提高。"
   },
   {
     "id": 776,
@@ -6205,7 +7755,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用身体撞向对手进行攻击。防御越高，给予的伤害就越高。"
   },
   {
     "id": 777,
@@ -6213,7 +7765,9 @@
     "type": "妖精",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": "通过装饰，大幅提高对方的攻击和特攻。"
   },
   {
     "id": 778,
@@ -6221,7 +7775,9 @@
     "type": "草",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用鼓点来控制鼓的根部进行攻击，从而降低对手的速度。"
   },
   {
     "id": 779,
@@ -6229,7 +7785,9 @@
     "type": "草",
     "category": "物理",
     "power": 35,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "使用捕兽夹，在４～５回合内，夹住对手进行攻击。"
   },
   {
     "id": 780,
@@ -6237,7 +7795,9 @@
     "type": "火",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "点燃小石子，形成火球攻击对手。有时会使对手陷入灼伤状态。"
   },
   {
     "id": 781,
@@ -6245,7 +7805,9 @@
     "type": "钢",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "变身为巨大的剑，挥斩对手。如果对手正处于极巨化状态，则造成的伤害会变为２倍。"
   },
   {
     "id": 782,
@@ -6253,7 +7815,9 @@
     "type": "钢",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "变身为巨大的盾，撞击对手。如果对手正处于极巨化状态，则造成的伤害会变为２倍。"
   },
   {
     "id": 783,
@@ -6261,7 +7825,9 @@
     "type": "电",
     "category": "物理",
     "power": 110,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "用储存在颊囊里的能量进行攻击，并提高自己的速度。其属性会随着莫鲁贝可的样子而改变。"
   },
   {
     "id": 784,
@@ -6269,7 +7835,9 @@
     "type": "龙",
     "category": "物理",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用坚韧的尾巴猛扫对手进行攻击，从而降低对手的攻击。"
   },
   {
     "id": 785,
@@ -6277,7 +7845,9 @@
     "type": "草",
     "category": "物理",
     "power": 40,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "使用尖锐的树枝刺向对手进行攻击。"
   },
   {
     "id": 786,
@@ -6285,7 +7855,9 @@
     "type": "电",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "奏响吉他和贝斯，释放出发出巨响的剧烈震动攻击对手。"
   },
   {
     "id": 787,
@@ -6293,7 +7865,9 @@
     "type": "草",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "使用从酸苹果中提取出来的酸性液体进行攻击。降低对手的特防。"
   },
   {
     "id": 788,
@@ -6301,7 +7875,9 @@
     "type": "草",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从高处落下苹果，给予对手伤害。可降低对手的防御。"
   },
   {
     "id": 789,
@@ -6309,7 +7885,9 @@
     "type": "妖精",
     "category": "物理",
     "power": 75,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": "用足以让对手一蹶不振的气势进行攻击。会降低对手的特攻。"
   },
   {
     "id": 790,
@@ -6317,7 +7895,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": "喷出烟雾攻击对手。有时会使对手混乱。"
   },
   {
     "id": 791,
@@ -6325,7 +7905,9 @@
     "type": "水",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "喷洒出神奇的水，回复自己和场上同伴的ＨＰ。"
   },
   {
     "id": 792,
@@ -6333,7 +7915,9 @@
     "type": "恶",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "完全抵挡对手的攻击。连续使出则容易失败。一旦触碰，防御就会大幅降低。"
   },
   {
     "id": 793,
@@ -6341,7 +7925,9 @@
     "type": "恶",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "装作低头认错的样子，用凌乱的头发进行突刺。攻击必定会命中。"
   },
   {
     "id": 794,
@@ -6349,7 +7935,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "大力挥舞粗壮的茎进行攻击。但同时自己也会被晃晕，下一回合自己将无法动弹。"
   },
   {
     "id": 795,
@@ -6357,7 +7945,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 160,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "无极汰那变回原来的样子后，发动的最强攻击。下一回合自己将无法动弹。"
   },
   {
     "id": 796,
@@ -6365,7 +7955,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": "将从全身聚集的钢铁化为光束，激烈地发射出去。自己也会受到伤害。"
   },
   {
     "id": 797,
@@ -6373,7 +7965,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "利用精神力量攻击对手。在精神场地上威力会有所提高，能对所有对手造成伤害。"
   },
   {
     "id": 798,
@@ -6381,7 +7975,9 @@
     "type": "钢",
     "category": "物理",
     "power": 130,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "在破坏场地的同时攻击对手。如果脚下没有任何场地状态存在，使出此招式时便会失败。"
   },
   {
     "id": 799,
@@ -6389,7 +7985,9 @@
     "type": "龙",
     "category": "物理",
     "power": 25,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 90,
+    "description": "发射鳞片进行攻击。连续攻击２～５次。速度会提高但防御会降低。"
   },
   {
     "id": 800,
@@ -6397,7 +7995,9 @@
     "type": "岩石",
     "category": "特殊",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "第１回合聚集宇宙之力提高特攻，第２回合攻击对手。"
   },
   {
     "id": 801,
@@ -6405,7 +8005,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从物理攻击和特殊攻击中选择可造成较多伤害的方式进行攻击。有时会让对手陷入中毒状态。"
   },
   {
     "id": 802,
@@ -6413,7 +8015,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "对自己周围的所有宝可梦进行攻击，但使出后，自己会陷入濒死。在薄雾场地上，招式威力会提高。"
   },
   {
     "id": 803,
@@ -6421,7 +8025,9 @@
     "type": "草",
     "category": "物理",
     "power": 55,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "仿佛在地面上滑行般地攻击对手。在青草场地上，必定能够先制攻击。"
   },
   {
     "id": 804,
@@ -6429,7 +8035,9 @@
     "type": "电",
     "category": "特殊",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "用从地面升腾而起的电击进行攻击。当对手处于电气场地上时，招式威力会变成２倍。"
   },
   {
     "id": 805,
@@ -6437,7 +8045,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "借助场地的力量进行攻击。视使出招式时场地状态不同，招式的属性和威力会有所变化。"
   },
   {
     "id": 806,
@@ -6445,7 +8055,9 @@
     "type": "虫",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "从对手背后爬近后进行攻击。会降低对手的特攻。"
   },
   {
     "id": 807,
@@ -6453,7 +8065,9 @@
     "type": "火",
     "category": "特殊",
     "power": 70,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用嫉妒的能量攻击对手。会让在该回合内能力有所提高的宝可梦陷入灼伤状态。"
   },
   {
     "id": 808,
@@ -6461,7 +8075,9 @@
     "type": "恶",
     "category": "物理",
     "power": 75,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "攻击对手以发泄对其感到的恼怒情绪。如果在该回合内自身能力遭到降低，招式的威力会变成２倍。"
   },
   {
     "id": 809,
@@ -6469,7 +8085,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 110,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 90,
+    "description": "操纵对手的持有物进行攻击。当对手没有携带道具时，使出此招式时便会失败。"
   },
   {
     "id": 810,
@@ -6477,7 +8095,9 @@
     "type": "毒",
     "category": "变化",
     "power": null,
-    "pp": 40
+    "pp": 40,
+    "accuracy": 100,
+    "description": "用具有强酸性的气体包裹住自己周围所有的宝可梦，并融化其所携带的道具。"
   },
   {
     "id": 811,
@@ -6485,7 +8105,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "通过进行正确合理的指导，提高我方全员的攻击和防御。"
   },
   {
     "id": 812,
@@ -6493,7 +8115,9 @@
     "type": "水",
     "category": "物理",
     "power": 60,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": "在攻击之后急速返回，和后备宝可梦进行替换。"
   },
   {
     "id": 813,
@@ -6501,7 +8125,9 @@
     "type": "冰",
     "category": "物理",
     "power": 20,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "连续３次踢对手进行攻击。每踢中一次，威力就会提高。"
   },
   {
     "id": 814,
@@ -6509,7 +8135,9 @@
     "type": "飞行",
     "category": "物理",
     "power": 40,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": "将翅膀撞向对手进行攻击。连续２次给予伤害。"
   },
   {
     "id": 815,
@@ -6517,7 +8145,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将滚烫的沙子砸向对手进行攻击。有时会让对手陷入灼伤状态。"
   },
   {
     "id": 816,
@@ -6525,7 +8155,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": "与丛林融为一体，回复自己和场上同伴的ＨＰ和状态。"
   },
   {
     "id": 817,
@@ -6533,7 +8165,9 @@
     "type": "恶",
     "category": "物理",
     "power": 75,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "将恶之流派修炼至大成的猛烈一击。必定会击中要害。"
   },
   {
     "id": 818,
@@ -6541,7 +8175,9 @@
     "type": "水",
     "category": "物理",
     "power": 25,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "将水之流派修炼至大成的仿若行云流水般的３次连击。必定会击中要害。"
   },
   {
     "id": 819,
@@ -6549,7 +8185,9 @@
     "type": "电",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": "将对手困在电流四溅的囚笼中，在４～５回合内进行攻击。"
   },
   {
     "id": 820,
@@ -6557,7 +8195,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "把生命力转换为力量攻击对手。自己的ＨＰ越少，招式的威力越小。"
   },
   {
     "id": 821,
@@ -6565,7 +8205,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "从双眼发射精神力量进行攻击。有时会让对手陷入冰冻状态。"
   },
   {
     "id": 822,
@@ -6573,7 +8215,9 @@
     "type": "恶",
     "category": "特殊",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "将愤怒转化为火焰般的气场进行攻击。有时会使对手畏缩。"
   },
   {
     "id": 823,
@@ -6581,7 +8225,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": "以雷电般的动作戏耍对手的同时使出脚踢。可降低对手的防御。"
   },
   {
     "id": 824,
@@ -6589,7 +8235,9 @@
     "type": "冰",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "向对手投掷掀起暴风雪的冰矛进行攻击。"
   },
   {
     "id": 825,
@@ -6597,7 +8245,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用大量的小灵体向对手发起攻击。"
   },
   {
     "id": 826,
@@ -6605,7 +8255,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": "用强大的精神力量攻击。让对手最后使用的招式减少３ＰＰ。"
   },
   {
     "id": 827,
@@ -6613,7 +8265,9 @@
     "type": "毒",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 828,
@@ -6621,7 +8275,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 829,
@@ -6629,7 +8285,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 830,
@@ -6637,7 +8295,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 831,
@@ -6645,7 +8305,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 80,
+    "description": null
   },
   {
     "id": 832,
@@ -6653,7 +8315,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 833,
@@ -6661,7 +8325,9 @@
     "type": "火",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 834,
@@ -6669,7 +8335,9 @@
     "type": "水",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 835,
@@ -6677,7 +8345,9 @@
     "type": "草",
     "category": "特殊",
     "power": 150,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 95,
+    "description": null
   },
   {
     "id": 836,
@@ -6685,7 +8355,9 @@
     "type": "冰",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": null
   },
   {
     "id": 837,
@@ -6693,7 +8365,9 @@
     "type": "格斗",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 838,
@@ -6701,7 +8375,9 @@
     "type": "地面",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 839,
@@ -6709,7 +8385,9 @@
     "type": "毒",
     "category": "物理",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 840,
@@ -6717,7 +8395,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 841,
@@ -6725,7 +8405,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 842,
@@ -6733,7 +8415,9 @@
     "type": "钢",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 843,
@@ -6741,7 +8425,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 844,
@@ -6749,7 +8435,9 @@
     "type": "幽灵",
     "category": "特殊",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 845,
@@ -6757,7 +8445,9 @@
     "type": "恶",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 846,
@@ -6765,7 +8455,9 @@
     "type": "飞行",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 80,
+    "description": null
   },
   {
     "id": 847,
@@ -6773,7 +8465,9 @@
     "type": "电",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 80,
+    "description": null
   },
   {
     "id": 848,
@@ -6781,7 +8475,9 @@
     "type": "地面",
     "category": "特殊",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 80,
+    "description": null
   },
   {
     "id": 849,
@@ -6789,7 +8485,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 5
+    "pp": 5,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 850,
@@ -6797,7 +8495,9 @@
     "type": "超能力",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 851,
@@ -6805,7 +8505,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 852,
@@ -6813,7 +8515,9 @@
     "type": "虫",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 853,
@@ -6821,7 +8525,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 120,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 854,
@@ -6829,7 +8535,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 855,
@@ -6837,7 +8545,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 856,
@@ -6845,7 +8555,9 @@
     "type": "龙",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 857,
@@ -6853,7 +8565,9 @@
     "type": "水",
     "category": "物理",
     "power": 60,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 858,
@@ -6861,7 +8575,9 @@
     "type": "草",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 859,
@@ -6869,7 +8585,9 @@
     "type": "钢",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 860,
@@ -6877,7 +8595,9 @@
     "type": "一般",
     "category": "物理",
     "power": 20,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 861,
@@ -6885,7 +8605,9 @@
     "type": "冰",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 862,
@@ -6893,7 +8615,9 @@
     "type": "龙",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 863,
@@ -6901,7 +8625,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 1
+    "pp": 1,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 864,
@@ -6909,7 +8635,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 40,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 865,
@@ -6917,7 +8645,9 @@
     "type": "水",
     "category": "物理",
     "power": 30,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 95,
+    "description": null
   },
   {
     "id": 866,
@@ -6925,7 +8655,9 @@
     "type": "毒",
     "category": "物理",
     "power": 30,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 867,
@@ -6933,7 +8665,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 868,
@@ -6941,7 +8675,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 869,
@@ -6949,7 +8685,9 @@
     "type": "恶",
     "category": "物理",
     "power": 85,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 870,
@@ -6957,7 +8695,9 @@
     "type": "草",
     "category": "物理",
     "power": 70,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 871,
@@ -6965,7 +8705,9 @@
     "type": "火",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 872,
@@ -6973,7 +8715,9 @@
     "type": "水",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 873,
@@ -6981,7 +8725,9 @@
     "type": "一般",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 874,
@@ -6989,7 +8735,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 875,
@@ -6997,7 +8745,9 @@
     "type": "超能力",
     "category": "物理",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 876,
@@ -7005,7 +8755,9 @@
     "type": "水",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 877,
@@ -7013,7 +8765,9 @@
     "type": "恶",
     "category": "特殊",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 878,
@@ -7021,7 +8775,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 879,
@@ -7029,7 +8785,9 @@
     "type": "电",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 880,
@@ -7037,7 +8795,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 881,
@@ -7045,7 +8805,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 882,
@@ -7053,7 +8815,9 @@
     "type": "一般",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 883,
@@ -7061,7 +8825,9 @@
     "type": "冰",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 884,
@@ -7069,7 +8835,9 @@
     "type": "虫",
     "category": "物理",
     "power": 50,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 885,
@@ -7077,7 +8845,9 @@
     "type": "草",
     "category": "物理",
     "power": 50,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 886,
@@ -7085,7 +8855,9 @@
     "type": "水",
     "category": "特殊",
     "power": 50,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 887,
@@ -7093,7 +8865,9 @@
     "type": "一般",
     "category": "物理",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 888,
@@ -7101,7 +8875,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 40,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 889,
@@ -7109,7 +8885,9 @@
     "type": "幽灵",
     "category": "物理",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 890,
@@ -7117,7 +8895,9 @@
     "type": "火",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 891,
@@ -7125,7 +8905,9 @@
     "type": "火",
     "category": "物理",
     "power": 90,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 892,
@@ -7133,7 +8915,9 @@
     "type": "电",
     "category": "物理",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 893,
@@ -7141,7 +8925,9 @@
     "type": "钢",
     "category": "物理",
     "power": 160,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 894,
@@ -7149,7 +8935,9 @@
     "type": "恶",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 895,
@@ -7157,7 +8945,9 @@
     "type": "水",
     "category": "物理",
     "power": 70,
-    "pp": 20
+    "pp": 20,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 896,
@@ -7165,7 +8955,9 @@
     "type": "火",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 897,
@@ -7173,7 +8965,9 @@
     "type": "恶",
     "category": "物理",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 898,
@@ -7181,7 +8975,9 @@
     "type": "毒",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 899,
@@ -7189,7 +8985,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 900,
@@ -7197,7 +8995,9 @@
     "type": "妖精",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 901,
@@ -7205,7 +9005,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 140,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 902,
@@ -7213,7 +9015,9 @@
     "type": "草",
     "category": "特殊",
     "power": 80,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 90,
+    "description": null
   },
   {
     "id": 903,
@@ -7221,7 +9025,9 @@
     "type": "草",
     "category": "特殊",
     "power": 60,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 85,
+    "description": null
   },
   {
     "id": 904,
@@ -7229,7 +9035,9 @@
     "type": "草",
     "category": "物理",
     "power": 100,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 905,
@@ -7237,7 +9045,9 @@
     "type": "电",
     "category": "特殊",
     "power": 130,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 906,
@@ -7245,7 +9055,9 @@
     "type": "一般",
     "category": "特殊",
     "power": 120,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 907,
@@ -7253,7 +9065,9 @@
     "type": "龙",
     "category": "特殊",
     "power": 80,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 908,
@@ -7261,7 +9075,9 @@
     "type": "火",
     "category": "变化",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 909,
@@ -7269,7 +9085,9 @@
     "type": "电",
     "category": "特殊",
     "power": 70,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 910,
@@ -7277,7 +9095,9 @@
     "type": "岩石",
     "category": "物理",
     "power": 95,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 911,
@@ -7285,7 +9105,9 @@
     "type": "钢",
     "category": "特殊",
     "power": 50,
-    "pp": 10
+    "pp": 10,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 912,
@@ -7293,7 +9115,9 @@
     "type": "钢",
     "category": "物理",
     "power": null,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 913,
@@ -7301,7 +9125,9 @@
     "type": "龙",
     "category": "变化",
     "power": null,
-    "pp": 15
+    "pp": 15,
+    "accuracy": null,
+    "description": null
   },
   {
     "id": 914,
@@ -7309,7 +9135,9 @@
     "type": "妖精",
     "category": "特殊",
     "power": 80,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 915,
@@ -7317,7 +9145,9 @@
     "type": "火",
     "category": "物理",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 916,
@@ -7325,7 +9155,9 @@
     "type": "电",
     "category": "物理",
     "power": 100,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 95,
+    "description": null
   },
   {
     "id": 917,
@@ -7333,7 +9165,9 @@
     "type": "超能力",
     "category": "特殊",
     "power": 75,
-    "pp": 10
+    "pp": 10,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 918,
@@ -7341,7 +9175,9 @@
     "type": "格斗",
     "category": "物理",
     "power": 65,
-    "pp": 15
+    "pp": 15,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 919,
@@ -7349,7 +9185,9 @@
     "type": "毒",
     "category": "特殊",
     "power": 100,
-    "pp": 5
+    "pp": 5,
+    "accuracy": 100,
+    "description": null
   },
   {
     "id": 920,
@@ -7357,6 +9195,8 @@
     "type": "龙",
     "category": "特殊",
     "power": 200,
-    "pp": null
+    "pp": null,
+    "accuracy": null,
+    "description": null
   }
 ]
