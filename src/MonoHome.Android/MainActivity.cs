@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.5";
+    const string CurrentVersion = "1.2.6";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -1441,7 +1441,7 @@ public class MainActivity : Activity
                     image.SetScaleType(ImageView.ScaleType.CenterInside);
                     image.SetPadding(Dp(5), Dp(5), Dp(5), Dp(5));
                     image.Background = CreateSlotBackground(true, false, false);
-                    var icon = Resources.GetIdentifier($"a_{occupied.Species}", "drawable", PackageName);
+                    var icon = PokemonSprite.ResourceId(this, occupied.Species, occupied.IsShiny, occupied.IsEgg);
                     if (icon != 0)
                         image.SetImageResource(icon);
                     image.Click += (_, _) => ConfirmTransferPlacement(dialog, target, pageIndex * page.Capacity + slot.Index, occupied);
@@ -1575,7 +1575,7 @@ public class MainActivity : Activity
                     image.SetScaleType(ImageView.ScaleType.CenterInside);
                     image.SetPadding(Dp(5), Dp(5), Dp(5), Dp(5));
                     image.Background = CreateSlotBackground(true, false, false);
-                    var icon = Resources.GetIdentifier($"a_{occupied.Species}", "drawable", PackageName);
+                    var icon = PokemonSprite.ResourceId(this, occupied.Species, occupied.IsShiny, occupied.IsEgg);
                     if (icon != 0)
                         image.SetImageResource(icon);
                     image.Click += (_, _) => ConfirmBatchTransferPlacement(dialog, target, destinationSlot, records.Length, allSlots);
@@ -1869,7 +1869,7 @@ public class MainActivity : Activity
                 image.SetScaleType(ImageView.ScaleType.CenterInside);
                 image.SetPadding(5, 5, 5, 5);
                 image.Background = CreateSlotBackground(true, selected, false);
-                var icon = Resources.GetIdentifier($"a_{pokemon.Species}", "drawable", PackageName);
+                var icon = PokemonSprite.ResourceId(this, pokemon.Species, pokemon.IsShiny, pokemon.IsEgg);
                 if (icon != 0)
                     image.SetImageResource(icon);
                 image.Click += (_, _) => ShowSourceSlotDetail(pokemon);
@@ -2425,7 +2425,7 @@ public class MainActivity : Activity
                 image.SetScaleType(ImageView.ScaleType.CenterInside);
                 image.SetPadding(5, 5, 5, 5);
                 image.Background = CreateSlotBackground(true, selected, false);
-                var icon = Resources.GetIdentifier($"a_{record.Species}", "drawable", PackageName);
+                var icon = PokemonSprite.ResourceId(this, LocalRepository.LoadWorking(record));
                 if (icon != 0)
                     image.SetImageResource(icon);
                 image.Click += (_, _) =>
@@ -2447,7 +2447,7 @@ public class MainActivity : Activity
     {
         var dialog = new AlertDialog.Builder(this)!;
         dialog.SetTitle(ChineseSpeciesName(record.Species));
-        dialog.SetItems(["查看个体档案", "查看宝可梦图鉴", "编辑并另存为合法副本"], (_, args) =>
+        dialog.SetItems(["查看个体档案", "查看宝可梦图鉴", "编辑 / 合法化更新"], (_, args) =>
         {
             if (args?.Which == 0)
                 ShowWarehouseDetail(record);
@@ -2594,7 +2594,7 @@ public class MainActivity : Activity
         identity.SetPadding(Dp(8), Dp(10), Dp(8), Dp(10));
         identity.Background = Panel("#17312B", "#427A68", 14);
         var icon = new ImageView(this);
-        var iconId = Resources.GetIdentifier($"a_{pokemon.Species}", "drawable", PackageName);
+        var iconId = PokemonSprite.ResourceId(this, pokemon.Species, pokemon.IsShiny, pokemon.IsEgg);
         if (iconId != 0)
             icon.SetImageResource(iconId);
         icon.SetPadding(Dp(8), Dp(8), Dp(8), Dp(8));
@@ -2722,44 +2722,20 @@ public class MainActivity : Activity
         close.SetTextColor(Color.ParseColor("#8DE4D1"));
         close.Background = Panel("#132A25", "#315249", 8);
         close.Click += (_, _) => dialog.Dismiss();
-        var repairable = warehouseRecord is not null && warehouseRecord.LegalityStatus == "invalid";
-        actions.AddView(close, new LinearLayout.LayoutParams(0, Dp(44), repairable ? 0.27f : primaryLabel is null ? 1 : 0.42f));
-        if (repairable && warehouseRecord is not null)
+        var editable = warehouseRecord is not null;
+        actions.AddView(close, new LinearLayout.LayoutParams(0, Dp(44), editable ? 0.27f : primaryLabel is null ? 1 : 0.42f));
+        if (warehouseRecord is not null)
         {
-            var repair = new Button(this) { Text = "自动修复" };
-            repair.SetAllCaps(false);
-            repair.SetTextColor(Color.ParseColor("#D6FF63"));
-            repair.Background = Panel("#132A25", "#D6FF63", 8);
-            repair.Click += async (_, _) =>
+            var edit = new Button(this) { Text = "编辑 / 合法化" };
+            edit.SetAllCaps(false);
+            edit.SetTextColor(Color.ParseColor("#D6FF63"));
+            edit.Background = Panel("#132A25", "#D6FF63", 8);
+            edit.Click += (_, _) =>
             {
-                repair.Enabled = false;
-                repair.Text = "修复中…";
-                try
-                {
-                    var outcome = await Task.Run(() => LocalRepository.RepairWithStrategy(pokemon));
-                    if (!outcome.Valid)
-                    {
-                        ShowRepairOutcome(outcome);
-                        return;
-                    }
-                    var updated = LocalRepository.SaveWorking(warehouseRecord, outcome.Pokemon);
-                    dialog.Dismiss();
-                    storedPokemon = updated;
-                    RefreshWarehouse(updated.Id);
-                    ShowWarehouseDetail(updated);
-                    ShowRepairOutcome(outcome);
-                }
-                catch (Exception ex)
-                {
-                    ShowRepairOutcome(new RepairOutcome(pokemon, false, "未完成", [], $"修复过程无法完成：{ex.Message}"));
-                }
-                finally
-                {
-                    repair.Enabled = true;
-                    repair.Text = "自动修复";
-                }
+                dialog.Dismiss();
+                StartActivityForResult(new Intent(this, typeof(EditCopyActivity)).PutExtra("repository_id", warehouseRecord.Id), 30);
             };
-            actions.AddView(repair, new LinearLayout.LayoutParams(0, Dp(44), 0.31f) { LeftMargin = Dp(6) });
+            actions.AddView(edit, new LinearLayout.LayoutParams(0, Dp(44), 0.31f) { LeftMargin = Dp(6) });
         }
         if (primaryLabel is not null && primaryAction is not null)
         {
@@ -2768,7 +2744,7 @@ public class MainActivity : Activity
             primary.SetTextColor(Color.ParseColor("#142019"));
             primary.Background = Panel("#D6FF63", "#D6FF63", 8);
             primary.Click += (_, _) => { dialog.Dismiss(); primaryAction(); };
-            actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), repairable ? 0.42f : 0.58f) { LeftMargin = Dp(8) });
+            actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), editable ? 0.42f : 0.58f) { LeftMargin = Dp(8) });
         }
         root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(10) });
         dialog.SetContentView(root);
@@ -2779,49 +2755,6 @@ public class MainActivity : Activity
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
             window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.96f));
-        }
-    }
-
-    void ShowRepairOutcome(RepairOutcome outcome)
-    {
-        var message = outcome.Valid
-            ? $"已生成并保存合法工作副本。\n模板：{outcome.Template}\n处理：{string.Join("、", outcome.Changes)}"
-            : $"未生成可写入的副本。\n模板：{outcome.Template}\n已尝试：{(outcome.Changes.Count == 0 ? "未找到可用模板" : string.Join("、", outcome.Changes))}\n应对：{outcome.FailureReason}";
-        var dialog = new Dialog(this);
-        var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
-        panel.SetPadding(Dp(18), Dp(16), Dp(18), Dp(12));
-        var panelBackground = new GradientDrawable();
-        panelBackground.SetColor(Color.ParseColor("#0F201C"));
-        panelBackground.SetCornerRadius(Dp(16));
-        panelBackground.SetStroke(Dp(1), Color.ParseColor(outcome.Valid ? "#D6FF63" : "#B86A55"));
-        panel.Background = panelBackground;
-        var title = new TextView(this) { Text = outcome.Valid ? "自动修复完成" : "自动修复未完成", TextSize = 19 };
-        title.SetTextColor(Color.ParseColor(outcome.Valid ? "#D6FF63" : "#FF9E78"));
-        title.SetTypeface(global::Android.Graphics.Typeface.Default, global::Android.Graphics.TypefaceStyle.Bold);
-        title.SetIncludeFontPadding(false);
-        panel.AddView(title, new LinearLayout.LayoutParams(-1, Dp(34)));
-        var body = new TextView(this) { Text = message, TextSize = 13 };
-        body.SetTextColor(Color.ParseColor("#E9F4EF"));
-        body.SetLineSpacing(Dp(2), 1f);
-        panel.AddView(body, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8) });
-        var close = new Button(this) { Text = "知道了" };
-        close.SetAllCaps(false);
-        close.SetTextSize(global::Android.Util.ComplexUnitType.Sp, 14);
-        close.SetTextColor(Color.ParseColor("#0B1414"));
-        var closeBackground = new GradientDrawable();
-        closeBackground.SetColor(Color.ParseColor("#D6FF63"));
-        closeBackground.SetCornerRadius(Dp(8));
-        close.Background = closeBackground;
-        close.Click += (_, _) => dialog.Dismiss();
-        panel.AddView(close, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(14) });
-        dialog.SetContentView(panel);
-        ShowSafely(dialog);
-        if (dialog.Window is { } window)
-        {
-            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
-            window.SetDimAmount(0.72f);
-            window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.86f), WindowManagerLayoutParams.WrapContent);
         }
     }
 
@@ -3169,7 +3102,7 @@ public class MainActivity : Activity
             selectedPokemon.Text = $"{ChineseSpeciesName(slot.Species, 3)} · 等级 {slot.Level}";
         if (pokemonIcon is not null)
         {
-            var icon = Resources?.GetIdentifier($"a_{slot.Species}", "drawable", PackageName) ?? 0;
+            var icon = PokemonSprite.ResourceId(this, slot.Species, slot.IsShiny, slot.IsEgg);
             pokemonIcon.Visibility = icon == 0 ? global::Android.Views.ViewStates.Invisible : global::Android.Views.ViewStates.Visible;
             if (icon != 0)
                 pokemonIcon.SetImageResource(icon);

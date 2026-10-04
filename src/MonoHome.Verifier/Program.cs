@@ -9,8 +9,18 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
+if (args.Length == 4 && args[0] == "--compare-fixed-entities")
+{
+    FixedFieldChecks.CompareSaved(args[1], args[2], args[3]);
+    return;
+}
 var emeraldPath = TestEnvironment.EmeraldSave;
 var heartGoldPath = TestEnvironment.HeartGoldSave;
+if (args.Contains("--fixed-fields-only"))
+{
+    FixedFieldChecks.Run(LocalRepository.RepairPreservingFields, TestEnvironment.NewScratchDirectory("fixed-fields"), emeraldPath, heartGoldPath);
+    return;
+}
 var emeraldHash = Hash(emeraldPath);
 var heartGoldHash = Hash(heartGoldPath);
 var emerald = SaveInspector.Inspect(emeraldPath);
@@ -357,6 +367,28 @@ Console.WriteLine("PASS: V1 GitHub Contents API provider with fake HTTP.");
 
 var selected = emeraldPokemon[1];
 var repositoryRoot = TestEnvironment.NewScratchDirectory("repository");
+// Upload and ordinary edits must not silently rebuild an invalid entity.
+var uploadSource = BoxReader.ReadPokemon(emeraldPath, emeraldPokemon.First(slot => slot.Location == "Box" && slot.Box == 0 && slot.Slot == 0));
+AssertTrue(!new LegalityAnalysis(uploadSource).Valid, "upload regression covers an invalid entity");
+var preservationRoot = TestEnvironment.NewScratchDirectory("preservation");
+var preservedRecord = LocalRepository.Upload(uploadSource, preservationRoot);
+AssertEqual("invalid", preservedRecord.LegalityStatus, "upload reports legality without repairing");
+AssertTrue(File.ReadAllBytes(preservedRecord.OriginalPath).SequenceEqual(File.ReadAllBytes(preservedRecord.WorkingPath)), "upload preserves the complete stored entity, including PID, IVs and EVs");
+AssertTrue(uploadSource.GetStats(uploadSource.PersonalInfo).SequenceEqual(LocalRepository.LoadWorking(preservedRecord).GetStats(uploadSource.PersonalInfo)), "upload preserves all six calculated stats");
+var preservedEdit = LocalRepository.ApplyEdit(uploadSource, new WorkingEdit("KEEP", null, null, null, null, null));
+preservedRecord = LocalRepository.SaveWorking(preservedRecord, preservedEdit);
+var reloadedEdit = LocalRepository.LoadWorking(preservedRecord);
+AssertEqual("KEEP", reloadedEdit.Nickname, "ordinary edits persist without repair");
+AssertEqual(uploadSource.PID, reloadedEdit.PID, "ordinary edits preserve PID");
+AssertTrue(uploadSource.GetStats(uploadSource.PersonalInfo).SequenceEqual(reloadedEdit.GetStats(reloadedEdit.PersonalInfo)), "ordinary edits preserve all six stats");
+var unchangedEdit = LocalRepository.ApplyEdit(uploadSource, new WorkingEdit(null, null, null, null, null, null, Nature: (int)uploadSource.Nature, Gender: uploadSource.Gender));
+AssertEqual(uploadSource.PID, unchangedEdit.PID, "saving displayed nature and gender unchanged preserves PID");
+var unchangedNickname = LocalRepository.ApplyEdit(uploadSource, new WorkingEdit(uploadSource.Nickname, null, null, null, null, null));
+AssertEqual(uploadSource.IsNicknamed, unchangedNickname.IsNicknamed, "saving displayed nickname unchanged preserves nickname flag");
+var usedMoveSource = uploadSource.Clone();
+usedMoveSource.Move1_PP = 1;
+var unchangedMoves = LocalRepository.ApplyEdit(usedMoveSource, new WorkingEdit(null, null, null, null, null, null, Moves: [usedMoveSource.Move1, usedMoveSource.Move2, usedMoveSource.Move3, usedMoveSource.Move4]));
+AssertEqual(1, unchangedMoves.Move1_PP, "saving displayed moves unchanged preserves remaining PP");
 var stored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, selected), repositoryRoot);
 AssertEqual(stored.Id, LocalRepository.GetLatest(repositoryRoot)!.Id, "repository restores latest upload");
 AssertTrue(File.Exists(stored.ManifestPath), "repository persists a metadata record");

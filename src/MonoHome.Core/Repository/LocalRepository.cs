@@ -48,7 +48,6 @@ public static class LocalRepository
 
     public static StoredPokemon Upload(PKM pokemon, string root)
     {
-        var working = RepairBackground(pokemon);
         var id = Guid.NewGuid().ToString("N");
         var directory = Path.Combine(root, id);
         Directory.CreateDirectory(directory);
@@ -61,9 +60,9 @@ public static class LocalRepository
             Path.Combine(directory, "record.json"),
             now,
             now,
-            LegalityStatus(working));
+            LegalityStatus(pokemon));
         WritePokemon(stored.OriginalPath, pokemon);
-        WritePokemon(stored.WorkingPath, working);
+        WritePokemon(stored.WorkingPath, pokemon);
         WriteRecord(stored);
         return stored;
     }
@@ -75,7 +74,7 @@ public static class LocalRepository
     {
         var pokemon = source.Clone();
         var originalShiny = pokemon.IsShiny;
-        if (!string.IsNullOrWhiteSpace(edit.Nickname))
+        if (!string.IsNullOrWhiteSpace(edit.Nickname) && edit.Nickname != pokemon.Nickname)
         {
             pokemon.Nickname = edit.Nickname;
             pokemon.IsNicknamed = true;
@@ -83,7 +82,8 @@ public static class LocalRepository
         if (edit.Level is { } level)
         {
             if (level is < 1 or > 100) throw new ArgumentOutOfRangeException(nameof(edit.Level));
-            pokemon.CurrentLevel = (byte)level;
+            if (pokemon.CurrentLevel != level)
+                pokemon.CurrentLevel = (byte)level;
         }
         if (edit.Species is { } species)
         {
@@ -93,7 +93,8 @@ public static class LocalRepository
         if (edit.Nature is { } nature)
         {
             if (nature is < 0 or > 24) throw new ArgumentOutOfRangeException(nameof(edit.Nature));
-            pokemon.SetPIDNature((Nature)nature);
+            if (pokemon.Nature != (Nature)nature)
+                pokemon.SetPIDNature((Nature)nature);
         }
         if (edit.AbilityIndex is { } ability)
         {
@@ -103,7 +104,8 @@ public static class LocalRepository
         if (edit.Gender is { } gender)
         {
             if (gender is < 0 or > 2) throw new ArgumentOutOfRangeException(nameof(edit.Gender));
-            pokemon.SetPIDGender((byte)gender);
+            if (pokemon.Gender != gender)
+                pokemon.SetPIDGender((byte)gender);
         }
         if (edit.Form is { } form)
         {
@@ -148,7 +150,8 @@ public static class LocalRepository
         if (edit.Moves is { } moves)
         {
             if (moves.Count != 4 || moves.Any(move => move < 0 || move > pokemon.MaxMoveID)) throw new ArgumentOutOfRangeException(nameof(edit.Moves));
-            pokemon.SetMoves(moves.Select(move => (ushort)move).ToArray());
+            if (!moves.SequenceEqual(new[] { (int)pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 }))
+                pokemon.SetMoves(moves.Select(move => (ushort)move).ToArray());
         }
         if (edit.IVs is { } ivs)
         {
@@ -187,9 +190,8 @@ public static class LocalRepository
 
     public static StoredPokemon SaveWorking(StoredPokemon stored, PKM pokemon)
     {
-        var working = RepairBackground(pokemon);
-        WritePokemon(stored.WorkingPath, working);
-        var status = LegalityStatus(working);
+        WritePokemon(stored.WorkingPath, pokemon);
+        var status = LegalityStatus(pokemon);
         var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status, Revision = stored.Revision + 1 };
         WriteRecord(updated);
         return updated;
@@ -201,7 +203,55 @@ public static class LocalRepository
         catch { return "stale"; }
     }
 
-    /// <summary>Repairs an entity in stages, never returning an unverified replacement.</summary>
+    /// <summary>Preserves fixed fields, except explicitly authorized fixed NPC names.</summary>
+    public static RepairOutcome RepairPreservingFields(PKM source)
+    {
+        try
+        {
+            var analysis = new LegalityAnalysis(source);
+            if (analysis.Valid)
+                return new(source.Clone(), true, "固定属性", ["原始数据已通过合法性检查"]);
+            if (source is PK3 { IsEgg: false })
+            {
+                var candidate = source.Clone();
+                candidate.PrepareNickname();
+                candidate.Nickname = source.Nickname;
+                if (candidate.Nickname == source.Nickname && new LegalityAnalysis(candidate).Valid)
+                    return new(candidate, true, "固定属性", ["规范昵称尾部填充字节，昵称文字及其他数据不变"]);
+            }
+            if (source is PK4 { IsEgg: false, Language: 1 or 2 })
+            {
+                var candidate = source.Clone();
+                candidate.PrepareNickname();
+                candidate.Nickname = analysis.EncounterMatch is EncounterTrade4PID trade
+                    ? trade.GetNickname(source.Language)
+                    : SpeciesName.GetSpeciesNameGeneration(source.Species, source.Language, source.Generation);
+                candidate.IsNicknamed = analysis.EncounterMatch is EncounterTrade4PID;
+                // ponytail: HG/SS ordinary-language fixed trades only; language-swapped trades need separate locale handling.
+                if (analysis.EncounterMatch is EncounterTrade4PID { IsLanguageSwap: false } npc
+                    && source.Version is GameVersion.HG or GameVersion.SS
+                    && source.ID32 == npc.ID32 && source.PID == npc.PID)
+                {
+                    var template = npc.ConvertToPKM(new SimpleTrainerInfo(source.Version) { Language = source.Language });
+                    candidate.OriginalTrainerName = template.OriginalTrainerName;
+                    if (new LegalityAnalysis(candidate).Valid)
+                        return new(candidate, true, "NPC 固定名称特例",
+                            [$"恢复 NPC 固定昵称：{source.Nickname} → {candidate.Nickname}",
+                             $"恢复 NPC 固定训练家名：{source.OriginalTrainerName} → {candidate.OriginalTrainerName}；训练家 ID 及其他固定属性不变"]);
+                }
+                if (new LegalityAnalysis(candidate).Valid)
+                    return new(candidate, true, "固定属性", [$"按来源语言恢复名称：{source.Nickname} → {candidate.Nickname}；训练家及固定属性不变"]);
+            }
+            return new(source.Clone(), false, "固定属性", [],
+                $"未找到保留全部固定信息的合法结果；当前数据未修改。\n{new LegalityAnalysis(source).Report()}");
+        }
+        catch (Exception ex)
+        {
+            return new(source.Clone(), false, "固定属性", [], $"无法完成检查；当前数据未修改：{ex.Message}");
+        }
+    }
+
+    /// <summary>Rebuilds an entity for an explicitly requested conversion or new legal copy.</summary>
     public static RepairOutcome RepairWithStrategy(PKM source)
     {
         var template = RepairTemplateName(source);
@@ -429,8 +479,9 @@ public static class LocalRepository
 
     static void WritePokemon(string path, PKM pokemon)
     {
-        var data = new byte[pokemon.SIZE_STORED];
-        pokemon.WriteEncryptedDataStored(data);
+        // Status is party-only data; the stored/box format would silently discard it.
+        var data = new byte[pokemon.SIZE_PARTY];
+        pokemon.WriteEncryptedDataParty(data);
         // Verify before committing: moving an unreadable payload into place would destroy
         // the previous working copy with nothing left to fall back to.
         if (EntityFormat.GetFromBytes(data) is null)
