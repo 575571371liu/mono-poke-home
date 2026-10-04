@@ -119,7 +119,7 @@ public sealed class EditCopyActivity : Activity
             selections["Ability"] = 0;
             choiceButtons["Ability"].Text = AbilityChoices()[0].Name;
         });
-        Choice(basic, "Ability", "特性", current.AbilityNumber >> 1, () => AbilityChoices());
+        Choice(basic, "Ability", "特性", CurrentAbilityIndex, () => AbilityChoices());
         Choice(basic, "Item", "携带道具", current.HeldItem, () => names.GetItemStrings(current.Context, current.Version).Take(current.MaxItemID + 1).Select((name, id) => (id, id == 0 ? "无" : name)).ToArray());
         Toggle(basic, "Shiny", "闪光", current.IsShiny);
         Toggle(basic, "Egg", "蛋", current.IsEgg);
@@ -276,6 +276,7 @@ public sealed class EditCopyActivity : Activity
     }
     int Number(string key) => int.TryParse(fields[key].Text?.Trim(), out var value) ? value : throw new FormatException($"请填写有效的{fields[key].ContentDescription}。");
     int? Changed(string key, int original) => selections[key] == original ? null : selections[key];
+    int CurrentAbilityIndex => Math.Max(0, current.PersonalInfo.GetIndexOfAbility(current.Ability));
     PKM ReadEdit()
     {
         // Pass only changed identity fields so opening and saving cannot normalize original data.
@@ -283,7 +284,7 @@ public sealed class EditCopyActivity : Activity
             fields["Nickname"].Text, Number("Level"), Changed("Item", current.HeldItem), Changed("Status", current.Status_Condition), Number("Strain"), Number("Days"),
             Enumerable.Range(0, 4).Select(i => selections[$"Move{i}"]).ToArray(),
             Enumerable.Range(0, 6).Select(i => Number($"IV{i}")).ToArray(), Enumerable.Range(0, 6).Select(i => Number($"EV{i}")).ToArray(),
-            Nature: Changed("Nature", (int)current.Nature), AbilityIndex: Changed("Ability", current.AbilityNumber >> 1),
+            Nature: Changed("Nature", (int)current.Nature), AbilityIndex: Changed("Ability", CurrentAbilityIndex),
             Gender: Changed("Gender", current.Gender), Form: Changed("Form", current.Form),
             Shiny: flags["Shiny"].Checked == current.IsShiny ? null : flags["Shiny"].Checked, Egg: flags["Egg"].Checked == current.IsEgg ? null : flags["Egg"].Checked));
         if (standardNickname && edited.Nickname == SpeciesName.GetSpeciesNameGeneration(edited.Species, edited.Language, edited.Generation))
@@ -315,22 +316,58 @@ public sealed class EditCopyActivity : Activity
             if (!outcome.Valid) { ShowError(outcome.FailureReason ?? "无法生成合法结果；当前工作副本未修改。"); return; }
             var sourceFields = Describe(current);
             var targetFields = Describe(outcome.Pokemon);
+            var editedFields = Describe(edited).ToDictionary(field => field.Name, field => field.Value);
             var changes = sourceFields.Zip(targetFields).Where(pair => pair.First.Value != pair.Second.Value)
-                .Select(pair => $"{pair.First.Name}：{pair.First.Value} → {pair.Second.Value}").ToArray();
-            var message = (changes.Length == 0 ? "列出的属性无变化。" : string.Join("\n", changes))
-                + $"\n\n处理：{string.Join("、", outcome.Changes)}\n确认后更新当前工作副本，原始备份保留。";
+                .ToArray();
             var dialog = new Dialog(this);
             var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
             panel.SetPadding(Dp(16), Dp(16), Dp(16), Dp(16));
             panel.Background = Panel("#0F201C");
             panel.AddView(Text("确认合法化更新", 19, "#D6FF63"));
-            var preview = Text(message, 14);
-            preview.SetPadding(0, Dp(12), 0, Dp(12));
+            panel.AddView(Text("已通过合法性检查，请核对更新内容。", 12, "#8DE4D1"),
+                new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8), BottomMargin = Dp(14) });
+            var preview = new LinearLayout(this) { Orientation = Orientation.Vertical };
+            foreach (var category in new[] { 0, 1, 2 })
+            {
+                var group = changes.Where(pair => (pair.First.Name.EndsWith("能力值", StringComparison.Ordinal) ? 1
+                    : pair.First.Name is "PID" or "经验值" || editedFields[pair.First.Name] == pair.First.Value ? 2 : 0) == category).ToArray();
+                if (group.Length == 0) continue;
+                var card = Card(preview, category == 0 ? "你的修改" : category == 1 ? "能力值变化" : "后台调整");
+                if (category != 0)
+                    card.AddView(Text(category == 1 ? "根据性格、个体值和努力值自动计算。" : "自动维护数据关联与合法性。", 11, "#91AAA1"),
+                        new LinearLayout.LayoutParams(-1, -2) { BottomMargin = Dp(10) });
+                var headings = Row(card);
+                foreach (var label in new[] { "项目", "修改前", "修改后" })
+                    headings.AddView(Text(label, 11, "#91AAA1"), new LinearLayout.LayoutParams(0, -2, 1) { BottomMargin = Dp(8) });
+                foreach (var pair in group)
+                {
+                    var row = Row(card);
+                    row.AddView(Text(pair.First.Name, 12, "#91AAA1"), new LinearLayout.LayoutParams(0, -2, 1));
+                    row.AddView(Text(pair.First.Value, 13), new LinearLayout.LayoutParams(0, -2, 1) { RightMargin = Dp(8) });
+                    row.AddView(Text(pair.Second.Value, 13, "#8DE4D1"), new LinearLayout.LayoutParams(0, -2, 1));
+                    row.SetPadding(0, Dp(7), 0, Dp(7));
+                }
+            }
+            if (changes.Length == 0) preview.AddView(Text("属性无变化。", 14));
+            var details = Text(string.Join("\n\n", outcome.Changes), 12, "#91AAA1");
+            details.Visibility = global::Android.Views.ViewStates.Gone;
+            details.SetPadding(0, Dp(10), 0, Dp(14));
+            var showDetails = Action("查看处理说明 ▾");
+            showDetails.Click += (_, _) =>
+            {
+                var show = details.Visibility != global::Android.Views.ViewStates.Visible;
+                details.Visibility = show ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+                showDetails.Text = show ? "收起处理说明 ▴" : "查看处理说明 ▾";
+            };
+            preview.AddView(showDetails, new LinearLayout.LayoutParams(-1, Dp(40)));
+            preview.AddView(details);
             var scroll = new ScrollView(this);
             scroll.AddView(preview);
             preview.Measure(global::Android.Views.View.MeasureSpec.MakeMeasureSpec((int)(Resources!.DisplayMetrics!.WidthPixels * .9f) - Dp(32), global::Android.Views.MeasureSpecMode.Exactly),
                 global::Android.Views.View.MeasureSpec.MakeMeasureSpec(0, global::Android.Views.MeasureSpecMode.Unspecified));
-            panel.AddView(scroll, new LinearLayout.LayoutParams(-1, Math.Min(Dp(360), preview.MeasuredHeight)));
+            panel.AddView(scroll, new LinearLayout.LayoutParams(-1, Math.Min(Dp(360), preview.MeasuredHeight + Dp(100))));
+            panel.AddView(Text("确认后仅更新工作副本，原始备份保留。", 11, "#91AAA1"),
+                new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12), BottomMargin = Dp(12) });
             var actions = Row(panel);
             var cancel = Action("取消");
             cancel.Click += (_, _) => dialog.Dismiss();
@@ -351,14 +388,15 @@ public sealed class EditCopyActivity : Activity
         finally { if (!IsFinishing && !IsDestroyed) save.Enabled = legalize.Enabled = true; }
     }
 
-    static (string Name, string Value)[] Describe(PKM p) =>
+    (string Name, string Value)[] Describe(PKM p) =>
     [
         ("种类 / 形态", $"{p.Species} / {p.Form}"), ("昵称", p.Nickname), ("等级", $"{p.CurrentLevel}"),
-        ("性格", $"{p.Nature}"), ("特性", $"{p.Ability}"), ("性别", $"{p.Gender}"),
-        ("闪光", $"{p.IsShiny}"), ("蛋", $"{p.IsEgg}"), ("PID", $"{p.PID:X8}"),
-        ("个体值 HP/攻/防/速/特攻/特防", $"{p.IV_HP}/{p.IV_ATK}/{p.IV_DEF}/{p.IV_SPE}/{p.IV_SPA}/{p.IV_SPD}"),
-        ("努力值 HP/攻/防/速/特攻/特防", $"{p.EV_HP}/{p.EV_ATK}/{p.EV_DEF}/{p.EV_SPE}/{p.EV_SPA}/{p.EV_SPD}"),
-        ("六维能力 HP/攻/防/速/特攻/特防", string.Join("/", p.GetStats(p.PersonalInfo).ToArray())),
+        ("性格", names.Natures[(int)p.Nature]), ("特性", names.Ability[p.Ability]), ("性别", p.Gender == 0 ? "雄性" : p.Gender == 1 ? "雌性" : "无性别"),
+        ("经验值", $"{p.EXP}"),
+        ("闪光", p.IsShiny ? "是" : "否"), ("蛋", p.IsEgg ? "是" : "否"), ("PID", $"{p.PID:X8}"),
+        .. DescribeStats("个体值", [p.IV_HP, p.IV_ATK, p.IV_DEF, p.IV_SPE, p.IV_SPA, p.IV_SPD]),
+        .. DescribeStats("努力值", [p.EV_HP, p.EV_ATK, p.EV_DEF, p.EV_SPE, p.EV_SPA, p.EV_SPD]),
+        .. DescribeStats("能力值", Array.ConvertAll(p.GetStats(p.PersonalInfo), value => (int)value)),
         ("招式", $"{p.Move1}/{p.Move2}/{p.Move3}/{p.Move4}"),
         ("招式 PP", $"{p.Move1_PP}/{p.Move2_PP}/{p.Move3_PP}/{p.Move4_PP}"),
         ("道具 / 状态", $"{p.HeldItem} / {p.Status_Condition}"), ("宝可病毒", $"{p.PokerusStrain}/{p.PokerusDays}"),
@@ -367,6 +405,10 @@ public sealed class EditCopyActivity : Activity
         ("相遇日期", $"{p.MetDate}"), ("蛋日期", $"{p.EggMetDate}"),
         ("精灵球 / 语言", $"{p.Ball} / {p.Language}"), ("亲密度", $"{p.CurrentFriendship}"),
     ];
+
+    static IEnumerable<(string Name, string Value)> DescribeStats(string group, int[] values) =>
+        new[] { ("HP", 0), ("攻击", 1), ("防御", 2), ("特攻", 4), ("特防", 5), ("速度", 3) }
+            .Select(stat => ($"{stat.Item1}{group}", values[stat.Item2].ToString()));
 
     void ShowError(string message)
     {

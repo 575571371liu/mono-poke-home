@@ -242,6 +242,12 @@ public static class LocalRepository
                 if (new LegalityAnalysis(candidate).Valid)
                     return new(candidate, true, "固定属性", [$"按来源语言恢复名称：{source.Nickname} → {candidate.Nickname}；训练家及固定属性不变"]);
             }
+            if (source is PK4 { IsEgg: false, Generation: 4 } && analysis.EncounterMatch is IEncounterSlot4)
+            {
+                var repaired = RepairWildGen4Background(source, analysis);
+                if (repaired is not null)
+                    return repaired;
+            }
             return new(source.Clone(), false, "固定属性", [],
                 $"未找到保留全部固定信息的合法结果；当前数据未修改。\n{new LegalityAnalysis(source).Report()}");
         }
@@ -249,6 +255,58 @@ public static class LocalRepository
         {
             return new(source.Clone(), false, "固定属性", [], $"无法完成检查；当前数据未修改：{ex.Message}");
         }
+    }
+
+    static RepairOutcome? RepairWildGen4Background(PKM source, LegalityAnalysis analysis)
+    {
+        var candidate = source.Clone();
+        var changes = new List<string>();
+        if (analysis.Results.Any(r => !r.Valid && r.Identifier == CheckIdentifier.Nickname) && source.Language is 1 or 2)
+        {
+            candidate.PrepareNickname();
+            candidate.Nickname = SpeciesName.GetSpeciesNameGeneration(source.Species, source.Language, source.Generation);
+            candidate.IsNicknamed = false;
+            changes.Add($"按来源语言恢复名称：{source.Nickname} → {candidate.Nickname}");
+        }
+        if (analysis.Results.Any(r => r.Result is LegalityCheckResultCode.EffortUntrainedCap_0 or LegalityCheckResultCode.EffortUntrainedMoreEXP_0))
+        {
+            var metLevel = Math.Max(source.MetLevel, analysis.EncounterMatch.LevelMin);
+            var growth = PersonalTable.HGSS[analysis.EncounterMatch.Species].EXPGrowth;
+            var baseEXP = Experience.GetEXP((byte)metLevel, growth);
+            Span<int> evs = stackalloc int[6];
+            source.GetEVs(evs);
+            var required = baseEXP + (uint)Math.Max(1, EffortExpLegality.GetRequiredEffortEXP(evs, 0, source.IsPokerusInfected, source.Generation, source.Format));
+            candidate.EXP = Math.Max(source.EXP, required);
+            if (candidate.CurrentLevel != source.CurrentLevel)
+                return new(source.Clone(), false, "固定属性", [], "这些努力值需要更多经验值，补足经验会改变等级；当前数据未修改。请调整努力值或等级后重新预览。");
+            changes.Add($"补足努力值训练所需经验，等级不变：{source.EXP} → {candidate.EXP}");
+        }
+        if (IsLegal(candidate))
+            return new(candidate, true, "固定属性", changes);
+
+        // ponytail: ordinary Gen 4 wild Method 1 and Cute Charm only; other encounter methods remain rejected.
+        Span<uint> seeds = stackalloc uint[LCRNG.MaxCountSeedsIV];
+        var count = LCRNGReversal.GetSeedsIVs(seeds, (uint)source.IV_HP, (uint)source.IV_ATK, (uint)source.IV_DEF,
+            (uint)source.IV_SPA, (uint)source.IV_SPD, (uint)source.IV_SPE);
+        var pids = new List<uint>(count + 1);
+        foreach (var seed in seeds[..count])
+            pids.Add((seed & 0xffff0000) | (LCRNG.Prev(seed) >> 16));
+        if (source.Gender is 0 or 1)
+            pids.Add(source.Gender == 1 ? CuteCharm4.GetPIDFemale((uint)source.Nature)
+                : CuteCharm4.GetPIDMale(source.PersonalInfo.Gender, (uint)source.Nature));
+        foreach (var pid in pids.Distinct())
+        {
+            candidate.PID = pid;
+            if (candidate.Nature != source.Nature || candidate.IsShiny != source.IsShiny
+                || EntityGender.GetFromPID(source.Species, pid) != source.Gender
+                || source.PersonalInfo.GetAbilityAtIndex((int)(pid & 1)) != source.Ability)
+                continue;
+            if (!IsLegal(candidate))
+                continue;
+            changes.Add($"恢复 PID 与个体值、性格、性别、闪光和特性的关联：{source.PID:X8} → {pid:X8}；上述属性不变");
+            return new(candidate, true, "固定属性", changes);
+        }
+        return null;
     }
 
     /// <summary>Rebuilds an entity for an explicitly requested conversion or new legal copy.</summary>

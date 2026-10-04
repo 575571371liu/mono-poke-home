@@ -8,6 +8,34 @@ namespace MonoHome.Verifier;
 
 static class FixedFieldChecks
 {
+    public static void CheckEdited(string path, string root)
+    {
+        var source = EntityFormat.GetFromBytes(File.ReadAllBytes(path))!;
+        var input = source.Data.ToArray();
+        var outcome = LocalRepository.RepairPreservingFields(source);
+        if (!outcome.Valid || !new LegalityAnalysis(outcome.Pokemon).Valid)
+            throw new InvalidOperationException(outcome.FailureReason);
+        // Gen4 ability slot is derived from PID, while the actual ability ID must remain identical.
+        var differences = Differences(Snapshot(source), Snapshot(outcome.Pokemon)).Where(key => key != "AbilitySlot").ToArray();
+        var restored = outcome.Pokemon.Clone();
+        restored.PID = source.PID;
+        restored.EXP = source.EXP;
+        if (differences.Length != 0 || !restored.Data.SequenceEqual(input) || !source.Data.SequenceEqual(input))
+            throw new InvalidOperationException("Edited repair changed fields outside PID/EXP or mutated input: " + string.Join(",", differences));
+        var stored = LocalRepository.Upload(source, root);
+        var originalHash = SHA256.HashData(File.ReadAllBytes(stored.OriginalPath));
+        var reloaded = LocalRepository.LoadWorking(LocalRepository.SaveWorking(stored, outcome.Pokemon));
+        if (!reloaded.Data.SequenceEqual(outcome.Pokemon.Data) || !new LegalityAnalysis(reloaded).Valid
+            || !originalHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(stored.OriginalPath))))
+            throw new InvalidOperationException("Edited repair failed persistence or changed backup.");
+        var impossible = source.Clone();
+        impossible.Move1 = (ushort)(impossible.MaxMoveID + 1);
+        var rejected = LocalRepository.RepairPreservingFields(impossible);
+        if (rejected.Valid || !rejected.Pokemon.Data.SequenceEqual(impossible.Data))
+            throw new InvalidOperationException("Impossible move was accepted or rejection changed data.");
+        Console.WriteLine($"PASS: reported edited entity legal; PID {source.PID:X8}→{outcome.Pokemon.PID:X8}, EXP {source.EXP}→{outcome.Pokemon.EXP}; all user fields and bytes outside PID/EXP preserved; persisted legal; backup unchanged; impossible edit rejected unchanged.");
+    }
+
     public static void CompareSaved(string beforePath, string afterPath, string evidencePath)
     {
         var before = EntityFormat.GetFromBytes(File.ReadAllBytes(beforePath))!;

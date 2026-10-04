@@ -9,6 +9,12 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
+if (args.Length == 2 && args[0] == "--edited-legality-check")
+{
+    FixedFieldChecks.CheckEdited(args[1], TestEnvironment.NewScratchDirectory("edited-legality"));
+    return;
+}
+
 if (args.Length == 4 && args[0] == "--compare-fixed-entities")
 {
     FixedFieldChecks.CompareSaved(args[1], args[2], args[3]);

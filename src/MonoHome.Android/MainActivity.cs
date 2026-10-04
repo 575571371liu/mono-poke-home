@@ -26,7 +26,7 @@ public class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.6";
+    const string CurrentVersion = "1.2.7";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -149,7 +149,9 @@ public class MainActivity : Activity
     string WarehousePath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "warehouse");
     string SavesPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "saves");
     string TransfersPath => global::System.IO.Path.Combine(FilesDir!.AbsolutePath, "transfers");
-    int Dp(float value) => (int)(value * Resources!.DisplayMetrics!.Density + 0.5f);
+    global::Android.Content.Res.Resources AppResources => Resources ?? throw new InvalidOperationException("Activity resources are unavailable.");
+    global::Android.Util.DisplayMetrics ScreenMetrics => AppResources.DisplayMetrics ?? throw new InvalidOperationException("Screen metrics are unavailable.");
+    int Dp(float value) => (int)(value * ScreenMetrics.Density + 0.5f);
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -920,6 +922,7 @@ public class MainActivity : Activity
         try
         {
             status!.Text = "正在检查版本更新…";
+            Toast.MakeText(this, status.Text, ToastLength.Short)!.Show();
             using var client = new HttpClient();
             client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MonoHome", CurrentVersion));
             using var response = await client.GetAsync(ReleaseApiUrl);
@@ -935,6 +938,7 @@ public class MainActivity : Activity
             if (latest.CompareTo(ParseReleaseVersion(CurrentVersion)) <= 0)
             {
                 status.Text = $"当前已是最新版本（{CurrentVersion}）。";
+                ShowSyncMessage("版本更新", status.Text);
                 return;
             }
 
@@ -952,6 +956,7 @@ public class MainActivity : Activity
         catch (Exception ex)
         {
             status!.Text = $"版本检查失败：{ex.Message}";
+            ShowSyncMessage("版本检查失败", status.Text);
         }
     }
 
@@ -970,6 +975,7 @@ public class MainActivity : Activity
         catch (Exception ex)
         {
             status!.Text = $"无法打开下载页面：{ex.Message}";
+            ShowSyncMessage("无法打开下载页面", status.Text);
         }
     }
 
@@ -1422,7 +1428,7 @@ public class MainActivity : Activity
             previous.Enabled = pageIndex > 0;
             next.Enabled = pageIndex < pages.Length - 1;
             grid.RemoveAllViews();
-            var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - Dp(70)) / 5);
+            var width = Math.Max(42, (ScreenMetrics.WidthPixels - Dp(70)) / 5);
             foreach (var slot in page.Slots)
             {
                 View tile;
@@ -1462,7 +1468,7 @@ public class MainActivity : Activity
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), (int)(ScreenMetrics.HeightPixels * 0.88f));
         }
     }
 
@@ -1549,7 +1555,7 @@ public class MainActivity : Activity
             previous.Enabled = pageIndex > 0;
             next.Enabled = pageIndex < pages.Length - 1;
             grid.RemoveAllViews();
-            var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - Dp(70)) / 5);
+            var width = Math.Max(42, (ScreenMetrics.WidthPixels - Dp(70)) / 5);
             foreach (var slot in page.Slots)
             {
                 var destinationSlot = pageIndex * page.Capacity + slot.Index;
@@ -1596,7 +1602,7 @@ public class MainActivity : Activity
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), (int)(ScreenMetrics.HeightPixels * 0.88f));
         }
     }
 
@@ -1838,9 +1844,9 @@ public class MainActivity : Activity
         sourceBoxTitle.Text = sourceFilter.Count == 0
             ? $"{page.Name}\n{occupied} / {page.Capacity} 槽位"
             : $"{page.Name}\n筛选 {matched} / {pages.Sum(p => p.Slots.Count(slot => slot.Pokemon is { } pokemon && sourceFilter.Matches(pokemon)))} 只";
-        var columns = Resources!.DisplayMetrics!.WidthPixels / Resources.DisplayMetrics.Density >= 600 ? 6 : 5;
+        var columns = Resources!.DisplayMetrics!.WidthPixels / ScreenMetrics.Density >= 600 ? 6 : 5;
         sourceBoxGrid.ColumnCount = columns;
-        var width = Math.Max(42, (Resources.DisplayMetrics.WidthPixels - (int)(Resources.DisplayMetrics.Density * 64)) / columns);
+        var width = Math.Max(42, (ScreenMetrics.WidthPixels - (int)(ScreenMetrics.Density * 64)) / columns);
 
         foreach (var slot in page.Slots)
         {
@@ -1926,10 +1932,10 @@ public class MainActivity : Activity
     void ShowSourceSlotUnavailable(PokemonSlot slot, bool selected, string message)
     {
         var fallback = new AlertDialog.Builder(this)!;
-        fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}")
-            .SetMessage($"{message}\n\n位置：{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n状态：{(slot.IsShiny ? "闪光" : "普通")}")
-            .SetNegativeButton("关闭", (_, _) => { })
-            .SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) => ToggleSourceSlot(slot));
+        fallback.SetTitle($"{ChineseSpeciesName(slot.Species)} · Lv.{slot.Level}");
+        fallback.SetMessage($"{message}\n\n位置：{slot.Location} {slot.Box + 1}-{slot.Slot + 1}\n状态：{(slot.IsShiny ? "闪光" : "普通")}");
+        fallback.SetNegativeButton("关闭", (_, _) => { });
+        fallback.SetPositiveButton(selected ? "移出本次上传" : "加入本次上传", (_, _) => ToggleSourceSlot(slot));
         ShowSafely(fallback.Create()!);
     }
 
@@ -2221,7 +2227,7 @@ public class MainActivity : Activity
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.92f), (int)(Resources.DisplayMetrics.HeightPixels * 0.78f));
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.92f), (int)(ScreenMetrics.HeightPixels * 0.78f));
         }
     }
 
@@ -2394,7 +2400,7 @@ public class MainActivity : Activity
         next.Click += (_, _) => { warehousePageIndex = (warehousePageIndex + 1) % boxCount; RenderWarehouseGrid(); };
 
         var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
-        var width = Math.Max(42, (Resources!.DisplayMetrics!.WidthPixels - (int)(Resources.DisplayMetrics.Density * 64)) / 5);
+        var width = Math.Max(42, (Resources!.DisplayMetrics!.WidthPixels - (int)(ScreenMetrics.Density * 64)) / 5);
         for (var slotIndex = 0; slotIndex < slotsPerBox; slotIndex++)
         {
             var recordIndex = warehousePageIndex * slotsPerBox + slotIndex;
@@ -2494,7 +2500,6 @@ public class MainActivity : Activity
         var item = pokemon.HeldItem == 0 ? "无" : StringAt(strings.GetItemStrings(pokemon.Context, pokemon.Version), pokemon.HeldItem, $"道具 #{pokemon.HeldItem}");
         var ability = StringAt(strings.Ability, pokemon.Ability, $"特性 #{pokemon.Ability}");
         var nature = StringAt(strings.Natures, (int)pokemon.Nature, pokemon.Nature.ToString());
-        int Dp(float value) => (int)(value * Resources.DisplayMetrics.Density + 0.5f);
         TextView Text(string value, float size, string color, bool bold = false)
         {
             var view = new TextView(this) { Text = value, TextSize = size };
@@ -2544,7 +2549,7 @@ public class MainActivity : Activity
                 window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
                 window.SetDimAmount(0.72f);
                 window.AddFlags(WindowManagerFlags.DimBehind);
-                window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.86f), WindowManagerLayoutParams.WrapContent);
+                window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.86f), WindowManagerLayoutParams.WrapContent);
             }
         }
 
@@ -2563,7 +2568,7 @@ public class MainActivity : Activity
         }
         View TypeBadge(byte typeId, string typeName)
         {
-            var iconId = Resources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
+            var iconId = AppResources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
             if (iconId == 0)
             {
                 var fallback = Text(typeName, 8, "#DCEBE6", true);
@@ -2642,7 +2647,7 @@ public class MainActivity : Activity
                 var category = MoveCategoryText(move, typeId, pokemon.Context, moveData);
                 var categoryKey = category == "物理" ? "physical" : category == "特殊" ? "special" : "status";
                 var categoryImage = new ImageView(this);
-                var categoryIconId = Resources.GetIdentifier($"move_category_{categoryKey}", "drawable", PackageName);
+                var categoryIconId = AppResources.GetIdentifier($"move_category_{categoryKey}", "drawable", PackageName);
                 if (categoryIconId != 0)
                     categoryImage.SetImageResource(categoryIconId);
                 categoryImage.SetScaleType(ImageView.ScaleType.CenterInside);
@@ -2754,7 +2759,7 @@ public class MainActivity : Activity
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.94f), (int)(Resources.DisplayMetrics.HeightPixels * 0.96f));
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), (int)(ScreenMetrics.HeightPixels * 0.96f));
         }
     }
 
@@ -2765,7 +2770,7 @@ public class MainActivity : Activity
         {
             try
             {
-                using var stream = Resources.OpenRawResource(Resource.Raw.ability_effects_zh);
+                using var stream = AppResources.OpenRawResource(Resource.Raw.ability_effects_zh);
                 using var reader = new StreamReader(stream);
                 var entries = JsonSerializer.Deserialize<List<AbilityEffectEntry>>(reader.ReadToEnd()) ?? [];
                 abilityEffects = entries
@@ -2791,7 +2796,7 @@ public class MainActivity : Activity
         {
             try
             {
-                using var stream = Resources.OpenRawResource(Resource.Raw.move_data_zh);
+                using var stream = AppResources.OpenRawResource(Resource.Raw.move_data_zh);
                 using var reader = new StreamReader(stream);
                 var entries = JsonSerializer.Deserialize<List<MoveEffectData>>(reader.ReadToEnd()) ?? [];
                 moveEffects = entries.GroupBy(entry => entry.Id).ToDictionary(group => group.Key, group => group.First());
@@ -2880,7 +2885,6 @@ public class MainActivity : Activity
                 return;
             }
             var strings = GameInfo.GetStrings("zh-Hans");
-            int Dp(float value) => (int)(value * Resources.DisplayMetrics.Density + 0.5f);
             TextView Text(string value, float size, string color, bool bold = false)
             {
                 var view = new TextView(this) { Text = value, TextSize = size };
@@ -2902,7 +2906,7 @@ public class MainActivity : Activity
             {
                 var typeId = MoveInfo.GetType(move, current.Context);
                 var typeName = StringAt(strings.Types, typeId, "未知属性");
-                var iconId = Resources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
+                var iconId = AppResources.GetIdentifier($"type_icon_s_{typeId:D2}", "drawable", PackageName);
                 if (iconId == 0)
                 {
                     var fallback = Text(typeName, 8, "#DCEBE6", true);
@@ -3002,7 +3006,7 @@ public class MainActivity : Activity
                 window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
                 window.SetDimAmount(0.72f);
                 window.AddFlags(WindowManagerFlags.DimBehind);
-                window.SetLayout((int)(Resources.DisplayMetrics.WidthPixels * 0.92f), (int)(Resources.DisplayMetrics.HeightPixels * 0.88f));
+                window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.92f), (int)(ScreenMetrics.HeightPixels * 0.88f));
             }
         }
         catch (Exception ex)
@@ -3463,9 +3467,13 @@ sealed class CompactSpinnerAdapter : ArrayAdapter<string>
         SetDropDownViewResource(global::Android.Resource.Layout.SimpleSpinnerDropDownItem);
     }
 
-    public override View GetView(int position, View? convertView, ViewGroup? parent) => Style(base.GetView(position, convertView, parent));
+    public override View GetView(int position, View? convertView, ViewGroup parent) => Style(base.GetView(position, convertView, parent));
 
-    public override View GetDropDownView(int position, View? convertView, ViewGroup? parent) => Style(base.GetDropDownView(position, convertView, parent));
+    public override View? GetDropDownView(int position, View? convertView, ViewGroup? parent)
+    {
+        var view = base.GetDropDownView(position, convertView, parent);
+        return view is null ? null : Style(view);
+    }
 
     static View Style(View view)
     {
