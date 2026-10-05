@@ -21,12 +21,12 @@ using MonoHome.Core.Transfers;
 using MonoHome.Android.Sync;
 
 [Activity(Label = "@string/app_name", MainLauncher = true, Theme = "@style/AppTheme")]
-public class MainActivity : Activity
+public partial class MainActivity : Activity
 {
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.7";
+    const string CurrentVersion = "1.2.9";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -69,6 +69,10 @@ public class MainActivity : Activity
     LinearLayout? warehouseActionbar;
     TextView? warehouseSelectedCount;
     Button? warehouseBatchDownload;
+    Button? warehouseRelease;
+    bool operationBusy;
+    bool warehouseReleaseRunning;
+    string? warehouseError;
     readonly HashSet<string> selectedWarehouseIds = [];
     LinearLayout? transferVisual;
     TextView? transferCaption;
@@ -231,6 +235,7 @@ public class MainActivity : Activity
         warehouseActionbar = FindViewById<LinearLayout>(Resource.Id.warehouse_actionbar);
         warehouseSelectedCount = FindViewById<TextView>(Resource.Id.warehouse_selected_count);
         warehouseBatchDownload = FindViewById<Button>(Resource.Id.warehouse_batch_download);
+        warehouseRelease = FindViewById<Button>(Resource.Id.warehouse_release);
         transferVisual = FindViewById<LinearLayout>(Resource.Id.transfer_visual);
         transferCaption = FindViewById<TextView>(Resource.Id.transfer_caption);
         transferPacket = FindViewById<View>(Resource.Id.transfer_packet);
@@ -251,11 +256,11 @@ public class MainActivity : Activity
         evsInput = FindViewById<EditText>(Resource.Id.evs_input);
         saveNicknameButton = FindViewById<Button>(Resource.Id.save_nickname);
         discardEditsButton = FindViewById<Button>(Resource.Id.discard_edits);
-        warehousePicker!.ItemSelected += (_, _) => SelectWarehousePokemon();
         uploadButton!.Click += async (_, _) => await UploadSelectedAsync();
         sourcePreviousBox!.Click += (_, _) => CycleSourceBox(-1);
         sourceNextBox!.Click += (_, _) => CycleSourceBox(1);
         warehouseBatchDownload!.Click += (_, _) => ShowWarehouseTargetChooser();
+        warehouseRelease!.Click += (_, _) => ShowWarehouseRelease(allWarehouse.Where(r => selectedWarehouseIds.Contains(r.Id)).ToArray());
         saveNicknameButton!.Click += (_, _) => SaveNickname();
         discardEditsButton!.Click += (_, _) => DiscardEdits();
         transferButton!.Click += (_, _) =>
@@ -279,7 +284,7 @@ public class MainActivity : Activity
         };
         exportBackupButton!.Click += (_, _) => BeginBackupExport();
         topImportButton!.Click += (_, _) => ShowImportChooser();
-        refreshSavesButton!.Click += async (_, _) => await RefreshRegisteredSavesAsync();
+        refreshSavesButton!.Click += async (_, _) => { RefreshWarehouse(storedPokemon?.Id, preserveView: true); await RefreshRegisteredSavesAsync(); };
         warehouseFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog();
         sourceFilterButton!.Click += (_, _) => ShowWarehouseFilterDialog(source: true);
         settingsButton!.Click += (_, _) => ShowSettingsDialog();
@@ -1252,7 +1257,7 @@ public class MainActivity : Activity
 
     async Task GenerateBatchTransferAsync(int destinationSlot = -1)
     {
-        var records = warehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
+        var records = allWarehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
         if (records.Length == 0)
             return;
         if (heartGoldBytes is null || status is null || heartGoldExternalState != "已同步")
@@ -1276,6 +1281,7 @@ public class MainActivity : Activity
             {
                 foreach (var record in records)
                     LocalRepository.SetLegality(record, "invalid");
+                RefreshWarehouse(storedPokemon?.Id, preserveView: true);
                 status.Text = $"批量传送未完成：{batch.Message}";
                 return;
             }
@@ -1316,6 +1322,7 @@ public class MainActivity : Activity
 
     void ShowWarehouseTargetChooser()
     {
+        if (operationBusy || warehouseReleaseRunning || warehouseError is not null) return;
         if (selectedWarehouseIds.Count == 0 || status is null)
             return;
 
@@ -1523,7 +1530,7 @@ public class MainActivity : Activity
 
     void ShowBatchTransferPlacementDialog(RegisteredSave target)
     {
-        var records = warehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
+        var records = allWarehouse.Where(record => selectedWarehouseIds.Contains(record.Id)).ToArray();
         if (records.Length == 0 || target.Game is not ("HeartGold" or "SoulSilver"))
             return;
         if (heartGoldPages.Count <= 1)
@@ -1995,12 +2002,12 @@ public class MainActivity : Activity
         if (uploadButton is not null)
         {
             uploadButton.Visibility = selectedSourceSlots.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
-            uploadButton.Enabled = selectedSourceSlots.Count > 0 && ActiveSourceState() == "已同步";
+            uploadButton.Enabled = !operationBusy && !warehouseReleaseRunning && warehouseError is null && selectedSourceSlots.Count > 0 && ActiveSourceState() == "已同步";
             uploadButton.Text = $"上传 {selectedSourceSlots.Count} 只至中央仓库";
         }
         if (transferButton is not null)
         {
-            transferButton.Visibility = centralPage ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
+            transferButton.Visibility = global::Android.Views.ViewStates.Gone;
             transferButton.Text = selectedWarehouseIds.Count > 1
                 ? $"传送已选 {selectedWarehouseIds.Count} 只"
                 : storedPokemon is null
@@ -2036,7 +2043,8 @@ public class MainActivity : Activity
         }
         if (warehouseState is not null)
         {
-            warehouseState.Text = allWarehouse.Count == 0
+            warehouseState.Text = warehouseError is not null ? $"仓库未就绪：{warehouseError}"
+                : allWarehouse.Count == 0
                 ? "本地仓库为空"
                 : warehouse.Count != allWarehouse.Count
                     ? $"筛选结果 · {warehouse.Count} / {allWarehouse.Count} 条记录"
@@ -2050,21 +2058,35 @@ public class MainActivity : Activity
         if (warehouseActionbar is not null)
             warehouseActionbar.Visibility = selectedWarehouseIds.Count == 0 ? global::Android.Views.ViewStates.Gone : global::Android.Views.ViewStates.Visible;
         if (warehouseBatchDownload is not null)
-            warehouseBatchDownload.Enabled = selectedWarehouseIds.Count > 0;
+            warehouseBatchDownload.Enabled = !operationBusy && !warehouseReleaseRunning && warehouseError is null && selectedWarehouseIds.Count > 0;
+        if (warehouseRelease is not null)
+            warehouseRelease.Enabled = !operationBusy && !warehouseReleaseRunning && warehouseError is null && selectedWarehouseIds.Count > 0;
         RenderWarehouseGrid();
         RenderHistory();
     }
 
-    void RefreshWarehouse(string? selectId = null)
+    void RefreshWarehouse(string? selectId = null, bool preserveView = false)
     {
-        allWarehouse = LocalRepository.List(WarehousePath).ToList();
-        ApplyWarehouseFilter(selectId);
+        try
+        {
+            allWarehouse = LocalRepository.List(WarehousePath).ToList();
+            warehouseError = null;
+            ApplyWarehouseFilter(selectId, preserveView);
+        }
+        catch (Exception ex)
+        {
+            warehouseError = ex.Message;
+            allWarehouse = []; warehouse = []; storedPokemon = null;
+            selectedTransferTarget = null; selectedTransferSlot = -1;
+            if (status is not null) status.Text = $"仓库读取失败，未执行放生：{ex.Message}";
+            UpdateButtons();
+        }
     }
 
-    void ApplyWarehouseFilter(string? selectId = null)
+    void ApplyWarehouseFilter(string? selectId = null, bool preserveView = false)
     {
         warehouse = allWarehouse.Where(WarehouseRecordMatches).ToList();
-        RenderFilteredWarehouse(selectId);
+        RenderFilteredWarehouse(selectId, preserveView);
     }
 
     async Task ApplyWarehouseFilterAsync(string? selectId = null)
@@ -2081,17 +2103,17 @@ public class MainActivity : Activity
             warehouseFilterButton.Enabled = true;
     }
 
-    void RenderFilteredWarehouse(string? selectId)
+    void RenderFilteredWarehouse(string? selectId, bool preserveView = false)
     {
         warehousePicker!.Adapter = new ArrayAdapter<string>(this, global::Android.Resource.Layout.SimpleSpinnerDropDownItem,
             warehouse.Select(record => $"{ChineseSpeciesName(record.Species)} · {LegalStatusText(record.LegalityStatus)} · {record.UpdatedAt.LocalDateTime:g}").ToArray());
-        var index = selectId is null ? 0 : warehouse.FindIndex(record => record.Id == selectId);
-        if (index < 0 && warehouse.Count > 0)
+        var index = selectId is null ? preserveView ? -1 : 0 : warehouse.FindIndex(record => record.Id == selectId);
+        if (!preserveView && index < 0 && warehouse.Count > 0)
             index = 0;
         if (index >= 0)
             warehousePicker.SetSelection(index);
         storedPokemon = index >= 0 && index < warehouse.Count ? warehouse[index] : null;
-        warehousePageIndex = 0;
+        if (!preserveView) warehousePageIndex = 0;
         UpdateWarehouseFilterButton();
         UpdateButtons();
     }
@@ -2404,6 +2426,7 @@ public class MainActivity : Activity
         if (warehouseGrid is null)
             return;
         warehouseGrid.RemoveAllViews();
+        if (warehouseError is not null) return;
         const int slotsPerBox = 30;
         var boxCount = Math.Max(1, (warehouse.Count + slotsPerBox - 1) / slotsPerBox);
         warehousePageIndex = Math.Clamp(warehousePageIndex, 0, boxCount - 1);
@@ -2452,11 +2475,11 @@ public class MainActivity : Activity
             else
             {
                 var record = warehouse[recordIndex];
-                var selected = selectedWarehouseIds.Contains(record.Id) || storedPokemon?.Id == record.Id;
+                var selected = selectedWarehouseIds.Contains(record.Id);
                 var image = new ImageButton(this)
                 {
-                    ContentDescription = storedPokemon?.Id == record.Id
-                        ? $"已选传送对象：{ChineseSpeciesName(record.Species)}"
+                    ContentDescription = selected
+                        ? $"已选择：{ChineseSpeciesName(record.Species)}"
                         : $"查看 {ChineseSpeciesName(record.Species)} 详情",
                 };
                 image.SetScaleType(ImageView.ScaleType.CenterInside);
@@ -2467,7 +2490,6 @@ public class MainActivity : Activity
                     image.SetImageResource(icon);
                 image.Click += (_, _) =>
                 {
-                    SelectWarehouseForTransfer(record);
                     ShowWarehouseDetail(record);
                 };
                 image.LongClick += (_, _) => ShowWarehouseActions(record);
@@ -2483,18 +2505,48 @@ public class MainActivity : Activity
 
     void ShowWarehouseActions(StoredPokemon record)
     {
-        var dialog = new AlertDialog.Builder(this)!;
-        dialog.SetTitle(ChineseSpeciesName(record.Species));
-        dialog.SetItems(["查看个体档案", "查看宝可梦图鉴", "编辑 / 合法化更新"], (_, args) =>
+        if (operationBusy || warehouseReleaseRunning || warehouseError is not null) return;
+        var dialog = new Dialog(this);
+        var panel = new LinearLayout(this) { Orientation = Orientation.Vertical };
+        panel.SetPadding(Dp(14), Dp(16), Dp(14), Dp(14));
+        var background = CreateSlotBackground(false, false, true);
+        background.SetColor(Color.ParseColor("#0F201C"));
+        background.SetCornerRadius(Dp(16));
+        background.SetStroke(Dp(1), Color.ParseColor("#315249"));
+        panel.Background = background;
+        var title = new TextView(this) { Text = ChineseSpeciesName(record.Species), TextSize = 16 };
+        title.SetTextColor(Color.ParseColor("#D6FF63"));
+        title.SetIncludeFontPadding(false);
+        panel.AddView(title, new LinearLayout.LayoutParams(-1, -2) { BottomMargin = Dp(12) });
+        string[] labels = ["查看个体档案", "查看宝可梦图鉴", "编辑 / 合法化更新", selectedWarehouseIds.Contains(record.Id) ? "取消选择" : "选择", "放生"];
+        for (var i = 0; i < labels.Length; i++)
         {
-            if (args?.Which == 0)
-                ShowWarehouseDetail(record);
-            else if (args?.Which == 1)
-                StartActivity(new Intent(this, typeof(PokedexActivity)).PutExtra("species", record.Species));
-            else
-                StartActivityForResult(new Intent(this, typeof(EditCopyActivity)).PutExtra("repository_id", record.Id), 30);
-        });
+            var action = i;
+            var button = new Button(this) { Text = labels[i], TextSize = 12, Gravity = GravityFlags.CenterVertical | GravityFlags.Left };
+            button.SetAllCaps(false);
+            button.SetTextColor(Color.ParseColor(i == 4 ? "#FF9B91" : "#8DE4D1"));
+            button.SetPadding(Dp(12), 0, Dp(12), 0);
+            button.Background = new RippleDrawable(global::Android.Content.Res.ColorStateList.ValueOf(Color.ParseColor("#315249")), CreateSlotBackground(false, false, true), null);
+            panel.AddView(button, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(6) });
+            button.Click += (_, _) =>
+            {
+                dialog.Dismiss();
+                if (action == 0) ShowWarehouseDetail(record);
+                else if (action == 1) StartActivity(new Intent(this, typeof(PokedexActivity)).PutExtra("species", record.Species));
+                else if (action == 2) StartActivityForResult(new Intent(this, typeof(EditCopyActivity)).PutExtra("repository_id", record.Id), 30);
+                else if (action == 3) ToggleWarehouseSelection(record);
+                else ShowWarehouseRelease([record]);
+            };
+        }
+        dialog.SetContentView(panel);
         ShowSafely(dialog);
+        if (dialog.Window is { } window)
+        {
+            window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            window.SetDimAmount(.72f);
+            window.AddFlags(WindowManagerFlags.DimBehind);
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * .9f), WindowManagerLayoutParams.WrapContent);
+        }
     }
 
     void ShowWarehouseDetail(StoredPokemon record)
@@ -2504,24 +2556,22 @@ public class MainActivity : Activity
         ShowPokemonDetailDialog(
             pokemon,
             $"来源：{pokemon.Version}\n仓库状态：{LegalStatusText(record.LegalityStatus)}",
-            selected ? "取消选择" : "选择传送对象",
-            () =>
-            {
-                SelectWarehouseForTransfer(record);
-                if (!selectedWarehouseIds.Add(record.Id))
-                    selectedWarehouseIds.Remove(record.Id);
-                RenderWarehouseGrid();
-                UpdateButtons();
-            },
+            selected ? "取消选择" : "选择",
+            () => ToggleWarehouseSelection(record),
             record);
     }
 
-    void SelectWarehouseForTransfer(StoredPokemon record)
+    void ToggleWarehouseSelection(StoredPokemon record)
     {
-        storedPokemon = record;
+        if (operationBusy || warehouseReleaseRunning || warehouseError is not null) return;
+        if (selectedWarehouseIds.Add(record.Id)) storedPokemon = record;
+        else
+        {
+            selectedWarehouseIds.Remove(record.Id);
+            if (storedPokemon?.Id == record.Id) storedPokemon = null;
+        }
         selectedTransferTarget = null;
         selectedTransferSlot = -1;
-        RenderWarehouseGrid();
         UpdateButtons();
     }
 
@@ -3075,15 +3125,6 @@ public class MainActivity : Activity
     static string GenderText(byte gender) => gender switch { 0 => "雄", 1 => "雌", _ => "无性别" };
     static string StatusText(PKM pokemon) => pokemon.Status_Condition == 0 ? "无异常状态" : $"异常状态 #{pokemon.Status_Condition}";
 
-    void SelectWarehousePokemon()
-    {
-        var index = warehousePicker?.SelectedItemPosition ?? -1;
-        if (index < 0 || index >= warehouse.Count)
-            return;
-        storedPokemon = warehouse[index];
-        UpdateButtons();
-    }
-
     static string LegalStatusText(string status) => status switch
     {
         "valid" => "合法",
@@ -3172,6 +3213,9 @@ public class MainActivity : Activity
 
     void SetBusy(bool value)
     {
+        operationBusy = value;
+        if (warehouseBatchDownload is not null) warehouseBatchDownload.Enabled = !value && selectedWarehouseIds.Count > 0 && warehouseError is null;
+        if (warehouseRelease is not null) warehouseRelease.Enabled = !value && selectedWarehouseIds.Count > 0 && warehouseError is null;
         if (refreshSavesButton is not null)
             refreshSavesButton.Enabled = !value;
         if (progress is not null)

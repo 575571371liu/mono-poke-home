@@ -23,10 +23,10 @@ static class FixedFieldChecks
         if (differences.Length != 0 || !restored.Data.SequenceEqual(input) || !source.Data.SequenceEqual(input))
             throw new InvalidOperationException("Edited repair changed fields outside PID/EXP or mutated input: " + string.Join(",", differences));
         var stored = LocalRepository.Upload(source, root);
-        var originalHash = SHA256.HashData(File.ReadAllBytes(stored.OriginalPath));
+        var originalHash = SHA256.HashData(LocalRepository.ReadOriginalBytes(stored));
         var reloaded = LocalRepository.LoadWorking(LocalRepository.SaveWorking(stored, outcome.Pokemon));
         if (!reloaded.Data.SequenceEqual(outcome.Pokemon.Data) || !new LegalityAnalysis(reloaded).Valid
-            || !originalHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(stored.OriginalPath))))
+            || !originalHash.SequenceEqual(SHA256.HashData(LocalRepository.ReadOriginalBytes(stored))))
             throw new InvalidOperationException("Edited repair failed persistence or changed backup.");
         var impossible = source.Clone();
         impossible.Move1 = (ushort)(impossible.MaxMoveID + 1);
@@ -98,13 +98,13 @@ static class FixedFieldChecks
                         errors.Add(label + ": incorrect NPC trainer name");
                 }
                 var stored = LocalRepository.Upload(source, Path.Combine(root, "warehouse"));
-                var originalHash = SHA256.HashData(File.ReadAllBytes(stored.OriginalPath));
+                var originalHash = SHA256.HashData(LocalRepository.ReadOriginalBytes(stored));
                 var saved = LocalRepository.SaveWorking(stored, outcome.Pokemon);
                 var reloaded = LocalRepository.LoadWorking(saved);
                 var persistedDifferences = Differences(after, Snapshot(reloaded));
                 if (persistedDifferences.Length != 0) errors.Add(label + ": persistence changed " + string.Join(", ", persistedDifferences));
                 if (outcome.Valid && !new LegalityAnalysis(reloaded).Valid) errors.Add(label + ": persisted result illegal");
-                if (!originalHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(stored.OriginalPath)))) errors.Add(label + ": rewrote original backup");
+                if (!originalHash.SequenceEqual(SHA256.HashData(LocalRepository.ReadOriginalBytes(stored)))) errors.Add(label + ": rewrote original backup");
                 rows.Add(new { label, originalLegal = new LegalityAnalysis(source).Valid, accepted, differences, persistedDifferences, before, after, persisted = Snapshot(reloaded), outcome.Changes, outcome.FailureReason });
             }
             if (!fileHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(path)))) errors.Add(path + ": source save modified");

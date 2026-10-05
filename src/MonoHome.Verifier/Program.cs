@@ -9,6 +9,24 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
+if (args.Length == 3 && args[0] == "--warehouse-crash-child")
+{
+    WarehouseReleaseChecks.Child(args[1], args[2]);
+    return;
+}
+
+if (args.Contains("--warehouse-release-only"))
+{
+    WarehouseReleaseChecks.Run();
+    return;
+}
+
+if (args.Length == 3 && args[0] == "--warehouse-android-fixture")
+{
+    WarehouseReleaseChecks.AndroidFixture(args[1], args[2]);
+    return;
+}
+
 if (args.Contains("--evolution-guide-only"))
 {
     EvolutionGuideChecks.Run();
@@ -385,7 +403,7 @@ AssertTrue(!new LegalityAnalysis(uploadSource).Valid, "upload regression covers 
 var preservationRoot = TestEnvironment.NewScratchDirectory("preservation");
 var preservedRecord = LocalRepository.Upload(uploadSource, preservationRoot);
 AssertEqual("invalid", preservedRecord.LegalityStatus, "upload reports legality without repairing");
-AssertTrue(File.ReadAllBytes(preservedRecord.OriginalPath).SequenceEqual(File.ReadAllBytes(preservedRecord.WorkingPath)), "upload preserves the complete stored entity, including PID, IVs and EVs");
+AssertTrue(LocalRepository.ReadOriginalBytes(preservedRecord).SequenceEqual(LocalRepository.ReadWorkingBytes(preservedRecord)), "upload preserves the complete stored entity, including PID, IVs and EVs");
 AssertTrue(uploadSource.GetStats(uploadSource.PersonalInfo).SequenceEqual(LocalRepository.LoadWorking(preservedRecord).GetStats(uploadSource.PersonalInfo)), "upload preserves all six calculated stats");
 var preservedEdit = LocalRepository.ApplyEdit(uploadSource, new WorkingEdit("KEEP", null, null, null, null, null));
 preservedRecord = LocalRepository.SaveWorking(preservedRecord, preservedEdit);
@@ -403,11 +421,11 @@ var unchangedMoves = LocalRepository.ApplyEdit(usedMoveSource, new WorkingEdit(n
 AssertEqual(1, unchangedMoves.Move1_PP, "saving displayed moves unchanged preserves remaining PP");
 var stored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, selected), repositoryRoot);
 AssertEqual(stored.Id, LocalRepository.GetLatest(repositoryRoot)!.Id, "repository restores latest upload");
-AssertTrue(File.Exists(stored.ManifestPath), "repository persists a metadata record");
+AssertTrue(File.Exists(stored.DatabasePath), "repository persists a metadata record");
 var secondStored = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[2]), repositoryRoot);
 AssertEqual(2, LocalRepository.List(repositoryRoot).Count, "repository lists multiple uploaded Pokémon");
 AssertEqual(secondStored.Id, LocalRepository.GetLatest(repositoryRoot)!.Id, "repository selects latest record after second upload");
-var originalPokemonHash = Hash(stored.OriginalPath);
+var originalPokemonHash = Convert.ToHexString(SHA256.HashData(LocalRepository.ReadOriginalBytes(stored)));
 var storedPokemon = LocalRepository.LoadWorking(stored);
 AssertEqual(selected.Species, storedPokemon.Species, "repository preserves selected Pokémon");
 storedPokemon = LocalRepository.ApplyEdit(storedPokemon, new WorkingEdit("LOCAL", 25, 1, 0, 0, 0));
@@ -436,20 +454,20 @@ AssertEqual((byte)0, attributeEdit.Gender, "working edit changes gender");
 AssertEqual((byte)0, attributeEdit.Form, "working edit changes form");
 AssertTrue(attributeEdit.IsShiny, "working edit changes shiny state");
 AssertTrue(!attributeEdit.IsEgg, "working edit changes egg state");
-LocalRepository.SaveWorking(stored, storedPokemon);
+stored = LocalRepository.SaveWorking(stored, storedPokemon);
 AssertEqual("LOCAL", LocalRepository.LoadWorking(stored).Nickname, "repository persists working-copy edits");
-AssertEqual(originalPokemonHash, Hash(stored.OriginalPath), "repository original stays unchanged after edits");
+AssertEqual(originalPokemonHash, Convert.ToHexString(SHA256.HashData(LocalRepository.ReadOriginalBytes(stored))), "repository original stays unchanged after edits");
 stored = LocalRepository.DiscardEdits(stored);
 AssertEqual(selected.Nickname, LocalRepository.LoadWorking(stored).Nickname, "discard restores working copy from immutable original");
 storedPokemon = LocalRepository.ApplyEdit(LocalRepository.LoadWorking(stored), new WorkingEdit("LOCAL", 25, 1, 0, 0, 0));
-LocalRepository.SaveWorking(stored, storedPokemon);
-LocalRepository.SetLegality(stored, "valid");
+stored = LocalRepository.SaveWorking(stored, storedPokemon);
+stored = LocalRepository.SetLegality(stored, "valid");
 AssertEqual("valid", LocalRepository.GetLatest(repositoryRoot)!.LegalityStatus, "repository persists legality state");
-var parentHash = Hash(stored.WorkingPath);
+var parentHash = Convert.ToHexString(SHA256.HashData(LocalRepository.ReadWorkingBytes(stored)));
 var copy = LocalRepository.CreateLegalCopy(stored, storedPokemon, repositoryRoot);
 AssertEqual(stored.Id, copy.ParentId!, "legal copy keeps parent ID");
 AssertTrue(copy.Id != stored.Id, "legal copy has its own ID");
-AssertEqual(parentHash, Hash(stored.WorkingPath), "legal copy does not rewrite parent");
+AssertEqual(parentHash, Convert.ToHexString(SHA256.HashData(LocalRepository.ReadWorkingBytes(stored))), "legal copy does not rewrite parent");
 AssertEqual(1L, copy.Revision, "new copy starts at revision 1");
 var registeredTarget = SaveRegistry.Register(File.ReadAllBytes(heartGoldPath), "heartgold.sav", savesRoot, "content://local/heartgold.sav");
 var preparationRoot = TestEnvironment.NewScratchDirectory("preparation");
@@ -626,23 +644,16 @@ var exportedLog = TransferJournal.MarkExported(transferLogRoot, transferLog.Id, 
 AssertEqual("succeeded", exportedLog.Status, "transfer journal records completed export");
 var removable = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), TestEnvironment.NewScratchDirectory("removal"));
 LocalRepository.Remove(removable);
-AssertTrue(!File.Exists(removable.ManifestPath), "transferred repository record is removed");
-AssertTrue(!Directory.Exists(Path.GetDirectoryName(removable.ManifestPath)!), "removal also drops the record directory");
+AssertEqual(0, LocalRepository.List(Path.GetDirectoryName(removable.DatabasePath)!).Count, "transferred repository record and payloads are removed");
 Console.WriteLine("PASS: successful transfer removal deletes the central warehouse record.");
 
 // Removal must only ever delete the record's own folder. A record whose manifest sits in a
 // shared parent would otherwise let the recursive delete wipe that whole directory.
 var sharedRoot = TestEnvironment.NewScratchDirectory("shared-root");
-var sharedManifest = Path.Combine(sharedRoot, "record.json");
-File.WriteAllText(sharedManifest, "{}");
 var bystander = Path.Combine(sharedRoot, "bystander.pkm");
 File.WriteAllBytes(bystander, [1, 2, 3]);
-LocalRepository.Remove(new StoredPokemon(
-    "not-a-guid", 1,
-    Path.Combine(sharedRoot, "original.pkm"),
-    Path.Combine(sharedRoot, "working.pkm"),
-    sharedManifest,
-    DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, "valid"));
+var sharedRecord = LocalRepository.Upload(BoxReader.ReadPokemon(emeraldPath, emeraldPokemon[0]), sharedRoot);
+LocalRepository.Remove(sharedRecord);
 AssertTrue(Directory.Exists(sharedRoot), "removal refuses to delete a directory that is not the record's own");
 AssertTrue(File.Exists(bystander), "removal leaves unrelated files in a shared directory alone");
 Console.WriteLine("PASS: repository removal is confined to the record directory.");

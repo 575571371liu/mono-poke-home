@@ -1,5 +1,3 @@
-using System.Text.Json;
-using MonoHome.Core.Storage;
 using PKHeX.Core;
 
 namespace MonoHome.Core.Repository;
@@ -7,9 +5,7 @@ namespace MonoHome.Core.Repository;
 public sealed record StoredPokemon(
     string Id,
     int Species,
-    string OriginalPath,
-    string WorkingPath,
-    string ManifestPath,
+    string DatabasePath,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     string LegalityStatus,
@@ -43,32 +39,18 @@ public sealed record RepairOutcome(
 
 public static class LocalRepository
 {
-    static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
     static readonly HashSet<string> LegalityStates = ["valid", "invalid", "pending", "stale", "unsupported"];
 
     public static StoredPokemon Upload(PKM pokemon, string root)
     {
-        var id = Guid.NewGuid().ToString("N");
-        var directory = Path.Combine(root, id);
-        Directory.CreateDirectory(directory);
-        var now = DateTimeOffset.UtcNow;
-        var stored = new StoredPokemon(
-            id,
-            pokemon.Species,
-            Path.Combine(directory, "original.pkm"),
-            Path.Combine(directory, "working.pkm"),
-            Path.Combine(directory, "record.json"),
-            now,
-            now,
-            LegalityStatus(pokemon));
-        WritePokemon(stored.OriginalPath, pokemon);
-        WritePokemon(stored.WorkingPath, pokemon);
-        WriteRecord(stored);
-        return stored;
+        return WarehouseDatabase.Insert(pokemon, EntityBytes(pokemon), root, LegalityStatus(pokemon));
     }
 
     public static PKM LoadWorking(StoredPokemon stored) =>
-        EntityFormat.GetFromBytes(File.ReadAllBytes(stored.WorkingPath)) ?? throw new InvalidDataException("Stored Pokémon is unreadable.");
+        EntityFormat.GetFromBytes(ReadWorkingBytes(stored)) ?? throw new InvalidDataException("Stored Pokémon is unreadable.");
+
+    public static byte[] ReadWorkingBytes(StoredPokemon stored) => WarehouseDatabase.ReadPayload(stored, false);
+    public static byte[] ReadOriginalBytes(StoredPokemon stored) => WarehouseDatabase.ReadPayload(stored, true);
 
     public static PKM ApplyEdit(PKM source, WorkingEdit edit)
     {
@@ -190,11 +172,7 @@ public static class LocalRepository
 
     public static StoredPokemon SaveWorking(StoredPokemon stored, PKM pokemon)
     {
-        WritePokemon(stored.WorkingPath, pokemon);
-        var status = LegalityStatus(pokemon);
-        var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status, Revision = stored.Revision + 1 };
-        WriteRecord(updated);
-        return updated;
+        return WarehouseDatabase.Update(stored, EntityBytes(pokemon), pokemon.Species, LegalityStatus(pokemon));
     }
 
     static string LegalityStatus(PKM pokemon)
@@ -468,84 +446,48 @@ public static class LocalRepository
         var repaired = RepairBackground(legalPokemon);
         if (!new LegalityAnalysis(repaired).Valid)
             throw new InvalidOperationException("自动修复背景信息后仍未通过合法性检查，请调整可编辑字段。" );
-        var copy = Upload(repaired, root);
-        var linked = copy with { ParentId = parent.Id, Revision = 1, LegalityStatus = "valid" };
-        WriteRecord(linked);
-        return linked;
+        return WarehouseDatabase.Insert(repaired, EntityBytes(repaired), root, "valid", parent.Id);
     }
 
     public static StoredPokemon DiscardEdits(StoredPokemon stored)
     {
-        var original = EntityFormat.GetFromBytes(File.ReadAllBytes(stored.OriginalPath)) ?? throw new InvalidDataException("Original Pokémon is unreadable.");
-        WritePokemon(stored.WorkingPath, original);
-        var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = "stale" };
-        WriteRecord(updated);
-        return updated;
+        var original = EntityFormat.GetFromBytes(ReadOriginalBytes(stored)) ?? throw new InvalidDataException("Original Pokémon is unreadable.");
+        return WarehouseDatabase.Update(stored, null, original.Species, "stale", restoreOriginal: true);
     }
 
     public static StoredPokemon SetLegality(StoredPokemon stored, string status)
     {
         if (!LegalityStates.Contains(status))
             throw new ArgumentOutOfRangeException(nameof(status));
-        var updated = stored with { UpdatedAt = DateTimeOffset.UtcNow, LegalityStatus = status };
-        WriteRecord(updated);
-        return updated;
+        return WarehouseDatabase.Update(stored, null, stored.Species, status);
     }
 
     public static void Remove(StoredPokemon stored)
     {
-        var directory = Path.GetDirectoryName(stored.ManifestPath) ?? throw new InvalidDataException("Repository record directory is missing.");
-        foreach (var path in new[] { stored.ManifestPath, stored.WorkingPath, stored.OriginalPath })
-            AtomicFile.TryDelete(path);
-
-        // Only the record's own directory may be removed recursively. List() enumerates
-        // record.json at any depth, so a hand-written or legacy manifest placed directly in
-        // the warehouse root would otherwise make this delete the whole warehouse.
-        if (!IsRecordDirectory(directory, stored.Id))
-            return;
-        if (!Directory.Exists(directory))
-            return;
-        // The record's own files are gone, so the directory only holds leftovers such as an
-        // interrupted atomic write. Failing here would report a completed transfer as
-        // failed, so tolerate a locked leftover.
-        try { Directory.Delete(directory, true); }
-        catch (IOException) { }
-        catch (UnauthorizedAccessException) { }
+        Release(Path.GetDirectoryName(stored.DatabasePath)!, [stored]);
     }
 
-    /// <summary>True when <paramref name="directory"/> is the per-record folder for <paramref name="id"/>.</summary>
-    static bool IsRecordDirectory(string directory, string id) =>
-        !string.IsNullOrEmpty(id) &&
-        string.Equals(Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), id, StringComparison.Ordinal);
+    /// <summary>Permanently removes the exact confirmed revisions in one all-or-nothing transaction.</summary>
+    public static void Release(string root, IReadOnlyList<StoredPokemon> records) => WarehouseDatabase.Release(root, records);
 
     public static StoredPokemon? GetLatest(string root)
         => List(root).FirstOrDefault();
 
     public static IReadOnlyList<StoredPokemon> List(string root)
     {
-        if (!Directory.Exists(root))
-            return [];
-        return Directory.EnumerateFiles(root, "record.json", SearchOption.AllDirectories)
-            .Select(ReadRecord)
-            .Where(record => record is not null && File.Exists(record.WorkingPath) && File.Exists(record.OriginalPath))
-            .OrderByDescending(record => record!.UpdatedAt)
-            .Cast<StoredPokemon>()
-            .ToArray();
+        return WarehouseDatabase.List(root);
     }
 
-    static StoredPokemon? ReadRecord(string path) => AtomicFile.TryReadJson<StoredPokemon>(path, Json);
-
-    static void WritePokemon(string path, PKM pokemon)
+    static byte[] EntityBytes(PKM pokemon)
     {
         // Status is party-only data; the stored/box format would silently discard it.
         var data = new byte[pokemon.SIZE_PARTY];
-        pokemon.WriteEncryptedDataParty(data);
+        pokemon.Clone().WriteEncryptedDataParty(data);
         // Verify before committing: moving an unreadable payload into place would destroy
         // the previous working copy with nothing left to fall back to.
-        if (EntityFormat.GetFromBytes(data) is null)
+        if (EntityFormat.GetFromBytes(data.ToArray()) is null)
             throw new InvalidDataException("Working copy verification failed.");
-        AtomicFile.Write(path, data);
+        return data;
     }
 
-    static void WriteRecord(StoredPokemon stored) => AtomicFile.WriteJson(stored.ManifestPath, stored, Json);
 }
