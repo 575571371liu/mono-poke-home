@@ -9,6 +9,24 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
+if (args.Length is 3 or 4 && args[0] == "--trade-evolution-compare-android")
+{
+    TradeEvolutionChecks.CompareAndroid(args[1], args[2], args.Length == 4 ? int.Parse(args[3]) : 1);
+    return;
+}
+
+if (args.Length == 2 && args[0] == "--trade-evolution-android-fixture")
+{
+    TradeEvolutionChecks.AndroidFixture(args[1]);
+    return;
+}
+
+if (args.Contains("--trade-evolution"))
+{
+    TradeEvolutionChecks.Run();
+    return;
+}
+
 if (args.Length == 3 && args[0] == "--warehouse-crash-child")
 {
     WarehouseReleaseChecks.Child(args[1], args[2]);
@@ -51,6 +69,7 @@ if (args.Contains("--fixed-fields-only"))
     FixedFieldChecks.Run(LocalRepository.RepairPreservingFields, TestEnvironment.NewScratchDirectory("fixed-fields"), emeraldPath, heartGoldPath);
     return;
 }
+TradeEvolutionChecks.Run();
 var emeraldHash = Hash(emeraldPath);
 var heartGoldHash = Hash(heartGoldPath);
 var emerald = SaveInspector.Inspect(emeraldPath);

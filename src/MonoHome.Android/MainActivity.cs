@@ -2078,7 +2078,7 @@ public partial class MainActivity : Activity
             warehouseError = ex.Message;
             allWarehouse = []; warehouse = []; storedPokemon = null;
             selectedTransferTarget = null; selectedTransferSlot = -1;
-            if (status is not null) status.Text = $"仓库读取失败，未执行放生：{ex.Message}";
+            if (status is not null) status.Text = $"仓库读取失败，请刷新重试：{ex.Message}";
             UpdateButtons();
         }
     }
@@ -2708,7 +2708,9 @@ public partial class MainActivity : Activity
         heading.AddView(training, new LinearLayout.LayoutParams(-1, -2));
         body.AddView(header);
 
-        var evolutionGame = guideGame ?? MonoHome.Core.Pokemon.EvolutionGuide.DefaultGame(pokemon);
+        var evolutionGame = guideGame ?? (warehouseRecord is not null
+            ? MonoHome.Core.Pokemon.TradeEvolution.DefaultGame(pokemon)
+            : MonoHome.Core.Pokemon.EvolutionGuide.DefaultGame(pokemon));
         var evolutionNext = MonoHome.Core.Pokemon.EvolutionGuide.Family(pokemon.Species)
             .Where(edge => edge.Source.Species == pokemon.Species && edge.Source.Form == pokemon.Form && edge.Context == evolutionGame.Context)
             .DistinctBy(edge => edge.Target).ToArray();
@@ -2721,7 +2723,13 @@ public partial class MainActivity : Activity
         evolutionCard.ContentDescription = "进化与形态，点击查看完整进化链和条件";
         evolutionCard.Click += (_, _) =>
         {
-            var guide = EvolutionGuideDialog.Create(this, pokemon, evolutionGame, guideGame.HasValue);
+            Dialog? guide = null;
+            guide = EvolutionGuideDialog.Create(this, pokemon, evolutionGame, guideGame.HasValue,
+                warehouseRecord is null ? null : (game, target) => ShowTradeEvolution(warehouseRecord, game, target, () =>
+                {
+                    guide?.Dismiss();
+                    dialog.Dismiss();
+                }));
             ShowSafely(guide);
             if (guide.Window is { } guideWindow)
             {

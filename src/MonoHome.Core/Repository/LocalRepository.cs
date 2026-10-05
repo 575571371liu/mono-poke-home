@@ -175,6 +175,18 @@ public static class LocalRepository
         return WarehouseDatabase.Update(stored, EntityBytes(pokemon), pokemon.Species, LegalityStatus(pokemon));
     }
 
+    public static StoredPokemon ApplyTradeEvolution(StoredPokemon stored, GameVersion game, MonoHome.Core.Pokemon.EvolutionNodeKey target)
+    {
+        var source = LoadWorking(stored);
+        var evolved = MonoHome.Core.Pokemon.TradeEvolution.Preview(source, game, target);
+        var bytes = EntityBytes(evolved);
+        var persisted = EntityFormat.GetFromBytes(bytes) ?? throw new InvalidDataException("进化结果无法回读，未保存。");
+        MonoHome.Core.Pokemon.TradeEvolution.VerifyPreserved(source, persisted);
+        if (!new LegalityAnalysis(persisted).Valid)
+            throw new InvalidDataException("进化结果回读后未通过合法性检查，未保存。");
+        return WarehouseDatabase.Update(stored, bytes, persisted.Species, "valid");
+    }
+
     static string LegalityStatus(PKM pokemon)
     {
         try { return new LegalityAnalysis(pokemon).Valid ? "valid" : "invalid"; }

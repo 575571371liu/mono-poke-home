@@ -11,7 +11,8 @@ using PKHeX.Core;
 /// <summary>A reference view; the original individual remains untouched.</summary>
 static class EvolutionGuideDialog
 {
-    public static Dialog Create(Activity activity, PKM pokemon, GameVersion game, bool currentSave)
+    public static Dialog Create(Activity activity, PKM pokemon, GameVersion game, bool currentSave,
+        Action<GameVersion, EvolutionNodeKey>? evolve = null)
     {
         var originalGame = game;
         int Dp(float n) => (int)(n * activity.Resources!.DisplayMetrics!.Density + .5f);
@@ -51,6 +52,45 @@ static class EvolutionGuideDialog
         var selected = current;
         var family = EvolutionGuide.Family(pokemon.Species);
         View? selectedDetails = null;
+        var renderRevision = 0;
+        dialog.DismissEvent += (_, _) => renderRevision++;
+        var evaluations = new Dictionary<GameVersion, TradeEvolutionEvaluation>();
+
+        async void TradeActions()
+        {
+            if (evolve is null || selected != current) return;
+            var revision = renderRevision;
+            var ruleGame = game;
+            var card = (LinearLayout)Section("当前个体 · 按通讯条件进化", "正在检查…");
+            var message = (TextView)card.GetChildAt(1)!;
+            try
+            {
+                if (!evaluations.TryGetValue(ruleGame, out var evaluation))
+                {
+                    evaluation = await Task.Run(() => TradeEvolution.Evaluate(pokemon, ruleGame));
+                    evaluations[ruleGame] = evaluation;
+                }
+                if (revision != renderRevision || activity.IsFinishing || activity.IsDestroyed) return;
+                message.Text = $"按《{EvolutionGuide.GameName(ruleGame)}》规则\n按个体条件处理，不检查游戏剧情进度。\n" + evaluation.Reason;
+                foreach (var branch in evaluation.Branches)
+                {
+                    card.AddView(Text(EvolutionGuide.NodeName(branch.Edge.Target, pokemon.Context) + " · " + branch.Reason, 12, "#B4C9C0"),
+                        new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(10) });
+                    var button = new Button(activity) { Text = "按通讯条件进化", Enabled = branch.CanEvolve, TextSize = 12 };
+                    button.SetAllCaps(false);
+                    button.SetTextColor(Color.ParseColor(branch.CanEvolve ? "#142019" : "#91AAA1"));
+                    button.SetBackgroundResource(branch.CanEvolve ? Resource.Drawable.primary_button : Resource.Drawable.card);
+                    button.ContentDescription = "按通讯条件进化为" + EvolutionGuide.NodeName(branch.Edge.Target, pokemon.Context) + "，" + branch.Reason;
+                    button.Click += (_, _) => evolve(ruleGame, branch.Edge.Target);
+                    card.AddView(button, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(6) });
+                }
+            }
+            catch (Exception ex)
+            {
+                if (revision == renderRevision && !activity.IsFinishing && !activity.IsDestroyed)
+                    message.Text = "无法检查进化条件：" + ex.Message;
+            }
+        }
 
         View Section(string title, string text, bool collapsed = false)
         {
@@ -127,6 +167,7 @@ static class EvolutionGuideDialog
         }
         void Render()
         {
+            renderRevision++;
             body.RemoveAllViews();
             rule.Text = currentSave && game == originalGame ? "按当前存档查看进化条件" : "选择作品，查看对应进化条件";
             body.AddView(Text("完整进化家族", 13, "#D6FF63"));
@@ -188,6 +229,7 @@ static class EvolutionGuideDialog
                 body.AddView(condition);
                 if (!horizontal) Node(edge.Target, edge.Context);
             }
+            TradeActions();
             body.AddView(Text("特殊变化与其他形态", 13, "#D6FF63"), new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(20) });
             var forms = EvolutionGuide.SpecialForms(selected.Species, selected.Form).GroupBy(f => (f.Form, f.Name)).Select(g => g.FirstOrDefault(f => f.Context == context) ?? g.OrderByDescending(f => (byte)f.Context).First()).ToArray();
             foreach (var form in forms)
