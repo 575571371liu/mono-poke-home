@@ -9,6 +9,12 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using PKHeX.Core;
 
+if (args.Contains("--evolution-guide-only"))
+{
+    EvolutionGuideChecks.Run();
+    return;
+}
+
 if (args.Length == 2 && args[0] == "--edited-legality-check")
 {
     FixedFieldChecks.CheckEdited(args[1], TestEnvironment.NewScratchDirectory("edited-legality"));

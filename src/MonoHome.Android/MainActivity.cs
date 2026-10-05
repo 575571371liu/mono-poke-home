@@ -152,6 +152,32 @@ public class MainActivity : Activity
     global::Android.Content.Res.Resources AppResources => Resources ?? throw new InvalidOperationException("Activity resources are unavailable.");
     global::Android.Util.DisplayMetrics ScreenMetrics => AppResources.DisplayMetrics ?? throw new InvalidOperationException("Screen metrics are unavailable.");
     int Dp(float value) => (int)(value * ScreenMetrics.Density + 0.5f);
+    static void SizeSlotGrid(GridLayout grid)
+    {
+        var available = grid.Width - grid.PaddingLeft - grid.PaddingRight;
+        if (available <= 0) return;
+        for (var i = 0; i < grid.ChildCount; i++)
+        {
+            var tile = grid.GetChildAt(i)!;
+            var layout = (GridLayout.LayoutParams)tile.LayoutParameters!;
+            var size = Math.Max(1, available / grid.ColumnCount - layout.LeftMargin - layout.RightMargin);
+            if (layout.Width == size && layout.Height == size) continue;
+            layout.Width = layout.Height = size;
+            tile.LayoutParameters = layout;
+        }
+    }
+
+    static void FitSlotGrid(GridLayout grid)
+    {
+        grid.LayoutChange += (_, _) => SizeSlotGrid(grid);
+        grid.Post(() => SizeSlotGrid(grid));
+    }
+    int DetailDialogHeight()
+    {
+        var metrics = WindowManager!.CurrentWindowMetrics;
+        var insets = metrics.WindowInsets.GetInsetsIgnoringVisibility(WindowInsets.Type.SystemBars() | WindowInsets.Type.DisplayCutout());
+        return metrics.Bounds.Height() - insets.Top - insets.Bottom - Dp(24);
+    }
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -190,6 +216,7 @@ public class MainActivity : Activity
         sourceNextBox = FindViewById<Button>(Resource.Id.source_next_box);
         sourceBoxTitle = FindViewById<TextView>(Resource.Id.source_box_title);
         sourceBoxGrid = FindViewById<GridLayout>(Resource.Id.source_box_grid);
+        if (sourceBoxGrid is not null) FitSlotGrid(sourceBoxGrid);
         sourcePicker = FindViewById<Spinner>(Resource.Id.source_picker);
         warehousePicker = FindViewById<Spinner>(Resource.Id.warehouse_picker);
         targetPicker = FindViewById<Spinner>(Resource.Id.target_picker);
@@ -1413,6 +1440,7 @@ public class MainActivity : Activity
 
         var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
         panel.AddView(grid, new LinearLayout.LayoutParams(-1, 0, 1) { TopMargin = Dp(8) });
+        FitSlotGrid(grid);
         var close = new Button(this) { Text = "取消" };
         close.SetAllCaps(false);
         close.SetTextColor(Color.ParseColor("#8DE4D1"));
@@ -1428,7 +1456,7 @@ public class MainActivity : Activity
             previous.Enabled = pageIndex > 0;
             next.Enabled = pageIndex < pages.Length - 1;
             grid.RemoveAllViews();
-            var width = Math.Max(42, (ScreenMetrics.WidthPixels - Dp(70)) / 5);
+            var width = Dp(48);
             foreach (var slot in page.Slots)
             {
                 View tile;
@@ -1457,6 +1485,7 @@ public class MainActivity : Activity
                 parameters.SetMargins(3, 3, 3, 3);
                 grid.AddView(tile, parameters);
             }
+            grid.Post(() => SizeSlotGrid(grid));
         }
         previous.Click += (_, _) => { pageIndex--; RenderPage(); };
         next.Click += (_, _) => { pageIndex++; RenderPage(); };
@@ -1540,6 +1569,7 @@ public class MainActivity : Activity
 
         var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
         panel.AddView(grid, new LinearLayout.LayoutParams(-1, 0, 1) { TopMargin = Dp(8) });
+        FitSlotGrid(grid);
         var close = new Button(this) { Text = "取消" };
         close.SetAllCaps(false);
         close.SetTextColor(Color.ParseColor("#8DE4D1"));
@@ -1555,7 +1585,7 @@ public class MainActivity : Activity
             previous.Enabled = pageIndex > 0;
             next.Enabled = pageIndex < pages.Length - 1;
             grid.RemoveAllViews();
-            var width = Math.Max(42, (ScreenMetrics.WidthPixels - Dp(70)) / 5);
+            var width = Dp(48);
             foreach (var slot in page.Slots)
             {
                 var destinationSlot = pageIndex * page.Capacity + slot.Index;
@@ -1591,6 +1621,7 @@ public class MainActivity : Activity
                 parameters.SetMargins(3, 3, 3, 3);
                 grid.AddView(tile, parameters);
             }
+            grid.Post(() => SizeSlotGrid(grid));
         }
         previous.Click += (_, _) => { pageIndex--; RenderPage(); };
         next.Click += (_, _) => { pageIndex++; RenderPage(); };
@@ -1846,7 +1877,7 @@ public class MainActivity : Activity
             : $"{page.Name}\n筛选 {matched} / {pages.Sum(p => p.Slots.Count(slot => slot.Pokemon is { } pokemon && sourceFilter.Matches(pokemon)))} 只";
         var columns = Resources!.DisplayMetrics!.WidthPixels / ScreenMetrics.Density >= 600 ? 6 : 5;
         sourceBoxGrid.ColumnCount = columns;
-        var width = Math.Max(42, (ScreenMetrics.WidthPixels - (int)(ScreenMetrics.Density * 64)) / columns);
+        var width = Dp(48);
 
         foreach (var slot in page.Slots)
         {
@@ -1895,7 +1926,7 @@ public class MainActivity : Activity
             parameters.SetMargins(3, 3, 3, 3);
             sourceBoxGrid.AddView(tile, parameters);
         }
-
+        sourceBoxGrid.Post(() => SizeSlotGrid(sourceBoxGrid));
         UpdateButtons();
     }
 
@@ -1914,7 +1945,7 @@ public class MainActivity : Activity
                 BoxReader.ReadPokemon(source, slot),
                 $"来源：{ActiveSourceName()} · {slot.Location} {slot.Box + 1}-{slot.Slot + 1}",
                 selected ? "移出本次上传" : "加入本次上传",
-                () => ToggleSourceSlot(slot));
+                () => ToggleSourceSlot(slot), guideGame: BoxReader.Open(source).Version);
         }
         catch (Exception ex)
         {
@@ -2400,7 +2431,7 @@ public class MainActivity : Activity
         next.Click += (_, _) => { warehousePageIndex = (warehousePageIndex + 1) % boxCount; RenderWarehouseGrid(); };
 
         var grid = new GridLayout(this) { ColumnCount = 5, UseDefaultMargins = true };
-        var width = Math.Max(42, (Resources!.DisplayMetrics!.WidthPixels - (int)(ScreenMetrics.Density * 64)) / 5);
+        var width = Dp(48);
         for (var slotIndex = 0; slotIndex < slotsPerBox; slotIndex++)
         {
             var recordIndex = warehousePageIndex * slotsPerBox + slotIndex;
@@ -2446,7 +2477,8 @@ public class MainActivity : Activity
             parameters.SetMargins(3, 3, 3, 3);
             grid.AddView(tile, parameters);
         }
-        warehouseGrid.AddView(grid);
+        warehouseGrid.AddView(grid, new LinearLayout.LayoutParams(-1, -2));
+        FitSlotGrid(grid);
     }
 
     void ShowWarehouseActions(StoredPokemon record)
@@ -2493,7 +2525,7 @@ public class MainActivity : Activity
         UpdateButtons();
     }
 
-    void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction, StoredPokemon? warehouseRecord = null)
+    void ShowPokemonDetailDialog(PKM pokemon, string footer, string? primaryLabel, Action? primaryAction, StoredPokemon? warehouseRecord = null, GameVersion? guideGame = null)
     {
         var strings = GameInfo.GetStrings("zh-Hans");
         var moves = new[] { pokemon.Move1, pokemon.Move2, pokemon.Move3, pokemon.Move4 };
@@ -2626,6 +2658,31 @@ public class MainActivity : Activity
         heading.AddView(training, new LinearLayout.LayoutParams(-1, -2));
         body.AddView(header);
 
+        var evolutionGame = guideGame ?? MonoHome.Core.Pokemon.EvolutionGuide.DefaultGame(pokemon);
+        var evolutionNext = MonoHome.Core.Pokemon.EvolutionGuide.Family(pokemon.Species)
+            .Where(edge => edge.Source.Species == pokemon.Species && edge.Source.Form == pokemon.Form && edge.Context == evolutionGame.Context)
+            .DistinctBy(edge => edge.Target).ToArray();
+        var usableEvolutionCount = evolutionNext.Count(edge => MonoHome.Core.Pokemon.EvolutionGuide.Availability(edge, evolutionGame).Length == 0);
+        var evolutionSummary = pokemon.IsEgg ? "孵化后再按条件培养" : evolutionNext.Length == 0 ? "无普通进化或已到本作最终阶段" : evolutionNext.Length > 1 ? $"本作可用 {usableEvolutionCount} 个分支 · 查看全部 {evolutionNext.Length} 个分支" : $"{ChineseSpeciesName(pokemon.Species)} → {ChineseSpeciesName(evolutionNext[0].Target.Species)}\n{(usableEvolutionCount == 0 ? MonoHome.Core.Pokemon.EvolutionGuide.Availability(evolutionNext[0], evolutionGame) : MonoHome.Core.Pokemon.EvolutionGuide.Condition(evolutionNext[0].Method, evolutionGame))}";
+        var evolutionCard = Card("进化与形态", evolutionSummary, "查看全部  ›");
+        if (evolutionCard.GetChildAt(0) is TextView evolutionTitle)
+            evolutionTitle.SetTextColor(Color.ParseColor("#D6FF63"));
+        evolutionCard.SetMinimumHeight(Dp(64));
+        evolutionCard.ContentDescription = "进化与形态，点击查看完整进化链和条件";
+        evolutionCard.Click += (_, _) =>
+        {
+            var guide = EvolutionGuideDialog.Create(this, pokemon, evolutionGame, guideGame.HasValue);
+            ShowSafely(guide);
+            if (guide.Window is { } guideWindow)
+            {
+                guideWindow.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+                guideWindow.SetDimAmount(0.72f);
+                guideWindow.AddFlags(WindowManagerFlags.DimBehind);
+                guideWindow.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), DetailDialogHeight());
+            }
+        };
+        body.AddView(evolutionCard, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(12) });
+
         var moveCard = new LinearLayout(this) { Orientation = Orientation.Vertical };
         moveCard.SetPadding(Dp(9), Dp(6), Dp(9), Dp(6));
         moveCard.Background = Panel();
@@ -2751,7 +2808,7 @@ public class MainActivity : Activity
             primary.Click += (_, _) => { dialog.Dismiss(); primaryAction(); };
             actions.AddView(primary, new LinearLayout.LayoutParams(0, Dp(44), editable ? 0.42f : 0.58f) { LeftMargin = Dp(8) });
         }
-        root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(10) });
+        root.AddView(actions, new LinearLayout.LayoutParams(-1, Dp(48)) { TopMargin = Dp(8), BottomMargin = Dp(8) });
         dialog.SetContentView(root);
         ShowSafely(dialog);
         if (dialog.Window is { } window)
@@ -2759,7 +2816,7 @@ public class MainActivity : Activity
             window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             window.SetDimAmount(0.72f);
             window.AddFlags(WindowManagerFlags.DimBehind);
-            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), (int)(ScreenMetrics.HeightPixels * 0.96f));
+            window.SetLayout((int)(ScreenMetrics.WidthPixels * 0.94f), DetailDialogHeight());
         }
     }
 
