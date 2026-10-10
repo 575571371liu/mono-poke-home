@@ -54,6 +54,51 @@ static class FixedFieldChecks
         Directory.CreateDirectory(root);
         var rows = new List<object>();
         var errors = new List<string>();
+        var wild = BoxReader.Read(saves[0]).Select(slot => BoxReader.ReadPokemon(saves[0], slot))
+            .First(p => p is PK3 && new LegalityAnalysis(p).Valid && new LegalityAnalysis(p).EncounterMatch is IEncounterSlot3 && p.Species != 201);
+        var encounter = (IEncounterSlot3)new LegalityAnalysis(wild).EncounterMatch;
+        var donor = (PK3)wild.Clone();
+        for (uint seed = 12345; ; seed++)
+        {
+            encounter.SetRandom(donor, donor.PersonalInfo, new EncounterCriteria
+            {
+                Nature = wild.Nature, Gender = (Gender)wild.Gender,
+                Shiny = wild.IsShiny ? Shiny.Always : Shiny.Never,
+            }, seed);
+            donor.RefreshAbility((int)(donor.PID & 1));
+            if (donor.Ability == wild.Ability && donor.IV32 != ((PK3)wild).IV32) break;
+            if (seed == 12445) throw new InvalidOperationException("No matching IV donor.");
+        }
+        if (!new LegalityAnalysis(donor).Valid) throw new InvalidOperationException("IV donor is illegal.");
+        var editedIVs = LocalRepository.ApplyEdit(wild, new WorkingEdit(null, null, null, null, null, null,
+            IVs: [donor.IV_HP, donor.IV_ATK, donor.IV_DEF, donor.IV_SPE, donor.IV_SPA, donor.IV_SPD]));
+        var ivInput = editedIVs.Data.ToArray();
+        if (new LegalityAnalysis(editedIVs).Valid) throw new InvalidOperationException("IV edit did not reproduce PID correlation failure.");
+        var ivRepair = repair(editedIVs);
+        if (!ivRepair.Valid || !new LegalityAnalysis(ivRepair.Pokemon).Valid
+            || Differences(Snapshot(editedIVs), Snapshot(ivRepair.Pokemon)).Any(key => key != "AbilitySlot")
+            || !editedIVs.Data.SequenceEqual(ivInput))
+            throw new InvalidOperationException("Edited Gen3 IVs were not repaired preserving user fields: " + ivRepair.FailureReason);
+        var restoredIVs = ivRepair.Pokemon.Clone();
+        restoredIVs.PID = editedIVs.PID;
+        if (!restoredIVs.Data.SequenceEqual(ivInput)) throw new InvalidOperationException("IV repair changed bytes outside PID.");
+        var ivRecord = LocalRepository.Upload(editedIVs, root);
+        var ivBackup = LocalRepository.ReadOriginalBytes(ivRecord);
+        var ivReloaded = LocalRepository.LoadWorking(LocalRepository.SaveWorking(ivRecord, ivRepair.Pokemon));
+        if (!new LegalityAnalysis(ivReloaded).Valid || Differences(Snapshot(ivRepair.Pokemon), Snapshot(ivReloaded)).Length != 0
+            || ivReloaded.PID != ivRepair.Pokemon.PID || ivReloaded.EXP != ivRepair.Pokemon.EXP
+            || !ivBackup.SequenceEqual(LocalRepository.ReadOriginalBytes(ivRecord)))
+            throw new InvalidOperationException("IV repair failed persistence.");
+        rows.Add(new { label = "Gen3 edited IV correlation", ivRepair.Valid, ivRepair.Changes });
+        var migrated = ((PK3)wild).ConvertToPK4();
+        if (!new LegalityAnalysis(migrated).Valid) throw new InvalidOperationException("Migrated IV fixture is illegal.");
+        var migratedEdit = LocalRepository.ApplyEdit(migrated, new WorkingEdit(null, null, null, null, null, null,
+            IVs: [donor.IV_HP, donor.IV_ATK, donor.IV_DEF, donor.IV_SPE, donor.IV_SPA, donor.IV_SPD]));
+        var migratedRepair = repair(migratedEdit);
+        if (!migratedRepair.Valid || !new LegalityAnalysis(migratedRepair.Pokemon).Valid
+            || Differences(Snapshot(migratedEdit), Snapshot(migratedRepair.Pokemon)).Any(key => key != "AbilitySlot"))
+            throw new InvalidOperationException("Migrated Gen3 IV repair failed: " + migratedRepair.FailureReason);
+        rows.Add(new { label = "Gen3 edited IV correlation in PK4", migratedRepair.Valid, migratedRepair.Changes });
         foreach (var path in saves)
         {
             var fileHash = SHA256.HashData(File.ReadAllBytes(path));

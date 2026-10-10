@@ -232,14 +232,17 @@ public static class LocalRepository
                 if (new LegalityAnalysis(candidate).Valid)
                     return new(candidate, true, "固定属性", [$"按来源语言恢复名称：{source.Nickname} → {candidate.Nickname}；训练家及固定属性不变"]);
             }
-            if (source is PK4 { IsEgg: false, Generation: 4 } && analysis.EncounterMatch is IEncounterSlot4)
+            if (source is PK3 { IsEgg: false } or PK4 { IsEgg: false, Generation: 3 or 4 })
             {
-                var repaired = RepairWildGen4Background(source, analysis);
+                var repaired = RepairClassicBackground(source, analysis);
                 if (repaired is not null)
                     return repaired;
             }
+            var correlation = analysis.Results.Any(r => !r.Valid && r.Identifier == CheckIdentifier.PID)
+                ? "现有修复方法未找到同时保留个体值、性格、性别、闪光、特性并满足相遇约束的 PID；可能是属性组合无解或该相遇方法暂不支持。请调整属性后重试。\n"
+                : "";
             return new(source.Clone(), false, "固定属性", [],
-                $"未找到保留全部固定信息的合法结果；当前数据未修改。\n{new LegalityAnalysis(source).Report()}");
+                $"未找到保留全部固定信息的合法结果；当前数据未修改。\n{correlation}{analysis.Report()}");
         }
         catch (Exception ex)
         {
@@ -247,7 +250,7 @@ public static class LocalRepository
         }
     }
 
-    static RepairOutcome? RepairWildGen4Background(PKM source, LegalityAnalysis analysis)
+    static RepairOutcome? RepairClassicBackground(PKM source, LegalityAnalysis analysis)
     {
         var candidate = source.Clone();
         var changes = new List<string>();
@@ -274,14 +277,28 @@ public static class LocalRepository
         if (IsLegal(candidate))
             return new(candidate, true, "固定属性", changes);
 
-        // ponytail: ordinary Gen 4 wild Method 1 and Cute Charm only; other encounter methods remain rejected.
+        // shortcut: classic LCRNG methods and Gen4 Cute Charm only; add other RNG methods when supported encounters need them.
         Span<uint> seeds = stackalloc uint[LCRNG.MaxCountSeedsIV];
         var count = LCRNGReversal.GetSeedsIVs(seeds, (uint)source.IV_HP, (uint)source.IV_ATK, (uint)source.IV_DEF,
             (uint)source.IV_SPA, (uint)source.IV_SPD, (uint)source.IV_SPE);
         var pids = new List<uint>(count + 1);
         foreach (var seed in seeds[..count])
+        {
             pids.Add((seed & 0xffff0000) | (LCRNG.Prev(seed) >> 16));
-        if (source.Gender is 0 or 1)
+            if (source.Generation == 3)
+            {
+                pids.Add((LCRNG.Prev(seed) & 0xffff0000) | (LCRNG.Prev2(seed) >> 16)); // Method 2
+                pids.Add((seed & 0xffff0000) | (LCRNG.Prev2(seed) >> 16)); // Method 3
+            }
+        }
+        if (source.Generation == 3)
+        {
+            count = LCRNGReversalSkip.GetSeedsIVs(seeds, (uint)source.IV_HP, (uint)source.IV_ATK, (uint)source.IV_DEF,
+                (uint)source.IV_SPA, (uint)source.IV_SPD, (uint)source.IV_SPE);
+            foreach (var seed in seeds[..count])
+                pids.Add((seed & 0xffff0000) | (LCRNG.Prev(seed) >> 16)); // Method 4
+        }
+        if (source.Generation == 4 && source.Gender is 0 or 1)
             pids.Add(source.Gender == 1 ? CuteCharm4.GetPIDFemale((uint)source.Nature)
                 : CuteCharm4.GetPIDMale(source.PersonalInfo.Gender, (uint)source.Nature));
         foreach (var pid in pids.Distinct())
