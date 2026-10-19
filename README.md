@@ -2,6 +2,12 @@
 
 MONO / HOME 是一个运行在 Android 上的本地宝可梦存档管理与传送工具。它使用 PKHeX.Core 读取和校验存档；中央仓库仍保存在设备本地，远程存档同步是需要用户主动开启的可选能力。
 
+## 1.2.12 更新
+
+- PKHeX.Core 升级到官方 26.10.18，更新合法性规则和存档处理；现有传送路线保持不变。
+- 宝可梦详情新增中文属性徽标，区分单属性和双属性。
+- 补充努力值、PID 与相遇条件冲突的保留属性回归检查；614 项专项检查及完整传送、仓库、进化回归通过。
+
 ## 1.2.11 更新
 
 - 补全第三世代 PID／个体值关联修复，包括传入心金／魂银的第三世代个体。
@@ -149,6 +155,13 @@ MONO / HOME 是一个运行在 Android 上的本地宝可梦存档管理与传�
 - Android SDK Platform 30 或更高、Platform-Tools、Emulator
 
 构建 Release APK：
+
+`PKHeX` 源码需位于本项目的同级目录，当前使用官方 `26.10.18`（`bfe89c74a3f5265805e364b79bc04ad38ebbc5ea`）。已有源码且工作区干净时，先对齐版本：
+
+```powershell
+git -C ../PKHeX fetch origin tag 26.10.18
+git -C ../PKHeX switch --detach 26.10.18
+```
 
 ```powershell
 dotnet build src/MonoHome.Android/MonoHome.Android.csproj -c Release --no-restore

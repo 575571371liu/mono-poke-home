@@ -26,7 +26,7 @@ public partial class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.11";
+    const string CurrentVersion = "1.2.12";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -2690,6 +2690,25 @@ public partial class MainActivity : Activity
         var pokemonName = Text(ChineseSpeciesName(pokemon.Species), 14, "#E9F4EF", true);
         pokemonName.Gravity = GravityFlags.Center;
         identity.AddView(pokemonName, new LinearLayout.LayoutParams(-1, -2));
+        var types = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        types.SetGravity(GravityFlags.Center);
+        // Pokémon.com Pokédex colors, in PKHeX type order.
+        string[] typeColors = ["#A4ACAF", "#D56723", "#3DC7EF", "#B97FC9", "#F7DE3F", "#A38C21", "#729F3F", "#7B62A3", "#9EB7B8", "#FD7D24", "#4592C4", "#9BCC50", "#EED535", "#F366B9", "#51C4E7", "#53A4CF", "#707070", "#FDB9E9"];
+        foreach (var type in new[] { pokemon.PersonalInfo.Type1, pokemon.PersonalInfo.Type2 }.Distinct())
+        {
+            var fill = type < typeColors.Length ? typeColors[type] : "#616161";
+            var badge = Text(StringAt(strings.Types, type, "未知属性"), 11, type is 7 or 16 ? "#FFFFFF" : "#212121", true);
+            badge.Gravity = GravityFlags.Center;
+            badge.SetPadding(Dp(6), Dp(4), Dp(6), Dp(4));
+            badge.ContentDescription = $"属性：{badge.Text}";
+            var background = Panel(fill, fill, 6);
+            var second = type switch { 2 => "#BDB9B8", 4 => "#AB9842", 15 => "#F16E57", _ => fill };
+            background.SetOrientation(GradientDrawable.Orientation.TopBottom);
+            background.SetColors([Color.ParseColor(fill).ToArgb(), Color.ParseColor(fill).ToArgb(), Color.ParseColor(second).ToArgb(), Color.ParseColor(second).ToArgb()], [0f, 0.5f, 0.5f, 1f]);
+            badge.Background = background;
+            types.AddView(badge, new LinearLayout.LayoutParams(-2, -2) { LeftMargin = Dp(2), RightMargin = Dp(2) });
+        }
+        identity.AddView(types, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(6) });
         var level = Text($"Lv.{pokemon.CurrentLevel}", 11, "#8DE4D1");
         level.Gravity = GravityFlags.Center;
         identity.AddView(level, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(3) });

@@ -2,7 +2,7 @@
 
 ## PKHeX.Core
 
-MONO / HOME reuses `PKHeX.Core` from [kwsch/PKHeX](https://github.com/kwsch/PKHeX), commit `17157eb18013dc29a44f7bb7810117390431087b`.
+MONO / HOME reuses `PKHeX.Core` from [kwsch/PKHeX](https://github.com/kwsch/PKHeX), release `26.10.18`, commit `bfe89c74a3f5265805e364b79bc04ad38ebbc5ea`.
 
 PKHeX is licensed under GPL-3.0-or-later. Any distribution of this application must comply with GPL-3.0-or-later, include the complete corresponding source, license text, attribution, and notices for all packaged assets and dependencies.
 

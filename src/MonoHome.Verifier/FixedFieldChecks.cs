@@ -99,6 +99,63 @@ static class FixedFieldChecks
             || Differences(Snapshot(migratedEdit), Snapshot(migratedRepair.Pokemon)).Any(key => key != "AbilitySlot"))
             throw new InvalidOperationException("Migrated Gen3 IV repair failed: " + migratedRepair.FailureReason);
         rows.Add(new { label = "Gen3 edited IV correlation in PK4", migratedRepair.Valid, migratedRepair.Changes });
+        var training = ((IEncounterConvertible)encounter).ConvertToPKM(new SimpleTrainerInfo(wild.Version) { OT = "TEST", Language = 2 });
+        encounter.SetRandom((PK3)training, ((PK3)training).PersonalInfo, new EncounterCriteria { Nature = Nature.Hardy, Shiny = Shiny.Never }, 12345);
+        training.RefreshAbility((int)(training.PID & 1));
+        if (!new LegalityAnalysis(training).Valid) throw new InvalidOperationException("Training fixture is illegal.");
+        var combined = LocalRepository.ApplyEdit(training, new WorkingEdit(null, null, null, null, null, null, EVs: [1, 0, 0, 0, 0, 0]));
+        combined.PID += 12800;
+        var combinedOracle = training.Clone();
+        combinedOracle.EV_HP = 1;
+        combinedOracle.EXP++;
+        var combinedAnalysis = new LegalityAnalysis(combined);
+        if (new[] { CheckIdentifier.EVs, CheckIdentifier.PID, CheckIdentifier.Encounter }
+            .Any(id => !combinedAnalysis.Results.Any(r => !r.Valid && r.Identifier == id)))
+            throw new InvalidOperationException("Combined control must reproduce EV, PID and encounter errors.");
+        if (combined.Nature != training.Nature || combined.Gender != training.Gender || combined.IsShiny != training.IsShiny
+            || !new LegalityAnalysis(combinedOracle).Valid) throw new InvalidOperationException("Combined EV/PID control is invalid.");
+        var combinedOutcome = repair(combined);
+        if (!combinedOutcome.Valid || !new LegalityAnalysis(combinedOutcome.Pokemon).Valid
+            || Differences(Snapshot(combined), Snapshot(combinedOutcome.Pokemon)).Any(key => key != "AbilitySlot"))
+            errors.Add("Combined EV/PID/encounter repair: " + combinedOutcome.FailureReason);
+        rows.Add(new { label = "combined EV/PID/encounter", before = new LegalityAnalysis(combined).Report(), combinedOutcome.Valid, combinedOutcome.FailureReason });
+        foreach (var conflict in new[] { "EV total", "encounter location" })
+        {
+            var rejected = training.Clone();
+            if (conflict == "EV total") rejected.SetEVs([255, 255, 1, 0, 0, 0]);
+            else rejected.MetLocation = byte.MaxValue;
+            var input = rejected.Data.ToArray();
+            var outcome = repair(rejected);
+            if (new LegalityAnalysis(rejected).Valid || outcome.Valid || !input.SequenceEqual(rejected.Data)
+                || !input.SequenceEqual(outcome.Pokemon.Data)) errors.Add(conflict + ": must reject without changing data");
+            rows.Add(new { label = conflict, before = new LegalityAnalysis(rejected).Report(), outcome.Valid, outcome.FailureReason });
+        }
+        foreach (var path in saves)
+        foreach (var slot in BoxReader.Read(path))
+        {
+            var legal = repair(BoxReader.ReadPokemon(path, slot));
+            if (!legal.Valid || legal.Pokemon.IsEgg) continue;
+            var baseline = legal.Pokemon;
+            var match = new LegalityAnalysis(baseline).EncounterMatch;
+            var met = match.Generation == baseline.Format ? Math.Max(baseline.MetLevel, match.LevelMin) : match.LevelMin;
+            var baseEXP = Experience.GetEXP((byte)met, PersonalTable.HGSS[match.Species].EXPGrowth);
+            foreach (var evs in new[] { new[] { 1, 0, 0, 0, 0, 0 }, new[] { 252, 252, 0, 6, 0, 0 }, new[] { 0, 0, 255, 0, 255, 0 } })
+            {
+                var edited = LocalRepository.ApplyEdit(baseline, new WorkingEdit(null, null, null, null, null, null, EVs: evs));
+                edited.EXP = Experience.GetEXP(edited.CurrentLevel, edited.PersonalInfo.EXPGrowth);
+                var before = new LegalityAnalysis(edited);
+                var required = baseEXP + (uint)Math.Max(1, EffortExpLegality.GetRequiredEffortEXP(evs, 0, edited.IsPokerusInfected, match.Generation, edited.Format));
+                var oracle = edited.Clone();
+                oracle.EXP = Math.Max(oracle.EXP, required);
+                var expected = oracle.CurrentLevel == edited.CurrentLevel && new LegalityAnalysis(oracle).Valid;
+                var input = edited.Data.ToArray();
+                var outcome = repair(edited);
+                if (expected && !outcome.Valid) errors.Add($"EV {Path.GetFileName(path)} {slot.Box}-{slot.Slot} #{edited.Species}: {outcome.FailureReason}");
+                if (!input.SequenceEqual(edited.Data) || (!outcome.Valid && !input.SequenceEqual(outcome.Pokemon.Data))) errors.Add("EV repair mutated input or rejected data");
+                if (outcome.Valid && (!new LegalityAnalysis(outcome.Pokemon).Valid || Differences(Snapshot(edited), Snapshot(outcome.Pokemon)).Any(key => key != "AbilitySlot"))) errors.Add("EV repair changed protected fields or accepted illegal data");
+                rows.Add(new { label = $"EV {Path.GetFileName(path)} {slot.Box}-{slot.Slot} #{edited.Species}", evs, expected, outcome.Valid, beforeReport = before.Report(), outcome.FailureReason });
+            }
+        }
         foreach (var path in saves)
         {
             var fileHash = SHA256.HashData(File.ReadAllBytes(path));
