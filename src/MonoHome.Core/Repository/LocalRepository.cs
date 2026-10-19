@@ -37,7 +37,7 @@ public sealed record RepairOutcome(
     IReadOnlyList<string> Changes,
     string? FailureReason = null);
 
-public static class LocalRepository
+public static partial class LocalRepository
 {
     static readonly HashSet<string> LegalityStates = ["valid", "invalid", "pending", "stale", "unsupported"];
 
@@ -85,13 +85,18 @@ public static class LocalRepository
         }
         if (edit.Gender is { } gender)
         {
-            if (gender is < 0 or > 2) throw new ArgumentOutOfRangeException(nameof(edit.Gender));
+            if (!IsValidGender(pokemon, gender)) throw new ArgumentOutOfRangeException(nameof(edit.Gender), "所选性别不属于当前种类／形态。");
             if (pokemon.Gender != gender)
                 pokemon.SetPIDGender((byte)gender);
         }
         if (edit.Form is { } form)
         {
             if (form is < 0 or > 255) throw new ArgumentOutOfRangeException(nameof(edit.Form));
+            if (pokemon is PK3 && (pokemon.Species == (ushort)PKHeX.Core.Species.Unown ? form >= 28 : form != 0)
+                || pokemon.Format >= 4 && (!pokemon.PersonalInfo.IsFormWithinRange((byte)form)
+                    && !FormInfo.IsValidOutOfBoundsForm(pokemon.Species, (byte)form, pokemon.Generation)
+                    || FormInfo.IsBattleOnlyForm(pokemon.Species, (byte)form, pokemon.Format)))
+                throw new ArgumentOutOfRangeException(nameof(edit.Form), "当前格式无法保存所选形态。");
             pokemon.Form = (byte)form;
         }
         if (edit.Shiny is { } shiny)
@@ -177,7 +182,7 @@ public static class LocalRepository
 
     public static StoredPokemon SaveEditedWorking(StoredPokemon stored, PKM pokemon)
     {
-        var outcome = RepairPreservingFields(pokemon);
+        var outcome = RepairForEdit(pokemon);
         if (!outcome.Valid) throw new InvalidOperationException(outcome.FailureReason);
         var bytes = EntityBytes(outcome.Pokemon);
         var persisted = EntityFormat.GetFromBytes(bytes)!;
@@ -265,6 +270,11 @@ public static class LocalRepository
     {
         var candidate = source.Clone();
         var changes = new List<string>();
+        if (candidate is PK4 ground && analysis.Results.Any(r => !r.Valid && r.Result == LegalityCheckResultCode.EncTypeMismatch))
+        {
+            ground.GroundTile = analysis.EncounterMatch is IGroundTypeTile tile ? tile.GroundTile.GetIndex() : GroundTileType.None;
+            changes.Add("按当前相遇来源修复相遇场景类型，保留地点和用户属性");
+        }
         if (analysis.Results.Any(r => !r.Valid && r.Identifier == CheckIdentifier.Nickname) && source.Language is 1 or 2)
         {
             candidate.PrepareNickname();
@@ -311,11 +321,15 @@ public static class LocalRepository
         if (source.Generation == 4 && source.Gender is 0 or 1)
             pids.Add(source.Gender == 1 ? CuteCharm4.GetPIDFemale((uint)source.Nature)
                 : CuteCharm4.GetPIDMale(source.PersonalInfo.Gender, (uint)source.Nature));
+        if (source.Generation == 4 && analysis.EncounterMatch is EncounterStatic4Pokewalker)
+            pids.Add(PokewalkerRNG.GetPID(source.TID16, source.SID16, (uint)source.Nature, source.Gender, source.PersonalInfo.Gender));
+        if (source.Generation == 3 && source.Species == (ushort)Species.Unown)
+            pids.AddRange(pids.Select(pid => (pid << 16) | (pid >> 16)).ToArray());
         string? candidateFailure = null;
         foreach (var pid in pids.Distinct())
         {
             candidate.PID = pid;
-            if (candidate.Nature != source.Nature || candidate.IsShiny != source.IsShiny
+            if (candidate.Form != source.Form || candidate.Nature != source.Nature || candidate.IsShiny != source.IsShiny
                 || EntityGender.GetFromPID(source.Species, pid) != source.Gender
                 || source.PersonalInfo.GetAbilityAtIndex((int)(pid & 1)) != source.Ability)
                 continue;
@@ -481,6 +495,11 @@ public static class LocalRepository
         catch { return false; }
     }
 
+    static bool IsValidGender(PKM pokemon, int gender) => pokemon.PersonalInfo.Gender switch
+    {
+        255 => gender == 2, 254 => gender == 1, 0 => gender == 0, _ => gender is 0 or 1,
+    };
+
     static string RepairTemplateName(PKM pokemon) => pokemon.Generation switch
     {
         3 => "Gen 3 · Emerald 背景模板",
@@ -529,7 +548,8 @@ public static class LocalRepository
     {
         // Status is party-only data; the stored/box format would silently discard it.
         var data = new byte[pokemon.SIZE_PARTY];
-        pokemon.Clone().WriteEncryptedDataParty(data);
+        // Plaintext avoids encrypted payloads coincidentally matching the format detector's checksum.
+        pokemon.Clone().WriteDecryptedDataParty(data);
         // Verify before committing: moving an unreadable payload into place would destroy
         // the previous working copy with nothing left to fall back to.
         if (EntityFormat.GetFromBytes(data.ToArray()) is null)

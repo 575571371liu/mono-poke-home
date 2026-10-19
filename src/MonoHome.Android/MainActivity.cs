@@ -26,7 +26,7 @@ public partial class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.13";
+    const string CurrentVersion = "1.2.14";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -3081,30 +3081,30 @@ public partial class MainActivity : Activity
             var list = new LinearLayout(this) { Orientation = Orientation.Vertical };
             list.SetPadding(0, Dp(10), 0, 0);
             list.AddView(Text($"可选招式  ·  {moves.Length} 项", 10, "#D6FF63", true), new LinearLayout.LayoutParams(-1, Dp(24)));
-            void CommitMove(ushort selectedMove)
+            var checkingMove = false;
+            async void CommitMove(ushort selectedMove)
             {
+                if (checkingMove || !dialog.IsShowing) return;
+                checkingMove = true;
                 try
                 {
                     var nextMoves = new[] { current.Move1, current.Move2, current.Move3, current.Move4 };
                     nextMoves[slot] = selectedMove;
                     var edited = LocalRepository.ApplyEdit(current, new WorkingEdit(null, null, null, null, null, null, Moves: nextMoves.Select(move => (int)move).ToArray()));
-                    var updated = LocalRepository.SaveEditedWorking(record, edited);
-                    dialog.Dismiss();
-                    storedPokemon = updated;
-                    RefreshWarehouse(updated.Id);
-                    var legalityMessage = updated.LegalityStatus switch
+                    await SaveEditWithConfirmation(record, edited, updated =>
                     {
-                        "valid" => "招式已更换，当前副本合法。",
-                        "invalid" => "招式已更换；该宝可梦还有其他合法性问题。",
-                        _ => "招式已更换，等待合法性检查。",
-                    };
-                    Toast.MakeText(this, legalityMessage, ToastLength.Short)!.Show();
-                    ShowWarehouseDetail(updated);
+                        dialog.Dismiss();
+                        storedPokemon = updated;
+                        RefreshWarehouse(updated.Id);
+                        Toast.MakeText(this, "招式已更换，当前副本合法。", ToastLength.Short)!.Show();
+                        ShowWarehouseDetail(updated);
+                    }, () => dialog.IsShowing);
                 }
                 catch (Exception ex)
                 {
                     Toast.MakeText(this, ex.Message, ToastLength.Long)!.Show();
                 }
+                finally { checkingMove = false; }
             }
             foreach (var move in moves)
             {
@@ -3415,7 +3415,24 @@ public partial class MainActivity : Activity
         }
     }
 
-    void SaveNickname()
+    async Task SaveEditWithConfirmation(StoredPokemon record, PKM edited, Action<StoredPokemon> saved, Func<bool>? stillOpen = null)
+    {
+        var outcome = await Task.Run(() => LocalRepository.RepairForEdit(edited));
+        if (IsFinishing || IsDestroyed || stillOpen?.Invoke() == false) return;
+        if (!outcome.Valid) throw new InvalidOperationException(outcome.FailureReason);
+        void Commit()
+        {
+            if (IsFinishing || IsDestroyed || stillOpen?.Invoke() == false) return;
+            try { saved(LocalRepository.SaveEditedWorking(record, outcome.Pokemon)); }
+            catch (Exception ex) { new AlertDialog.Builder(this)!.SetTitle("未保存")!.SetMessage(ex.Message)!.SetPositiveButton("知道了", (_, _) => { })!.Show(); }
+        }
+        if (outcome.Pokemon.Data.SequenceEqual(edited.Data)) { Commit(); return; }
+        new AlertDialog.Builder(this)!.SetTitle("确认合法化更新")!
+            .SetMessage(string.Join("\n\n", outcome.Changes) + "\n\n确认后更新工作副本，原始备份保留。")!
+            .SetNegativeButton("取消", (_, _) => { })!.SetPositiveButton("确认更新", (_, _) => Commit())!.Show();
+    }
+
+    async void SaveNickname()
     {
         if (storedPokemon is null || status is null)
             return;
@@ -3442,9 +3459,11 @@ public partial class MainActivity : Activity
                 Form: ParseOptional(formInput),
                 Shiny: ParseOptionalBool(shinyInput),
                 Egg: ParseOptionalBool(eggInput)));
-            LocalRepository.SaveEditedWorking(storedPokemon, pokemon);
-            RefreshWarehouse(storedPokemon.Id);
-            status.Text = "已自动修复并通过合法性检查，保存到工作副本。";
+            await SaveEditWithConfirmation(storedPokemon, pokemon, updated =>
+            {
+                RefreshWarehouse(updated.Id);
+                status.Text = "已自动修复并通过合法性检查，保存到工作副本。";
+            });
         }
         catch (Exception ex)
         {

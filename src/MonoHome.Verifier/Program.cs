@@ -64,6 +64,11 @@ if (args.Length == 4 && args[0] == "--compare-fixed-entities")
 }
 var emeraldPath = TestEnvironment.EmeraldSave;
 var heartGoldPath = TestEnvironment.HeartGoldSave;
+if (args.Contains("--edit-legality-only"))
+{
+    EditLegalityChecks.Run(LocalRepository.RepairForEdit);
+    return;
+}
 if (args.Contains("--fixed-fields-only"))
 {
     FixedFieldChecks.Run(LocalRepository.RepairPreservingFields, TestEnvironment.NewScratchDirectory("fixed-fields"), emeraldPath, heartGoldPath);

@@ -121,7 +121,11 @@ public sealed class EditCopyActivity : Activity
         nicknameRow.AddView(normalize, new LinearLayout.LayoutParams(Dp(86), Dp(46)) { LeftMargin = Dp(8) });
         Input(basic, "Level", "等级", current.CurrentLevel);
         Choice(basic, "Nature", "性格", (int)current.Nature, () => names.Natures.Select((name, id) => (id, name)).ToArray());
-        Choice(basic, "Gender", "性别", current.Gender, () => [(0, "雄性 ♂"), (1, "雌性 ♀"), (2, "无性别")]);
+        Choice(basic, "Gender", "性别", current.Gender, () => current.PersonalInfo.Gender switch
+        {
+            255 => [(2, "无性别")], 254 => [(1, "雌性 ♀")], 0 => [(0, "雄性 ♂")],
+            _ => [(0, "雄性 ♂"), (1, "雌性 ♀")],
+        });
         Choice(basic, "Form", "形态", current.Form, () => FormChoices(), () =>
         {
             selections["Ability"] = 0;
@@ -200,7 +204,17 @@ public sealed class EditCopyActivity : Activity
             if (IsFinishing || IsDestroyed) return;
             try
             {
-                var analysis = new LegalityAnalysis(ReadEdit());
+                var edited = ReadEdit();
+                if (!flags["Egg"].Checked)
+                {
+                    var canEgg = edited.Generation == edited.Format && edited.EVTotal == 0 && edited.HeldItem == 0
+                        && EncounterMovesetGenerator.GenerateEncounters(edited.Clone(), new ushort[] { edited.Move1, edited.Move2, edited.Move3, edited.Move4 }, edited.Version)
+                            .Any(e => e.IsEgg && e.Species == edited.Species && e.Form == edited.Form);
+                    flags["Egg"].Enabled = canEgg;
+                    flags["Egg"].Text = canEgg ? "蛋" : "蛋（需可孵化种类、无道具、零努力值且未跨代传送）";
+                }
+                else { flags["Egg"].Enabled = true; flags["Egg"].Text = "蛋"; }
+                var analysis = new LegalityAnalysis(edited);
                 legalitySummary.Text = analysis.Valid ? "当前编辑已通过合法性检查" : "当前编辑存在待检查项目，保存时将尝试自动修复";
                 headerLegality.Text = analysis.Valid ? "● 合法性检查通过" : "● 当前编辑有待检查项目";
                 legalityDetails.Text = analysis.Report();
@@ -223,8 +237,10 @@ public sealed class EditCopyActivity : Activity
     }
     (int Id, string Name)[] FormChoices()
     {
+        if (current is PK3 && current.Species != (ushort)PKHeX.Core.Species.Unown) return [(0, "当前游戏固定形态")];
         var forms = FormConverter.GetFormList(current.Species, names.Types, names.forms, current.Context);
-        return forms.Select((name, id) => (id, string.IsNullOrWhiteSpace(name) ? "普通形态" : name)).ToArray();
+        return forms.Select((name, id) => (id, string.IsNullOrWhiteSpace(name) ? "普通形态" : name))
+            .Where(form => !FormInfo.IsBattleOnlyForm(current.Species, (byte)form.id, current.Format)).ToArray();
     }
     (int Id, string Name)[] AbilityChoices()
     {
@@ -344,7 +360,7 @@ public sealed class EditCopyActivity : Activity
         try
         {
             var edited = ReadEdit();
-            var outcome = await Task.Run(() => LocalRepository.RepairPreservingFields(edited));
+            var outcome = await Task.Run(() => LocalRepository.RepairForEdit(edited));
             if (IsFinishing || IsDestroyed) return;
             if (!outcome.Valid) { ShowError(outcome.FailureReason ?? "无法生成合法结果；当前工作副本未修改。"); return; }
             if (saveIfUnchanged && outcome.Pokemon.Data.SequenceEqual(edited.Data)) { Save(outcome.Pokemon); return; }
@@ -360,6 +376,9 @@ public sealed class EditCopyActivity : Activity
             panel.AddView(Text("确认合法化更新", 19, "#D6FF63"));
             panel.AddView(Text("已通过合法性检查，请核对更新内容。", 12, "#8DE4D1"),
                 new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8), BottomMargin = Dp(14) });
+            if (outcome.Template == "相遇背景重建")
+                panel.AddView(Text("原相遇条件无法满足这些编辑值，以下方案会重建来源（可能改为孵化）。请核对后台调整，确认后才保存。", 12, "#D6FF63"),
+                    new LinearLayout.LayoutParams(-1, -2) { BottomMargin = Dp(12) });
             var preview = new LinearLayout(this) { Orientation = Orientation.Vertical };
             foreach (var category in new[] { 0, 1, 2 })
             {
@@ -437,6 +456,8 @@ public sealed class EditCopyActivity : Activity
         ("来源游戏", $"{p.Version}"), ("训练家", $"{p.OriginalTrainerName} / {p.TID16} / {p.SID16} / {p.OriginalTrainerGender}"),
         ("相遇地点 / 等级", $"{p.MetLocation} / {p.MetLevel}"), ("蛋地点", $"{p.EggLocation}"),
         ("相遇日期", $"{p.MetDate}"), ("蛋日期", $"{p.EggMetDate}"),
+        ("相遇场景", p is PK4 ground ? names.groundtiletypes.ElementAtOrDefault((int)ground.GroundTile) ?? $"未知 ({(int)ground.GroundTile})" : "当前格式不记录"),
+        ("命运相遇标记", p.FatefulEncounter ? "有" : "无"),
         ("精灵球 / 语言", $"{p.Ball} / {p.Language}"), ("亲密度", $"{p.CurrentFriendship}"),
     ];
 
