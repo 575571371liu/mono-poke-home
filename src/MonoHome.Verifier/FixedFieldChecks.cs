@@ -54,6 +54,7 @@ static class FixedFieldChecks
         Directory.CreateDirectory(root);
         var rows = new List<object>();
         var errors = new List<string>();
+        var raisedLevels = 0;
         var wild = BoxReader.Read(saves[0]).Select(slot => BoxReader.ReadPokemon(saves[0], slot))
             .First(p => p is PK3 && new LegalityAnalysis(p).Valid && new LegalityAnalysis(p).EncounterMatch is IEncounterSlot3 && p.Species != 201);
         var encounter = (IEncounterSlot3)new LegalityAnalysis(wild).EncounterMatch;
@@ -89,6 +90,20 @@ static class FixedFieldChecks
             || ivReloaded.PID != ivRepair.Pokemon.PID || ivReloaded.EXP != ivRepair.Pokemon.EXP
             || !ivBackup.SequenceEqual(LocalRepository.ReadOriginalBytes(ivRecord)))
             throw new InvalidOperationException("IV repair failed persistence.");
+        var autoRecord = LocalRepository.Upload(editedIVs, Path.Combine(root, "automatic-save"));
+        var autoBackup = LocalRepository.ReadOriginalBytes(autoRecord);
+        autoRecord = LocalRepository.SaveEditedWorking(autoRecord, editedIVs);
+        var autoPokemon = LocalRepository.LoadWorking(autoRecord);
+        if (autoRecord.LegalityStatus != "valid" || !new LegalityAnalysis(autoPokemon).Valid
+            || Differences(Snapshot(editedIVs), Snapshot(autoPokemon)).Any(key => key != "AbilitySlot")
+            || !autoBackup.SequenceEqual(LocalRepository.ReadOriginalBytes(autoRecord)))
+            errors.Add("Automatic save failed PID repair or changed original backup");
+        var rejectedEdit = autoPokemon.Clone();
+        rejectedEdit.Move1 = ushort.MaxValue;
+        var savedBytes = LocalRepository.ReadWorkingBytes(autoRecord);
+        try { LocalRepository.SaveEditedWorking(autoRecord, rejectedEdit); errors.Add("Automatic save accepted impossible edit"); }
+        catch (InvalidOperationException) { }
+        if (!savedBytes.SequenceEqual(LocalRepository.ReadWorkingBytes(autoRecord))) errors.Add("Rejected automatic save changed working data");
         rows.Add(new { label = "Gen3 edited IV correlation", ivRepair.Valid, ivRepair.Changes });
         var migrated = ((PK3)wild).ConvertToPK4();
         if (!new LegalityAnalysis(migrated).Valid) throw new InvalidOperationException("Migrated IV fixture is illegal.");
@@ -132,10 +147,12 @@ static class FixedFieldChecks
         }
         foreach (var path in saves)
         foreach (var slot in BoxReader.Read(path))
+        foreach (var transferred in new[] { false, true })
         {
             var legal = repair(BoxReader.ReadPokemon(path, slot));
             if (!legal.Valid || legal.Pokemon.IsEgg) continue;
-            var baseline = legal.Pokemon;
+            if (transferred && legal.Pokemon is not PK3) continue;
+            var baseline = transferred ? ((PK3)legal.Pokemon).ConvertToPK4() : legal.Pokemon;
             var match = new LegalityAnalysis(baseline).EncounterMatch;
             var met = match.Generation == baseline.Format ? Math.Max(baseline.MetLevel, match.LevelMin) : match.LevelMin;
             var baseEXP = Experience.GetEXP((byte)met, PersonalTable.HGSS[match.Species].EXPGrowth);
@@ -147,13 +164,30 @@ static class FixedFieldChecks
                 var required = baseEXP + (uint)Math.Max(1, EffortExpLegality.GetRequiredEffortEXP(evs, 0, edited.IsPokerusInfected, match.Generation, edited.Format));
                 var oracle = edited.Clone();
                 oracle.EXP = Math.Max(oracle.EXP, required);
-                var expected = oracle.CurrentLevel == edited.CurrentLevel && new LegalityAnalysis(oracle).Valid;
+                var expected = new LegalityAnalysis(oracle).Valid;
                 var input = edited.Data.ToArray();
                 var outcome = repair(edited);
                 if (expected && !outcome.Valid) errors.Add($"EV {Path.GetFileName(path)} {slot.Box}-{slot.Slot} #{edited.Species}: {outcome.FailureReason}");
                 if (!input.SequenceEqual(edited.Data) || (!outcome.Valid && !input.SequenceEqual(outcome.Pokemon.Data))) errors.Add("EV repair mutated input or rejected data");
-                if (outcome.Valid && (!new LegalityAnalysis(outcome.Pokemon).Valid || Differences(Snapshot(edited), Snapshot(outcome.Pokemon)).Any(key => key != "AbilitySlot"))) errors.Add("EV repair changed protected fields or accepted illegal data");
-                rows.Add(new { label = $"EV {Path.GetFileName(path)} {slot.Box}-{slot.Slot} #{edited.Species}", evs, expected, outcome.Valid, beforeReport = before.Report(), outcome.FailureReason });
+                if (outcome.Valid && (!new LegalityAnalysis(outcome.Pokemon).Valid || Differences(Snapshot(edited), Snapshot(outcome.Pokemon)).Any(key => key is not ("AbilitySlot" or "Level" or "Stats")))) errors.Add("EV repair changed protected fields or accepted illegal data");
+                if (expected && outcome.Valid && outcome.Pokemon.EXP != oracle.EXP) errors.Add("EV repair must use minimum required EXP");
+                if (outcome.Valid && outcome.Pokemon.CurrentLevel > edited.CurrentLevel)
+                {
+                    raisedLevels++;
+                    var restored = outcome.Pokemon.Clone();
+                    restored.EXP = edited.EXP;
+                    if (!restored.Data.SequenceEqual(input)) errors.Add("EV level repair changed bytes outside EXP");
+                    if (raisedLevels == 1)
+                    {
+                        var stored = LocalRepository.Upload(edited, root);
+                        var backup = LocalRepository.ReadOriginalBytes(stored);
+                        var reloaded = LocalRepository.LoadWorking(LocalRepository.SaveEditedWorking(stored, edited));
+                        if (!new LegalityAnalysis(reloaded).Valid || reloaded.EXP != outcome.Pokemon.EXP
+                            || Differences(Snapshot(outcome.Pokemon), Snapshot(reloaded)).Length != 0
+                            || !backup.SequenceEqual(LocalRepository.ReadOriginalBytes(stored))) errors.Add("EV level repair failed persistence or changed backup");
+                    }
+                }
+                rows.Add(new { label = $"EV {Path.GetFileName(path)} {slot.Box}-{slot.Slot} #{edited.Species} transferred={transferred}", evs, expected, outcome.Valid, beforeReport = before.Report(), outcome.FailureReason });
             }
         }
         foreach (var path in saves)
@@ -275,6 +309,8 @@ static class FixedFieldChecks
                 errors.Add($"language {language}: standard name repair failed");
             rows.Add(new { label = $"standard-name language {language}", expected, actual = outcome.Pokemon.Nickname, outcome.Valid });
         }
+        if (raisedLevels == 0) errors.Add("EV tests must cover automatic level increases");
+        Console.WriteLine($"EV automatic level increases verified: {raisedLevels}; no evolution or move changes.");
         var resultPath = Path.Combine(root, "fixed-field-results.json");
         File.WriteAllText(resultPath, JsonSerializer.Serialize(new { errors, rows }, new JsonSerializerOptions { WriteIndented = true }));
         Console.WriteLine($"Fixed-field checks: {rows.Count} cases; {errors.Count} failures; evidence: {resultPath}");

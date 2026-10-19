@@ -22,6 +22,12 @@ public sealed class EditCopyActivity : Activity
     TextView identity = null!;
     ImageView sprite = null!;
     bool standardNickname;
+    TextView legalitySummary = null!;
+    TextView legalityDetails = null!;
+    TextView headerLegality = null!;
+    readonly Handler legalityHandler = new(Looper.MainLooper!);
+    Java.Lang.Runnable? pendingLegality;
+    PKM? pendingEdit;
 
     int Dp(float value) => (int)(value * Resources!.DisplayMetrics!.Density + .5f);
     global::Android.Graphics.Drawables.GradientDrawable Panel(string fill = "#12201F", string stroke = "#315249")
@@ -93,7 +99,8 @@ public sealed class EditCopyActivity : Activity
         identity.SetPadding(Dp(14), 0, 0, 0);
         headerRow.AddView(identity);
         UpdateIdentity(current.Species);
-        header.AddView(Text(new LegalityAnalysis(current).Valid ? "● 合法性检查通过" : "● 有待检查项目", 12, "#8DE4D1"));
+        headerLegality = Text("", 12, "#8DE4D1");
+        header.AddView(headerLegality);
         header.AddView(Text("未修改的属性保持原值，原始备份始终保留。", 11, "#91AAA1"));
 
         var basic = Card(content, "基本信息");
@@ -109,6 +116,7 @@ public sealed class EditCopyActivity : Activity
         {
             fields["Nickname"].Text = SpeciesName.GetSpeciesNameGeneration(current.Species, current.Language, current.Generation);
             standardNickname = true;
+            QueueLegality();
         };
         nicknameRow.AddView(normalize, new LinearLayout.LayoutParams(Dp(86), Dp(46)) { LeftMargin = Dp(8) });
         Input(basic, "Level", "等级", current.CurrentLevel);
@@ -158,25 +166,53 @@ public sealed class EditCopyActivity : Activity
         status.AddView(more, new LinearLayout.LayoutParams(-1, Dp(44)));
         status.AddView(virus);
         var legality = Card(content, "合法性检查");
-        var analysis = new LegalityAnalysis(current);
-        legality.AddView(Text(analysis.Valid ? "已通过合法性检查" : "存在待检查项目，可预览合法化更新", 13, analysis.Valid ? "#8DE4D1" : "#D6FF63"));
-        var details = Text(analysis.Report(), 12, "#91AAA1");
+        legalitySummary = Text("", 13, "#D6FF63");
+        legality.AddView(legalitySummary);
+        var details = legalityDetails = Text("", 12, "#91AAA1");
         details.Visibility = global::Android.Views.ViewStates.Gone;
         var expand = Action("查看详细报告  ▾");
         expand.Click += (_, _) => details.Visibility = details.Visibility == global::Android.Views.ViewStates.Gone ? global::Android.Views.ViewStates.Visible : global::Android.Views.ViewStates.Gone;
         legality.AddView(expand, new LinearLayout.LayoutParams(-1, Dp(44)) { TopMargin = Dp(8) });
         legality.AddView(details);
-        root.AddView(Text("保存仅更新编辑内容；合法化需预览并确认。", 11, "#91AAA1"), new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8), BottomMargin = Dp(8) });
+        root.AddView(Text("保存会自动检查并尝试修复；后台调整需确认，原始备份保留。", 11, "#91AAA1"), new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(8), BottomMargin = Dp(8) });
         var actions = Row(root);
         legalize = Action("合法化预览");
         save = Action("保存编辑", true);
         legalize.Click += async (_, _) => await PreviewLegalization();
-        save.Click += (_, _) => SaveEdit();
+        save.Click += async (_, _) => await PreviewLegalization(true);
         actions.AddView(legalize, new LinearLayout.LayoutParams(0, Dp(48), 1) { RightMargin = Dp(10) });
         actions.AddView(save, new LinearLayout.LayoutParams(0, Dp(48), 1));
         root.FocusableInTouchMode = true;
         root.RequestFocus();
         SetContentView(root);
+        QueueLegality();
+    }
+    void QueueLegality()
+    {
+        pendingEdit = null;
+        if (legalityDetails is null) return;
+        if (pendingLegality is not null) legalityHandler.RemoveCallbacks(pendingLegality);
+        legalitySummary.Text = "正在检查当前编辑内容…";
+        headerLegality.Text = "● 正在检查";
+        legalityDetails.Text = "正在检查当前编辑内容…";
+        pendingLegality = new Java.Lang.Runnable(() =>
+        {
+            if (IsFinishing || IsDestroyed) return;
+            try
+            {
+                var analysis = new LegalityAnalysis(ReadEdit());
+                legalitySummary.Text = analysis.Valid ? "当前编辑已通过合法性检查" : "当前编辑存在待检查项目，保存时将尝试自动修复";
+                headerLegality.Text = analysis.Valid ? "● 合法性检查通过" : "● 当前编辑有待检查项目";
+                legalityDetails.Text = analysis.Report();
+            }
+            catch (Exception ex) { legalitySummary.Text = "当前输入尚未通过检查"; legalityDetails.Text = ex.Message; }
+        });
+        legalityHandler.PostDelayed(pendingLegality, 250);
+    }
+    protected override void OnDestroy()
+    {
+        if (pendingLegality is not null) legalityHandler.RemoveCallbacks(pendingLegality);
+        base.OnDestroy();
     }
     void UpdateIdentity(int species)
     {
@@ -242,6 +278,7 @@ public sealed class EditCopyActivity : Activity
                 selections[key] = filtered[e.Position].Id;
                 button.Text = filtered[e.Position].Name;
                 if (previous != selections[key]) changed?.Invoke();
+                QueueLegality();
                 dialog.Dismiss();
             };
             dialog.Show();
@@ -258,6 +295,7 @@ public sealed class EditCopyActivity : Activity
         input.SetPadding(Dp(10), 0, Dp(10), 0);
         input.Background = Panel("#0B1917");
         fields[key] = input;
+        input.TextChanged += (_, _) => QueueLegality();
         return input;
     }
     void Input(LinearLayout parent, string key, string label, object value, bool numeric = true)
@@ -271,13 +309,14 @@ public sealed class EditCopyActivity : Activity
         var toggle = new Switch(this) { Text = label, Checked = value, TextSize = 13, ContentDescription = label };
         toggle.SetTextColor(global::Android.Graphics.Color.ParseColor("#E9F4EF"));
         flags[key] = toggle;
-        toggle.CheckedChange += (_, _) => UpdateIdentity(current.Species);
+        toggle.CheckedChange += (_, _) => { UpdateIdentity(current.Species); QueueLegality(); };
         parent.AddView(toggle, new LinearLayout.LayoutParams(-1, Dp(44)));
     }
     int Number(string key) => int.TryParse(fields[key].Text?.Trim(), out var value) ? value : throw new FormatException($"请填写有效的{fields[key].ContentDescription}。");
     int? Changed(string key, int original) => selections[key] == original ? null : selections[key];
     int CurrentAbilityIndex => Math.Max(0, current.PersonalInfo.GetIndexOfAbility(current.Ability));
-    PKM ReadEdit()
+    PKM ReadEdit() => pendingEdit ??= BuildEdit();
+    PKM BuildEdit()
     {
         // Pass only changed identity fields so opening and saving cannot normalize original data.
         var edited = LocalRepository.ApplyEdit(current, new WorkingEdit(
@@ -291,21 +330,15 @@ public sealed class EditCopyActivity : Activity
             edited.IsNicknamed = false;
         return edited;
     }
-    void SaveEdit()
-    {
-        try { Save(ReadEdit()); }
-        catch (Exception ex) { ShowError(ex.Message); }
-    }
-
     void Save(PKM pokemon)
     {
         if (IsFinishing || IsDestroyed) return;
-        record = LocalRepository.SaveWorking(record!, pokemon);
+        record = LocalRepository.SaveEditedWorking(record!, pokemon);
         SetResult(Result.Ok, new global::Android.Content.Intent().PutExtra("repository_id", record.Id));
         Finish();
     }
 
-    async Task PreviewLegalization()
+    async Task PreviewLegalization(bool saveIfUnchanged = false)
     {
         save.Enabled = legalize.Enabled = false;
         try
@@ -314,6 +347,7 @@ public sealed class EditCopyActivity : Activity
             var outcome = await Task.Run(() => LocalRepository.RepairPreservingFields(edited));
             if (IsFinishing || IsDestroyed) return;
             if (!outcome.Valid) { ShowError(outcome.FailureReason ?? "无法生成合法结果；当前工作副本未修改。"); return; }
+            if (saveIfUnchanged && outcome.Pokemon.Data.SequenceEqual(edited.Data)) { Save(outcome.Pokemon); return; }
             var sourceFields = Describe(current);
             var targetFields = Describe(outcome.Pokemon);
             var editedFields = Describe(edited).ToDictionary(field => field.Name, field => field.Value);
@@ -330,11 +364,11 @@ public sealed class EditCopyActivity : Activity
             foreach (var category in new[] { 0, 1, 2 })
             {
                 var group = changes.Where(pair => (pair.First.Name.EndsWith("能力值", StringComparison.Ordinal) ? 1
-                    : pair.First.Name is "PID" or "经验值" || editedFields[pair.First.Name] == pair.First.Value ? 2 : 0) == category).ToArray();
+                    : pair.First.Name is "PID" or "经验值" || editedFields[pair.First.Name] != pair.Second.Value ? 2 : 0) == category).ToArray();
                 if (group.Length == 0) continue;
                 var card = Card(preview, category == 0 ? "你的修改" : category == 1 ? "能力值变化" : "后台调整");
                 if (category != 0)
-                    card.AddView(Text(category == 1 ? "根据性格、个体值和努力值自动计算。" : "自动维护数据关联与合法性。", 11, "#91AAA1"),
+                    card.AddView(Text(category == 1 ? "根据等级、性格、个体值和努力值自动计算。" : "自动维护数据关联与合法性；努力值训练所需经验可能提高等级，不触发进化或更换招式。", 11, "#91AAA1"),
                         new LinearLayout.LayoutParams(-1, -2) { BottomMargin = Dp(10) });
                 var headings = Row(card);
                 foreach (var label in new[] { "项目", "修改前", "修改后" })

@@ -26,7 +26,7 @@ public partial class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.12";
+    const string CurrentVersion = "1.2.13";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -3088,7 +3088,7 @@ public partial class MainActivity : Activity
                     var nextMoves = new[] { current.Move1, current.Move2, current.Move3, current.Move4 };
                     nextMoves[slot] = selectedMove;
                     var edited = LocalRepository.ApplyEdit(current, new WorkingEdit(null, null, null, null, null, null, Moves: nextMoves.Select(move => (int)move).ToArray()));
-                    var updated = LocalRepository.SaveWorking(record, edited);
+                    var updated = LocalRepository.SaveEditedWorking(record, edited);
                     dialog.Dismiss();
                     storedPokemon = updated;
                     RefreshWarehouse(updated.Id);
@@ -3442,9 +3442,9 @@ public partial class MainActivity : Activity
                 Form: ParseOptional(formInput),
                 Shiny: ParseOptionalBool(shinyInput),
                 Egg: ParseOptionalBool(eggInput)));
-            LocalRepository.SaveWorking(storedPokemon, pokemon);
+            LocalRepository.SaveEditedWorking(storedPokemon, pokemon);
             RefreshWarehouse(storedPokemon.Id);
-            status.Text = "已保存到工作副本；导出前仍会进行目标存档合法性检查。";
+            status.Text = "已自动修复并通过合法性检查，保存到工作副本。";
         }
         catch (Exception ex)
         {

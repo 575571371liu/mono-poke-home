@@ -175,6 +175,17 @@ public static class LocalRepository
         return WarehouseDatabase.Update(stored, EntityBytes(pokemon), pokemon.Species, LegalityStatus(pokemon));
     }
 
+    public static StoredPokemon SaveEditedWorking(StoredPokemon stored, PKM pokemon)
+    {
+        var outcome = RepairPreservingFields(pokemon);
+        if (!outcome.Valid) throw new InvalidOperationException(outcome.FailureReason);
+        var bytes = EntityBytes(outcome.Pokemon);
+        var persisted = EntityFormat.GetFromBytes(bytes)!;
+        if (!new LegalityAnalysis(persisted).Valid)
+            throw new InvalidDataException("修复结果回读后未通过合法性检查，未保存。");
+        return WarehouseDatabase.Update(stored, bytes, persisted.Species, "valid");
+    }
+
     public static StoredPokemon ApplyTradeEvolution(StoredPokemon stored, GameVersion game, MonoHome.Core.Pokemon.EvolutionNodeKey target)
     {
         var source = LoadWorking(stored);
@@ -193,7 +204,7 @@ public static class LocalRepository
         catch { return "stale"; }
     }
 
-    /// <summary>Preserves fixed fields, except explicitly authorized fixed NPC names.</summary>
+    /// <summary>Preserves user fields, allowing required training EXP/levels and authorized NPC names.</summary>
     public static RepairOutcome RepairPreservingFields(PKM source)
     {
         try
@@ -263,16 +274,15 @@ public static class LocalRepository
         }
         if (analysis.Results.Any(r => r.Result is LegalityCheckResultCode.EffortUntrainedCap_0 or LegalityCheckResultCode.EffortUntrainedMoreEXP_0))
         {
-            var metLevel = Math.Max(source.MetLevel, analysis.EncounterMatch.LevelMin);
+            var metLevel = analysis.EncounterMatch.Generation == source.Format
+                ? Math.Max(source.MetLevel, analysis.EncounterMatch.LevelMin) : analysis.EncounterMatch.LevelMin;
             var growth = PersonalTable.HGSS[analysis.EncounterMatch.Species].EXPGrowth;
             var baseEXP = Experience.GetEXP((byte)metLevel, growth);
             Span<int> evs = stackalloc int[6];
             source.GetEVs(evs);
-            var required = baseEXP + (uint)Math.Max(1, EffortExpLegality.GetRequiredEffortEXP(evs, 0, source.IsPokerusInfected, source.Generation, source.Format));
+            var required = baseEXP + (uint)Math.Max(1, EffortExpLegality.GetRequiredEffortEXP(evs, 0, source.IsPokerusInfected, analysis.EncounterMatch.Generation, source.Format));
             candidate.EXP = Math.Max(source.EXP, required);
-            if (candidate.CurrentLevel != source.CurrentLevel)
-                return new(source.Clone(), false, "固定属性", [], "这些努力值需要更多经验值，补足经验会改变等级；当前数据未修改。请调整努力值或等级后重新预览。");
-            changes.Add($"补足努力值训练所需经验，等级不变：{source.EXP} → {candidate.EXP}");
+            changes.Add($"补足努力值训练所需经验：{source.EXP} → {candidate.EXP}；等级 {source.CurrentLevel} → {candidate.CurrentLevel}，不进化、不更换招式");
         }
         if (IsLegal(candidate))
             return new(candidate, true, "固定属性", changes);
@@ -301,6 +311,7 @@ public static class LocalRepository
         if (source.Generation == 4 && source.Gender is 0 or 1)
             pids.Add(source.Gender == 1 ? CuteCharm4.GetPIDFemale((uint)source.Nature)
                 : CuteCharm4.GetPIDMale(source.PersonalInfo.Gender, (uint)source.Nature));
+        string? candidateFailure = null;
         foreach (var pid in pids.Distinct())
         {
             candidate.PID = pid;
@@ -308,11 +319,18 @@ public static class LocalRepository
                 || EntityGender.GetFromPID(source.Species, pid) != source.Gender
                 || source.PersonalInfo.GetAbilityAtIndex((int)(pid & 1)) != source.Ability)
                 continue;
-            if (!IsLegal(candidate))
+            var candidateAnalysis = new LegalityAnalysis(candidate);
+            if (!candidateAnalysis.Valid)
+            {
+                candidateFailure = candidateAnalysis.Report();
                 continue;
+            }
             changes.Add($"恢复 PID 与个体值、性格、性别、闪光和特性的关联：{source.PID:X8} → {pid:X8}；上述属性不变");
             return new(candidate, true, "固定属性", changes);
         }
+        if (candidateFailure is not null)
+            return new(source.Clone(), false, "固定属性", [],
+                $"已尝试调整 PID、名称与训练经验，但保留当前属性的候选仍未通过相遇等完整校验；当前数据未修改。\n{candidateFailure}");
         return null;
     }
 
