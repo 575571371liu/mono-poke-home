@@ -26,7 +26,7 @@ public partial class MainActivity : Activity
     const int EmeraldRequest = 10;
     const int HeartGoldRequest = 11;
     const int AnySaveRequest = 14;
-    const string CurrentVersion = "1.2.14";
+    const string CurrentVersion = "1.2.15";
     const string ReleaseApiUrl = "https://api.github.com/repos/575571371liu/mono-poke-home/releases/latest";
     const string EmeraldSaveKey = "emerald-save-id";
     const string HeartGoldSaveKey = "heartgold-save-id";
@@ -2674,7 +2674,7 @@ public partial class MainActivity : Activity
         var body = new LinearLayout(this) { Orientation = Orientation.Vertical };
         scroll.AddView(body);
 
-        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+        var header = new LinearLayout(this) { Orientation = Orientation.Horizontal, BaselineAligned = false };
         header.SetGravity(GravityFlags.Top);
         var identity = new LinearLayout(this) { Orientation = Orientation.Vertical };
         identity.SetGravity(GravityFlags.CenterHorizontal);
@@ -2692,39 +2692,45 @@ public partial class MainActivity : Activity
         identity.AddView(pokemonName, new LinearLayout.LayoutParams(-1, -2));
         var types = new LinearLayout(this) { Orientation = Orientation.Horizontal };
         types.SetGravity(GravityFlags.Center);
-        // Pokémon.com Pokédex colors, in PKHeX type order.
-        string[] typeColors = ["#A4ACAF", "#D56723", "#3DC7EF", "#B97FC9", "#F7DE3F", "#A38C21", "#729F3F", "#7B62A3", "#9EB7B8", "#FD7D24", "#4592C4", "#9BCC50", "#EED535", "#F366B9", "#51C4E7", "#53A4CF", "#707070", "#FDB9E9"];
         foreach (var type in new[] { pokemon.PersonalInfo.Type1, pokemon.PersonalInfo.Type2 }.Distinct())
         {
-            var fill = type < typeColors.Length ? typeColors[type] : "#616161";
-            var badge = Text(StringAt(strings.Types, type, "未知属性"), 11, type is 7 or 16 ? "#FFFFFF" : "#212121", true);
-            badge.Gravity = GravityFlags.Center;
-            badge.SetPadding(Dp(6), Dp(4), Dp(6), Dp(4));
-            badge.ContentDescription = $"属性：{badge.Text}";
-            var background = Panel(fill, fill, 6);
-            var second = type switch { 2 => "#BDB9B8", 4 => "#AB9842", 15 => "#F16E57", _ => fill };
-            background.SetOrientation(GradientDrawable.Orientation.TopBottom);
-            background.SetColors([Color.ParseColor(fill).ToArgb(), Color.ParseColor(fill).ToArgb(), Color.ParseColor(second).ToArgb(), Color.ParseColor(second).ToArgb()], [0f, 0.5f, 0.5f, 1f]);
-            badge.Background = background;
+            var typeName = StringAt(strings.Types, type, "未知属性");
+            var badge = new LinearLayout(this) { Orientation = Orientation.Horizontal };
+            badge.SetGravity(GravityFlags.CenterVertical);
+            badge.AddView(TypeBadge(type, typeName), new LinearLayout.LayoutParams(Dp(16), Dp(20)));
+            var label = Text(typeName, 10, "#DCEBE6", true);
+            label.SetSingleLine(true);
+            badge.AddView(label, new LinearLayout.LayoutParams(-2, -2) { LeftMargin = Dp(2) });
             types.AddView(badge, new LinearLayout.LayoutParams(-2, -2) { LeftMargin = Dp(2), RightMargin = Dp(2) });
         }
         identity.AddView(types, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(6) });
         var level = Text($"Lv.{pokemon.CurrentLevel}", 11, "#8DE4D1");
         level.Gravity = GravityFlags.Center;
         identity.AddView(level, new LinearLayout.LayoutParams(-1, -2) { TopMargin = Dp(3) });
-        header.AddView(identity, new LinearLayout.LayoutParams(0, -2, 0.36f));
+        header.AddView(identity, new LinearLayout.LayoutParams(0, -1, 0.36f));
         var heading = new LinearLayout(this) { Orientation = Orientation.Vertical };
         heading.SetPadding(Dp(12), 0, 0, 0);
-        header.AddView(heading, new LinearLayout.LayoutParams(0, -2, 0.64f));
+        header.AddView(heading, new LinearLayout.LayoutParams(0, -1, 0.64f));
         var training = Card(
-            $"{(pokemon.IsShiny ? "闪光" : "普通")} · {GenderText(pokemon.Gender)} · {(pokemon.IsEgg ? "蛋" : "已孵化")}",
-            $"{(pokemon.IsEgg ? "尚未孵化" : "可正常使用")} · 形态 {pokemon.Form}",
-            $"性格  {nature} · 特性  {ability}",
-            $"道具  {item} · 状态  {StatusText(pokemon)}");
-        var effectLine = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 10, "#8DE4D1");
-        effectLine.SetPadding(0, Dp(2), 0, 0);
+            $"闪光  {(pokemon.IsShiny ? "是" : "否")}",
+            $"性别  {GenderText(pokemon.Gender)}",
+            $"孵化状态  {(pokemon.IsEgg ? "蛋" : "已孵化")}",
+            $"性格  {nature}",
+            $"特性  {ability}",
+            $"道具  {item}",
+            $"异常状态  {StatusText(pokemon)}");
+        training.SetPadding(Dp(14), Dp(14), Dp(14), Dp(14));
+        for (var i = 0; i < training.ChildCount; i++)
+        {
+            if (training.GetChildAt(i) is not TextView row) continue;
+            row.TextSize = 12;
+            row.SetPadding(0, Dp(3), 0, Dp(4));
+        }
+        var effectLine = Text($"效果    {AbilityEffectText(ability) ?? "当前未收录该特性的详细效果。"}", 11, "#8DE4D1");
+        effectLine.SetPadding(0, Dp(4), 0, 0);
+        effectLine.SetLineSpacing(Dp(3), 1f);
         training.AddView(effectLine);
-        heading.AddView(training, new LinearLayout.LayoutParams(-1, -2));
+        heading.AddView(training, new LinearLayout.LayoutParams(-1, -1));
         body.AddView(header);
 
         var evolutionGame = guideGame ?? (warehouseRecord is not null
